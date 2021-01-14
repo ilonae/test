@@ -1,7 +1,8 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core';
-import TopBar from './TopBar';
+import BottomBar from '../DashboardLayout/BottomBar/BottomBar';
+// import BottomBar from '../DashboardLayout/BottomBar/BottomBar';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -15,7 +16,7 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flex: '1 1 auto',
     overflow: 'hidden',
-    paddingTop: 64
+    paddingTop: 0
   },
   contentContainer: {
     display: 'flex',
@@ -34,7 +35,7 @@ const MainLayout = () => {
 
   return (
     <div className={classes.root}>
-      <TopBar />
+      <BottomBar />
       <div className={classes.wrapper}>
         <div className={classes.contentContainer}>
           <div className={classes.content}>

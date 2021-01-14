@@ -5,27 +5,27 @@ import {
   makeStyles
 } from '@material-ui/core';
 import Page from 'src/components/Page';
-import Profile from './Profile';
-import ProfileDetails from './ProfileDetails';
+import FilterRepresentation from './dashboard/Filter/FilterRepresentation';
+import ImagesContainer from './dashboard/Images/ImagesContainer';
 
 const useStyles = makeStyles((theme) => ({
   root: {
     backgroundColor: theme.palette.background.dark,
     minHeight: '100%',
     paddingBottom: theme.spacing(3),
-    paddingTop: theme.spacing(3)
+    paddingTop: theme.spacing(0)
   }
 }));
 
-const Account = () => {
+const Dashboard = () => {
   const classes = useStyles();
 
   return (
     <Page
       className={classes.root}
-      title="Account"
+      title="Dashboard"
     >
-      <Container maxWidth="lg">
+      <Container maxWidth={false}>
         <Grid
           container
           spacing={3}
@@ -34,17 +34,20 @@ const Account = () => {
             item
             lg={4}
             md={6}
+            xl={3}
             xs={12}
           >
-            <Profile />
+            <ImagesContainer />
           </Grid>
+
           <Grid
             item
             lg={8}
-            md={6}
+            md={12}
+            xl={9}
             xs={12}
           >
-            <ProfileDetails />
+            <FilterRepresentation />
           </Grid>
         </Grid>
       </Container>
@@ -52,4 +55,4 @@ const Account = () => {
   );
 };
 
-export default Account;
+export default Dashboard;
