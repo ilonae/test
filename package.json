@@ -4,11 +4,14 @@
   "licence": "MIT",
   "version": "1.0.0",
   "private": false,
+  "proxy": "http://localhost:5000/",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "client": "npm run start",
+    "server": "nodemon server.js",
+    "dev": "concurrently --kill-others-on-fail \"npm run server\" \"npm run client\""
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -28,29 +31,25 @@
   "dependencies": {
     "@material-ui/core": "^4.11.0",
     "@material-ui/icons": "^4.9.1",
-    "@material-ui/lab": "^4.0.0-alpha.56",
-    "@material-ui/styles": "^4.10.0",
-    "chart.js": "^2.9.4",
+    "body-parser": "^1.18.3",
     "clsx": "^1.1.1",
-    "formik": "^2.1.5",
+    "express": "^4.17.1",
     "history": "^5.0.0",
-    "lodash": "^4.17.19",
-    "moment": "^2.27.0",
-    "nprogress": "^0.2.0",
+    "http": "0.0.1-security",
     "prop-types": "^15.7.2",
     "react": "^16.13.1",
-    "react-chartjs-2": "^2.10.0",
     "react-dom": "^16.13.1",
-    "react-feather": "^2.0.8",
     "react-helmet": "^6.1.0",
+    "react-number-format": "^4.4.4",
     "react-perfect-scrollbar": "^1.5.8",
-    "react-router": "^6.0.0-beta.0",
-    "react-router-dom": "^6.0.0-beta.0",
+    "react-router": "^5.2.0",
+    "react-router-dom": "^5.2.0",
     "react-scripts": "^4.0.0",
-    "uuid": "^8.3.0",
-    "yup": "^0.29.3"
+    "request-promise": "^4.2.6",
+    "serve": "^11.3.2"
   },
   "devDependencies": {
+    "concurrently": "^4.0.1",
     "eslint": "^7.11.0",
     "eslint-config-airbnb": "^18.2.0",
     "eslint-config-prettier": "^6.11.0",
