@@ -7,13 +7,13 @@ import { Box, CardContent, makeStyles } from '@material-ui/core';
 const useStyles = makeStyles(() => ({
   root: {
     width: '92%',
-    paddingBottom: '20%',
     position: 'absolute',
     backgroundColor: 'yellow'
   },
   image: {
     width: '100px',
-    height: '100px'
+    height: '100px',
+    margin: '3px'
   }
 }));
 

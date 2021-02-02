@@ -1,20 +1,20 @@
 import React from 'react';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import {
-  Box,
-  Card,
-  CardContent,
-  makeStyles,
-  Typography
-} from '@material-ui/core';
+import { Card, CardContent, makeStyles } from '@material-ui/core';
 import FilterBox from './FilterBox';
+import LayerSwitch from './LayerSwitch';
+import SortingSwitch from './SortingSwitch';
 
 const useStyles = makeStyles(() => ({
   root: {
     height: '90vh',
     position: 'relative',
     overflow: 'auto'
+  },
+  content: {
+    display: 'flex',
+    flexDirection: 'row'
   }
 }));
 
@@ -23,6 +23,7 @@ const FilterContainer = ({ parentCallback, viewState, layerState }) => {
   const [layer, setLayer] = React.useState(layerState);
   const [filters, setFilter] = React.useState('');
   const [count, setCount] = React.useState(1);
+  const [order, setOrder] = React.useState('max');
 
   const classes = useStyles();
 
@@ -39,7 +40,7 @@ const FilterContainer = ({ parentCallback, viewState, layerState }) => {
       body: JSON.stringify({
         layer: count,
         filter_indices: `${0}:${6}`,
-        sorting: 'max',
+        sorting: order,
         sample_indices: '0:9',
         image_index: layer
       })
@@ -67,9 +68,18 @@ const FilterContainer = ({ parentCallback, viewState, layerState }) => {
     });
   }
 
-  React.useEffect(() => {
-    getFilters();
-  }, []);
+  const indexCallback = (value) => {
+    setCount(value);
+  };
+
+  const sortingCallback = (value) => {
+    console.log(value);
+    if (value === true) {
+      setOrder('max');
+    } else {
+      setOrder('min');
+    }
+  };
 
   React.useEffect(() => {
     parentCallback(isFilterView);
@@ -78,18 +88,17 @@ const FilterContainer = ({ parentCallback, viewState, layerState }) => {
   React.useEffect(() => {
     setLayer(layerState);
     getFilters();
-  }, [layerState]);
+  }, [layerState, count, order]);
 
   return (
     <Card className={clsx(classes.root)}>
       <CardContent>
-        <Box position="relative">
-          <Typography onClick={() => setCount(count + 1)}>
-            Selected Layer:
-            {count}
-          </Typography>
-          {filters}
-        </Box>
+        <div className={clsx(classes.content)}>
+          <LayerSwitch parentCallback={indexCallback} />
+
+          <SortingSwitch parentCallback={sortingCallback} />
+        </div>
+        {filters}
       </CardContent>
     </Card>
   );
