@@ -1,5 +1,5 @@
 import React from 'react';
-import { makeStyles, TextField } from '@material-ui/core';
+import { makeStyles, TextField, Grid } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import ImgBox from './ImgBox';
 import WatershedButton from './WatershedSwitch';
@@ -89,32 +89,34 @@ const ImagesContainer = ({ viewCallback, layerCallback, viewState }) => {
   getHeatmap();
 
   return (
-    <div>
-      <WatershedButton />
-      {' '}
-      <TextField
-        name="index"
-        label="Selected index"
-        type="number"
-        InputProps={{
-          inputProps: {
-            max: 100,
-            min: 10
+    <Grid container spacing={3}>
+      <Grid item lg={12} md={12} xl={12} xs={12}>
+        <WatershedButton />
+        {' '}
+        <TextField
+          name="index"
+          label="Selected index"
+          type="number"
+          InputProps={{
+            inputProps: {
+              max: 100,
+              min: 10
+            }
+          }}
+          value={layer}
+          onChange={handleTextFieldChange}
+        />
+        <div
+          className={
+            isExpanded === 'DEFAULTVIEW' ? classes.root : classes.expanded
           }
-        }}
-        value={layer}
-        onChange={handleTextFieldChange}
-      />
-      <div
-        className={
-          isExpanded === 'DEFAULTVIEW' ? classes.root : classes.expanded
-        }
-      >
-        <ImgBox viewType={isExpanded} content={image} />
-        <ImgBox viewType={isExpanded} content={heatmap} />
-      </div>
-      <ExpansionButton callback={callback} viewState={isExpanded} />
-    </div>
+        >
+          <ImgBox viewType={isExpanded} content={image} />
+          <ImgBox viewType={isExpanded} content={heatmap} />
+        </div>
+        <ExpansionButton callback={callback} viewState={isExpanded} />
+      </Grid>
+    </Grid>
   );
 };
 

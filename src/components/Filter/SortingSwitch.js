@@ -22,11 +22,11 @@ const SortingSwitch = ({ parentCallback }) => {
         variant="contained"
         color="default"
         onClick={handleChange}
-        startIcon={descending ? <ArrowDownwardIcon /> : <ArrowUpwardIcon />}
+        startIcon={descending ? <ArrowUpwardIcon /> : <ArrowDownwardIcon />}
       >
         {descending
-          ? 'Sort by maximum contribution'
-          : 'Sort by minimum contribution'}
+          ? 'Sort by lowest contribution'
+          : 'Sort by highest contribution'}
       </Button>
     </Box>
   );

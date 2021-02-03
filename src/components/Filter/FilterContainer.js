@@ -1,7 +1,9 @@
 import React from 'react';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import { Card, CardContent, makeStyles } from '@material-ui/core';
+import {
+  Box, Card, CardContent, makeStyles, Grid
+} from '@material-ui/core';
 import FilterBox from './FilterBox';
 import LayerSwitch from './LayerSwitch';
 import SortingSwitch from './SortingSwitch';
@@ -92,14 +94,22 @@ const FilterContainer = ({ parentCallback, viewState, layerState }) => {
 
   return (
     <Card className={clsx(classes.root)}>
-      <CardContent>
-        <div className={clsx(classes.content)}>
-          <LayerSwitch parentCallback={indexCallback} />
+      <Grid container spacing={3}>
+        <CardContent>
+          <Grid item xs={12}>
+            <div className={clsx(classes.content)}>
+              <LayerSwitch parentCallback={indexCallback} />
 
-          <SortingSwitch parentCallback={sortingCallback} />
-        </div>
-        {filters}
-      </CardContent>
+              <SortingSwitch parentCallback={sortingCallback} />
+            </div>
+          </Grid>
+          <Box mt={6}>
+            <Grid container spacing={3}>
+              {filters}
+            </Grid>
+          </Box>
+        </CardContent>
+      </Grid>
     </Card>
   );
 };

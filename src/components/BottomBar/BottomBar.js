@@ -1,8 +1,6 @@
 import React from 'react';
-import { makeStyles, Card } from '@material-ui/core';
+import { makeStyles, Card, TextField } from '@material-ui/core';
 import BottomNavigation from '@material-ui/core/BottomNavigation';
-import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
-import Brightness1Icon from '@material-ui/icons/Brightness1';
 import clsx from 'clsx';
 import SamplesSwitch from './SamplesSwitch';
 
@@ -36,13 +34,16 @@ const SimpleBottomNavigation = () => {
         showLabels
         className={clsx(classes.navbar)}
       >
-        <BottomNavigationAction
-          label="Positive Contribution"
-          icon={<Brightness1Icon />}
-        />
-        <BottomNavigationAction
-          label="Negative Contribution"
-          icon={<Brightness1Icon />}
+        <TextField
+          name="index"
+          label="Selected index"
+          type="number"
+          InputProps={{
+            inputProps: {
+              max: 100,
+              min: 10
+            }
+          }}
         />
 
         <SamplesSwitch />

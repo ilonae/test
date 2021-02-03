@@ -1,27 +1,9 @@
 import React from 'react';
-import clsx from 'clsx';
 import PropTypes from 'prop-types';
 
-import {
-  Box, CardContent, Typography, makeStyles
-} from '@material-ui/core';
+import { Box, Grid, Typography } from '@material-ui/core';
 
 import FilterSample from './FilterSample';
-
-const useStyles = makeStyles(() => ({
-  root: {
-    float: 'left',
-    width: '30%',
-    paddingBottom: '30%' /* = width for a 1:1 aspect ratio */,
-    margin: '1.66%',
-    display: 'grid',
-    gridTemplateColumns: 'auto auto auto',
-    position: 'relative'
-  },
-  text: {
-    padding: '2%'
-  }
-}));
 
 const FilterBox = ({
   name,
@@ -33,7 +15,6 @@ const FilterBox = ({
 }) => {
   const [isFilterView, changeView] = React.useState(viewState);
   const [imgs, setImgs] = React.useState([]);
-  const classes = useStyles();
   const callback = (value) => {
     changeView(value);
   };
@@ -46,28 +27,25 @@ const FilterBox = ({
   }, [images]);
 
   return (
-    <Box className={clsx(classes.root)}>
-      <CardContent>
-        <Typography className={clsx(classes.text)}>
+    <Grid item xl={4} lg={4} md={6} xs={6}>
+      <Box mx={3} style={{ wordWrap: 'break-word' }}>
+        <Typography>
           Filter:
-          {' '}
           {filterIndex}
-          {' '}
         </Typography>
 
-        <Typography className={clsx(classes.text)}>
+        <Typography>
           Contribution:
-          {' '}
           {relevance}
         </Typography>
-        <FilterSample
-          callback={callback}
-          reference={name}
-          images={imgs}
-          viewState={viewState}
-        />
-      </CardContent>
-    </Box>
+      </Box>
+      <FilterSample
+        callback={callback}
+        reference={name}
+        images={imgs}
+        viewState={viewState}
+      />
+    </Grid>
   );
 };
 FilterBox.propTypes = {

@@ -8,6 +8,7 @@ import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 
 const useStyles = makeStyles(() => ({
   root: {
+    width: '100%',
     justifyContent: 'center',
     textAlign: 'center'
   }
