@@ -2,7 +2,7 @@ import React from 'react';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import {
-  Box, Card, CardContent, makeStyles, Grid
+  Box, Card, makeStyles, Grid
 } from '@material-ui/core';
 import FilterBox from './FilterBox';
 import LayerSwitch from './LayerSwitch';
@@ -10,17 +10,18 @@ import SortingSwitch from './SortingSwitch';
 
 const useStyles = makeStyles(() => ({
   root: {
-    height: '90vh',
+    height: '85vh',
     position: 'relative',
     overflow: 'auto'
-  },
-  content: {
-    display: 'flex',
-    flexDirection: 'row'
   }
 }));
 
-const FilterContainer = ({ parentCallback, viewState, layerState }) => {
+const FilterContainer = ({
+  parentCallback,
+  viewState,
+  layerState,
+  filterAmount
+}) => {
   const [isFilterView, changeView] = React.useState(viewState);
   const [layer, setLayer] = React.useState(layerState);
   const [filters, setFilter] = React.useState('');
@@ -41,7 +42,7 @@ const FilterContainer = ({ parentCallback, viewState, layerState }) => {
       },
       body: JSON.stringify({
         layer: count,
-        filter_indices: `${0}:${6}`,
+        filter_indices: `${0}:${filterAmount - 1}`,
         sorting: order,
         sample_indices: '0:9',
         image_index: layer
@@ -94,21 +95,26 @@ const FilterContainer = ({ parentCallback, viewState, layerState }) => {
 
   return (
     <Card className={clsx(classes.root)}>
-      <Grid container spacing={3}>
-        <CardContent>
-          <Grid item xs={12}>
-            <div className={clsx(classes.content)}>
-              <LayerSwitch parentCallback={indexCallback} />
+      <Grid m={6} style={{ width: '100%' }} container spacing={3}>
+        <Grid
+          item
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'center',
+            marginTop: '1em'
+          }}
+          xs={12}
+        >
+          <LayerSwitch parentCallback={indexCallback} />
+          <SortingSwitch parentCallback={sortingCallback} />
+        </Grid>
 
-              <SortingSwitch parentCallback={sortingCallback} />
-            </div>
+        <Box mt={3} px={1}>
+          <Grid container spacing={3}>
+            {filters}
           </Grid>
-          <Box mt={6}>
-            <Grid container spacing={3}>
-              {filters}
-            </Grid>
-          </Box>
-        </CardContent>
+        </Box>
       </Grid>
     </Card>
   );
@@ -117,7 +123,8 @@ const FilterContainer = ({ parentCallback, viewState, layerState }) => {
 FilterContainer.propTypes = {
   parentCallback: PropTypes.func,
   layerState: PropTypes.number,
-  viewState: PropTypes.string
+  viewState: PropTypes.string,
+  filterAmount: PropTypes.number
 };
 
 export default FilterContainer;

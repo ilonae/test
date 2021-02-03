@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { makeStyles } from '@material-ui/core';
+import { makeStyles, Typography } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 
 import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
@@ -23,24 +23,26 @@ const ExpansionButton = ({ callback, viewState }) => {
   }, [view]);
 
   return (
-    <div className={classes.root}>
+    <div>
       {view === 'DEFAULTVIEW' ? (
         <Button
+          className={classes.root}
           variant="contained"
           color="default"
           onClick={() => changeView('IMAGEVIEW')}
           endIcon={<ArrowForwardIosIcon style={{ fontSize: 10 }} />}
         >
-          Expand view
+          <Typography noWrap>Expand view</Typography>
         </Button>
       ) : (
         <Button
+          className={classes.root}
           variant="contained"
           color="default"
           onClick={() => changeView('DEFAULTVIEW')}
           startIcon={<ArrowBackIosIcon style={{ fontSize: 10 }} />}
         >
-          Return
+          <Typography noWrap>Return</Typography>
         </Button>
       )}
     </div>

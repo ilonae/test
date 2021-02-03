@@ -2,7 +2,7 @@ import React from 'react';
 
 import PropTypes from 'prop-types';
 
-import { Box, Button } from '@material-ui/core';
+import { Button, Typography } from '@material-ui/core';
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
 
@@ -17,18 +17,19 @@ const SortingSwitch = ({ parentCallback }) => {
     parentCallback(descending);
   }, [descending]);
   return (
-    <Box>
-      <Button
-        variant="contained"
-        color="default"
-        onClick={handleChange}
-        startIcon={descending ? <ArrowUpwardIcon /> : <ArrowDownwardIcon />}
-      >
+    <Button
+      variant="contained"
+      color="default"
+      style={{ width: '30%', wordWrap: 'break-word', whiteSpace: 'normal' }}
+      onClick={handleChange}
+      startIcon={descending ? <ArrowUpwardIcon /> : <ArrowDownwardIcon />}
+    >
+      <Typography noWrap>
         {descending
           ? 'Sort by lowest contribution'
           : 'Sort by highest contribution'}
-      </Button>
-    </Box>
+      </Typography>
+    </Button>
   );
 };
 SortingSwitch.propTypes = {

@@ -100,9 +100,10 @@ const ImagesContainer = ({ viewCallback, layerCallback, viewState }) => {
           InputProps={{
             inputProps: {
               max: 100,
-              min: 10
+              min: 0
             }
           }}
+          style={{ width: '100%' }}
           value={layer}
           onChange={handleTextFieldChange}
         />
