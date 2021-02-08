@@ -9,9 +9,7 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-const FilterSample = ({
-  callback, viewState, images, reference
-}) => {
+const FilterSample = ({ callback, viewState, images, reference }) => {
   const classes = useStyles();
   const [view, changeView] = React.useState(viewState);
   const [imgState, setImages] = React.useState([]);
@@ -21,13 +19,8 @@ const FilterSample = ({
     for (let i = 0; i < images.length; i++) {
       const img = `data:image/png;base64,${images[i]}`;
       filterImages.push(
-        <Grid item xs={4}>
-          <img
-            src={img}
-            className={classes.image}
-            key={`${reference}_image_index${i}`}
-            alt=""
-          />
+        <Grid item xs={4} key={`${reference}_image_index${i}`}>
+          <img src={img} className={classes.image} alt="" />
         </Grid>
       );
     }

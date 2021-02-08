@@ -14,12 +14,12 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-const ExpansionButton = ({ callback, viewState }) => {
+const ExpansionButton = ({ expansionCallback, viewState }) => {
   const classes = useStyles();
   const [view, changeView] = React.useState(viewState);
 
   React.useEffect(() => {
-    callback(view);
+    expansionCallback(view);
   }, [view]);
 
   return (
@@ -50,7 +50,7 @@ const ExpansionButton = ({ callback, viewState }) => {
 };
 
 ExpansionButton.propTypes = {
-  callback: PropTypes.func,
+  expansionCallback: PropTypes.func,
   viewState: PropTypes.string
 };
 

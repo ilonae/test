@@ -3,14 +3,14 @@ import { Slider, Typography } from '@material-ui/core';
 
 import PropTypes from 'prop-types';
 
-const FilterSlider = ({ callback }) => {
+const FilterSlider = ({ filtersCallback }) => {
   const [amount, changeAmount] = React.useState(6);
   const handleChange = (event, newValue) => {
     changeAmount(newValue);
   };
 
   React.useEffect(() => {
-    callback(amount);
+    filtersCallback(amount);
   }, [amount]);
   return (
     <div>
@@ -29,7 +29,7 @@ const FilterSlider = ({ callback }) => {
 };
 
 FilterSlider.propTypes = {
-  callback: PropTypes.func
+  filtersCallback: PropTypes.func
 };
 
 export default FilterSlider;

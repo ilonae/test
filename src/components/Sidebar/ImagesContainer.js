@@ -5,7 +5,7 @@ import ImgBox from './ImgBox';
 import WatershedButton from './WatershedSwitch';
 import ExpansionButton from './ExpansionButton';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
   root: {
     overflow: 'hidden',
     position: 'relative',
@@ -38,9 +38,9 @@ const ImagesContainer = ({ viewCallback, layerCallback, viewState }) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ image_index: layer })
-    }).then((response) => {
+    }).then(response => {
       if (response.ok) {
-        response.json().then((json) => {
+        response.json().then(json => {
           const obj = JSON.parse(json);
           const img = `data:image/png;base64,${obj.image}`;
           setImage(img);
@@ -56,9 +56,9 @@ const ImagesContainer = ({ viewCallback, layerCallback, viewState }) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ image_index: layer })
-    }).then((response) => {
+    }).then(response => {
       if (response.ok) {
-        response.json().then((json) => {
+        response.json().then(json => {
           const obj = JSON.parse(json);
           const img = `data:image/png;base64,${obj.image}`;
           setHeatmap(img);
@@ -67,7 +67,7 @@ const ImagesContainer = ({ viewCallback, layerCallback, viewState }) => {
     });
   }
 
-  const callback = (value) => {
+  const expansionCallback = value => {
     changeLayout(value);
   };
 
@@ -91,8 +91,7 @@ const ImagesContainer = ({ viewCallback, layerCallback, viewState }) => {
   return (
     <Grid container spacing={3}>
       <Grid item lg={12} md={12} xl={12} xs={12}>
-        <WatershedButton />
-        {' '}
+        <WatershedButton />{' '}
         <TextField
           name="index"
           label="Selected index"
@@ -115,13 +114,17 @@ const ImagesContainer = ({ viewCallback, layerCallback, viewState }) => {
           <ImgBox viewType={isExpanded} content={image} />
           <ImgBox viewType={isExpanded} content={heatmap} />
         </div>
-        <ExpansionButton callback={callback} viewState={isExpanded} />
+        <ExpansionButton
+          expansionCallback={expansionCallback}
+          viewState={isExpanded}
+        />
       </Grid>
     </Grid>
   );
 };
 
 ImagesContainer.propTypes = {
+  expansionCallback: PropTypes.func,
   viewCallback: PropTypes.func,
   layerCallback: PropTypes.func,
   viewState: PropTypes.string

@@ -11,89 +11,92 @@ const Dashboard = () => {
   const [amount, changeAmount] = React.useState(0);
   const [layer, changeLayer] = React.useState(0);
 
-  const viewState = (value) => {
+  const viewState = value => {
     changeLayout(value);
   };
 
-  const layerState = (value) => {
+  const layerState = value => {
     changeLayer(value);
   };
 
-  const filterAmount = (value) => {
+  const filterAmount = value => {
     changeAmount(value);
   };
 
   return (
     <div>
       <Container maxWidth="xl">
-        {(function () {
+        {(function() {
           switch (isExpanded) {
-          case 'IMAGEVIEW':
-            return (
-              <Grid container spacing={3}>
-                <Grid item lg={12} md={12} xl={12} xs={12}>
-                  <ImagesContainer
-                    layerCallback={layerState}
-                    viewCallback={viewState}
-                    viewState={isExpanded}
-                  />
-                  <SimpleBottomNavigation />
+            case 'IMAGEVIEW':
+              return (
+                <Grid container spacing={3}>
+                  <Grid item lg={12} md={12} xl={12} xs={12}>
+                    <ImagesContainer
+                      expansionCallback={viewState}
+                      layerCallback={layerState}
+                      viewCallback={viewState}
+                      viewState={isExpanded}
+                    />
+                    <SimpleBottomNavigation bottomCallback={filterAmount} />
+                  </Grid>
                 </Grid>
-              </Grid>
-            );
-          case 'DEFAULTVIEW':
-            return (
-              <Grid container spacing={3}>
-                <Grid item lg={2} md={2} xl={2} xs={2}>
-                  <ImagesContainer
-                    layerCallback={layerState}
-                    viewCallback={viewState}
-                    viewState={isExpanded}
-                  />
+              );
+            case 'DEFAULTVIEW':
+              return (
+                <Grid container spacing={3}>
+                  <Grid item lg={2} md={2} xl={2} xs={2}>
+                    <ImagesContainer
+                      expansionCallback={viewState}
+                      layerCallback={layerState}
+                      viewCallback={viewState}
+                      viewState={isExpanded}
+                    />
+                  </Grid>
+                  <Grid item lg={10} md={10} xl={10} xs={10}>
+                    <FilterContainer
+                      filterAmount={amount}
+                      parentCallback={viewState}
+                      layerState={layer}
+                      viewState={isExpanded}
+                    />
+                    <SimpleBottomNavigation bottomCallback={filterAmount} />
+                  </Grid>
                 </Grid>
-                <Grid item lg={10} md={10} xl={10} xs={10}>
-                  <FilterContainer
-                    filterAmount={amount}
-                    parentCallback={viewState}
-                    layerState={layer}
-                    viewState={isExpanded}
-                  />
-                  <SimpleBottomNavigation callback={filterAmount} />
+              );
+            case 'FILTERVIEW':
+              return (
+                <Grid container spacing={3}>
+                  <Grid item lg={12} md={12} xl={12} xs={12}>
+                    <NetworkContainer />
+                    <SimpleBottomNavigation bottomCallback={filterAmount} />
+                  </Grid>
                 </Grid>
-              </Grid>
-            );
-          case 'FILTERVIEW':
-            return (
-              <Grid container spacing={3}>
-                <Grid item lg={12} md={12} xl={12} xs={12}>
-                  <NetworkContainer />
-                  <SimpleBottomNavigation callback={filterAmount} />
+              );
+            default:
+              return (
+                <Grid container spacing={3}>
+                  <Grid item lg={2} md={2} xl={2} xs={2}>
+                    <ImagesContainer
+                      expansionCallback={viewState}
+                      layerCallback={layerState}
+                      viewCallback={viewState}
+                      viewState={isExpanded}
+                    />
+                  </Grid>
+                  <Grid item lg={10} md={10} xl={10} xs={10}>
+                    <FilterContainer
+                      filterAmount={amount}
+                      parentCallback={viewState}
+                      layerState={layer}
+                      viewState={isExpanded}
+                    />
+                    <SimpleBottomNavigation bottomCallback={filterAmount} />
+                  </Grid>
                 </Grid>
-              </Grid>
-            );
-          default:
-            return (
-              <Grid container spacing={3}>
-                <Grid item lg={2} md={2} xl={2} xs={2}>
-                  <ImagesContainer
-                    layerCallback={layerState}
-                    viewCallback={viewState}
-                    viewState={isExpanded}
-                  />
-                </Grid>
-                <Grid item lg={10} md={10} xl={10} xs={10}>
-                  <FilterContainer
-                    filterAmount={amount}
-                    parentCallback={viewState}
-                    layerState={layer}
-                    viewState={isExpanded}
-                  />
-                  <SimpleBottomNavigation callback={filterAmount} />
-                </Grid>
-              </Grid>
-            );
+              );
           }
-        }())}
+        })()}
       </Container>
     </div>
   );

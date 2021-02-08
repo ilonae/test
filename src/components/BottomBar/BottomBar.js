@@ -19,23 +19,23 @@ const useStyles = makeStyles({
   }
 });
 
-const SimpleBottomNavigation = ({ callback }) => {
+const SimpleBottomNavigation = ({ bottomCallback }) => {
   const classes = useStyles();
   const [amount, changeAmount] = React.useState(6);
 
-  const filterAmount = (value) => {
+  const filterAmount = value => {
     changeAmount(value);
   };
 
   React.useEffect(() => {
-    callback(amount);
+    bottomCallback(amount);
   }, [amount]);
 
   return (
     <Card className={clsx(classes.root)}>
       <Grid container spacing={8}>
         <Grid item xs={4}>
-          <FilterSlider callback={filterAmount} />
+          <FilterSlider filtersCallback={filterAmount} />
         </Grid>
         <Grid item xs={4}>
           Placeholder
@@ -48,7 +48,7 @@ const SimpleBottomNavigation = ({ callback }) => {
   );
 };
 SimpleBottomNavigation.propTypes = {
-  callback: PropTypes.func
+  bottomCallback: PropTypes.func
 };
 
 export default SimpleBottomNavigation;
