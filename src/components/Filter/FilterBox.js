@@ -15,12 +15,12 @@ const FilterBox = ({
 }) => {
   const [isFilterView, changeView] = React.useState(viewState);
   const [imgs, setImgs] = React.useState([]);
-  const callback = (value) => {
+  const callback = value => {
     changeView(value);
   };
   React.useEffect(() => {
     parentCallback(isFilterView);
-  }, [isFilterView]);
+  }, [isFilterView, parentCallback]);
 
   React.useEffect(() => {
     setImgs(images);

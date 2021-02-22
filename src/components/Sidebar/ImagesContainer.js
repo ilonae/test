@@ -26,9 +26,12 @@ const useStyles = makeStyles(theme => ({
 const ImagesContainer = ({ viewCallback, layerCallback, viewState }) => {
   const classes = useStyles();
   const [isExpanded, changeLayout] = React.useState(viewState);
+  const [isToggled, setToggle] = React.useState(false);
 
   const [image, setImage] = React.useState('');
   const [heatmap, setHeatmap] = React.useState('');
+
+  const [watershed, setWatershed] = React.useState();
   const [layer, changeLayer] = React.useState(0);
 
   async function getImg() {
@@ -71,13 +74,23 @@ const ImagesContainer = ({ viewCallback, layerCallback, viewState }) => {
     changeLayout(value);
   };
 
+  const toggleCallback = value => {
+    setToggle(value);
+  };
+
+  const maskCallback = value => {
+    const watershedMap = JSON.parse(value);
+    console.log(watershedMap.masks[0]);
+    setWatershed(watershedMap.masks[0]);
+  };
+
   React.useEffect(() => {
     viewCallback(isExpanded);
-  }, [isExpanded]);
+  }, [isExpanded, viewCallback]);
 
   React.useEffect(() => {
     layerCallback(layer);
-  }, [layer]);
+  }, [layer, layerCallback]);
 
   function handleTextFieldChange(e) {
     if (e.target.value !== '') {
@@ -91,7 +104,12 @@ const ImagesContainer = ({ viewCallback, layerCallback, viewState }) => {
   return (
     <Grid container spacing={3}>
       <Grid item lg={12} md={12} xl={12} xs={12}>
-        <WatershedButton />{' '}
+        {layer}
+        <WatershedButton
+          isToggledCallback={toggleCallback}
+          maskCallback={maskCallback}
+          imageIndex={layer}
+        />{' '}
         <TextField
           name="index"
           label="Selected index"
@@ -111,8 +129,20 @@ const ImagesContainer = ({ viewCallback, layerCallback, viewState }) => {
             isExpanded === 'DEFAULTVIEW' ? classes.root : classes.expanded
           }
         >
-          <ImgBox viewType={isExpanded} content={image} />
-          <ImgBox viewType={isExpanded} content={heatmap} />
+          <ImgBox
+            isToggled={isToggled}
+            title={'original'}
+            viewType={isExpanded}
+            content={image}
+          />
+
+          <ImgBox
+            isToggled={isToggled}
+            title={'heatmap'}
+            viewType={isExpanded}
+            content={heatmap}
+            watershed={watershed}
+          />
         </div>
         <ExpansionButton
           expansionCallback={expansionCallback}

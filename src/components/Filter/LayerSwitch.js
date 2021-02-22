@@ -7,13 +7,13 @@ import { FormControl, InputLabel, Select } from '@material-ui/core';
 const LayerSwitch = ({ parentCallback }) => {
   const [layerIndex, setLayerIndex] = React.useState(1);
 
-  const handleChange = (event) => {
+  const handleChange = event => {
     setLayerIndex(event.target.value);
   };
 
   React.useEffect(() => {
     parentCallback(layerIndex);
-  }, [layerIndex]);
+  }, [layerIndex, parentCallback]);
   return (
     <FormControl
       spacing={1}

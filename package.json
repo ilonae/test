@@ -40,6 +40,7 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-helmet": "^6.1.0",
+    "react-image-crop": "^8.6.6",
     "react-number-format": "^4.4.4",
     "react-perfect-scrollbar": "^1.5.8",
     "react-router": "^5.2.0",

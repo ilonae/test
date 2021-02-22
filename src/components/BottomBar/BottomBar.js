@@ -29,7 +29,7 @@ const SimpleBottomNavigation = ({ bottomCallback }) => {
 
   React.useEffect(() => {
     bottomCallback(amount);
-  }, [amount]);
+  }, [amount, bottomCallback]);
 
   return (
     <Card className={clsx(classes.root)}>

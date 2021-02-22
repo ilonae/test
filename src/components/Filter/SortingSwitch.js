@@ -15,7 +15,7 @@ const SortingSwitch = ({ parentCallback }) => {
 
   React.useEffect(() => {
     parentCallback(descending);
-  }, [descending]);
+  }, [descending, parentCallback]);
   return (
     <Button
       variant="contained"

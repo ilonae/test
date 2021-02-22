@@ -19,10 +19,10 @@ app.post('/api/get_filter', (req, res) => {
   };
 
   request(optionsFilter)
-    .then((response) => {
+    .then(response => {
       res.json(response);
     })
-    .catch((err) => {});
+    .catch(err => {});
 });
 
 app.post('/api/get_image', (req, res) => {
@@ -36,10 +36,29 @@ app.post('/api/get_image', (req, res) => {
   };
 
   request(options)
-    .then((response) => {
+    .then(response => {
       res.status(200).json(response);
     })
-    .catch((err) => {
+    .catch(err => {
+      console.log(err);
+    });
+});
+
+app.post('/api/watershed', (req, res) => {
+  const options = {
+    method: req.method,
+    uri: 'http://titan:5050/get_masks',
+    body: JSON.stringify(req.body),
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  };
+
+  request(options)
+    .then(response => {
+      res.status(200).json(response);
+    })
+    .catch(err => {
       console.log(err);
     });
 });
@@ -55,10 +74,10 @@ app.post('/api/get_heatmap', async (req, res) => {
   };
 
   request(options)
-    .then((response) => {
+    .then(response => {
       res.status(200).json(response);
     })
-    .catch((err) => {
+    .catch(err => {
       console.log(err);
     });
 });

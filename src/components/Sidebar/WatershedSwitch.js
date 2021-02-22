@@ -1,5 +1,6 @@
 import React from 'react';
 import clsx from 'clsx';
+import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core';
 import Switch from '@material-ui/core/Switch';
 import Grid from '@material-ui/core/Grid';
@@ -14,27 +15,37 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-const WatershedContainer = () => {
+const WatershedSwitch = ({ imageIndex, isToggledCallback, maskCallback }) => {
   const classes = useStyles();
   const [useWatershed, setWatershed] = React.useState(false);
 
   const toggleButton = async () => {
-    setWatershed((prev) => !prev);
-    await fetch('/api/watershed', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ index: 0 })
-    }).then((response) => {
-      console.log(response);
-      if (response.ok) {
-        response.json().then((json) => {
-          console.log(json);
-        });
-      }
-    });
+    setWatershed(prev => !prev);
   };
+
+  React.useEffect(() => {
+    isToggledCallback(useWatershed);
+    const queryWatershed = async () => {
+      await fetch('/api/watershed', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ image_index: imageIndex })
+      }).then(response => {
+        console.log(response);
+        if (response.ok) {
+          response.json().then(json => {
+            maskCallback(json);
+          });
+        }
+      });
+    };
+    if (useWatershed === true) {
+      queryWatershed();
+    }
+  }, [useWatershed]);
+
   return (
     <div className={clsx(classes.root)}>
       <Typography component="div">
@@ -56,4 +67,10 @@ const WatershedContainer = () => {
   );
 };
 
-export default WatershedContainer;
+WatershedSwitch.propTypes = {
+  imageIndex: PropTypes.number,
+  isToggledCallback: PropTypes.func,
+  maskCallback: PropTypes.func
+};
+
+export default WatershedSwitch;

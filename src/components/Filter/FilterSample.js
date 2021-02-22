@@ -14,25 +14,25 @@ const FilterSample = ({ callback, viewState, images, reference }) => {
   const [view, changeView] = React.useState(viewState);
   const [imgState, setImages] = React.useState([]);
 
-  async function makeImages() {
-    const filterImages = [];
-    for (let i = 0; i < images.length; i++) {
-      const img = `data:image/png;base64,${images[i]}`;
-      filterImages.push(
-        <Grid item xs={4} key={`${reference}_image_index${i}`}>
-          <img src={img} className={classes.image} alt="" />
-        </Grid>
-      );
-    }
-    setImages(filterImages);
-  }
   React.useEffect(() => {
+    const makeImages = async () => {
+      const filterImages = [];
+      for (let i = 0; i < images.length; i++) {
+        const img = `data:image/png;base64,${images[i]}`;
+        filterImages.push(
+          <Grid item xs={4} key={`${reference}_image_index${i}`}>
+            <img src={img} className={classes.image} alt="" />
+          </Grid>
+        );
+      }
+      setImages(filterImages);
+    };
     makeImages();
-  }, [images]);
+  }, [images, classes.image, reference]);
 
   React.useEffect(() => {
     callback(view);
-  }, [view]);
+  }, [view, callback]);
 
   return (
     <Box p={3}>

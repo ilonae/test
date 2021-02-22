@@ -11,7 +11,7 @@ const FilterSlider = ({ filtersCallback }) => {
 
   React.useEffect(() => {
     filtersCallback(amount);
-  }, [amount]);
+  }, [amount, filtersCallback]);
   return (
     <div>
       <Typography gutterBottom>Filter amount</Typography>

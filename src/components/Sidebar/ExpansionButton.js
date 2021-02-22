@@ -20,7 +20,7 @@ const ExpansionButton = ({ expansionCallback, viewState }) => {
 
   React.useEffect(() => {
     expansionCallback(view);
-  }, [view]);
+  }, [view, expansionCallback]);
 
   return (
     <div>

@@ -1,9 +1,7 @@
 import React from 'react';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import {
-  Box, Card, makeStyles, Grid
-} from '@material-ui/core';
+import { Box, Card, makeStyles, Grid } from '@material-ui/core';
 import FilterBox from './FilterBox';
 import LayerSwitch from './LayerSwitch';
 import SortingSwitch from './SortingSwitch';
@@ -30,11 +28,11 @@ const FilterContainer = ({
 
   const classes = useStyles();
 
-  const callback = (value) => {
+  const callback = value => {
     changeView(value);
   };
 
-  async function getFilters() {
+  const getFilters = React.useCallback(async () => {
     await fetch('/api/get_filter', {
       method: 'POST',
       headers: {
@@ -47,9 +45,9 @@ const FilterContainer = ({
         sample_indices: '0:9',
         image_index: layer
       })
-    }).then((response) => {
+    }).then(response => {
       if (response.ok) {
-        response.json().then((json) => {
+        response.json().then(json => {
           const obj = JSON.parse(json);
           const filterIndices = obj.filter_indices;
           const filterBox = [];
@@ -69,13 +67,13 @@ const FilterContainer = ({
         });
       }
     });
-  }
+  }, [count, filterAmount, layer, order, viewState]);
 
-  const indexCallback = (value) => {
+  const indexCallback = value => {
     setCount(value);
   };
 
-  const sortingCallback = (value) => {
+  const sortingCallback = value => {
     console.log(value);
     if (value === true) {
       setOrder('max');
@@ -86,12 +84,12 @@ const FilterContainer = ({
 
   React.useEffect(() => {
     parentCallback(isFilterView);
-  }, [isFilterView]);
+  }, [isFilterView, parentCallback]);
 
   React.useEffect(() => {
     setLayer(layerState);
     getFilters();
-  }, [layerState, count, order]);
+  }, [layerState, count, order, getFilters]);
 
   return (
     <Card className={clsx(classes.root)}>
