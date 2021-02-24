@@ -1,11 +1,13 @@
 import React from 'react';
 
-import PropTypes from 'prop-types';
+import PropTypes, { number } from 'prop-types';
 
 import { FormControl, InputLabel, Select } from '@material-ui/core';
 
-const LayerSwitch = ({ parentCallback }) => {
+const LayerSwitch = ({ parentCallback, layers }) => {
   const [layerIndex, setLayerIndex] = React.useState(1);
+
+  const [layerArray, setLayerArray] = React.useState([]);
 
   const handleChange = event => {
     setLayerIndex(event.target.value);
@@ -14,11 +16,24 @@ const LayerSwitch = ({ parentCallback }) => {
   React.useEffect(() => {
     parentCallback(layerIndex);
   }, [layerIndex, parentCallback]);
+
+  React.useEffect(() => {
+    let layerArray = [];
+    for (let i in layers) {
+      layerArray.push(layers[i]);
+    }
+    setLayerArray(layerArray);
+  }, [layers]);
+
+  if (!layerArray) {
+    return null;
+  }
+
   return (
     <FormControl
       spacing={1}
       variant="filled"
-      style={{ width: '30%', marginRight: '10%' }}
+      style={{ width: '20%', marginRight: '5%' }}
     >
       <InputLabel htmlFor="layerIndex">Layer:</InputLabel>
       <Select
@@ -29,16 +44,18 @@ const LayerSwitch = ({ parentCallback }) => {
           index: 'layerIndex'
         }}
       >
-        <option value={1}>1</option>
-        <option value={3}>3</option>
-        <option value={6}>6</option>
-        <option value={7}>7</option>
+        {layerArray.map(i => (
+          <option key={i} value={i}>
+            {i}
+          </option>
+        ))}
       </Select>
     </FormControl>
   );
 };
 LayerSwitch.propTypes = {
-  parentCallback: PropTypes.func
+  parentCallback: PropTypes.func,
+  layers: PropTypes.array
 };
 
 export default LayerSwitch;

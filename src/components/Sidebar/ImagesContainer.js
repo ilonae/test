@@ -23,7 +23,13 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const ImagesContainer = ({ viewCallback, layerCallback, viewState }) => {
+const ImagesContainer = ({
+  viewCallback,
+  indexCallback,
+  viewState,
+  experiment,
+  method
+}) => {
   const classes = useStyles();
   const [isExpanded, changeLayout] = React.useState(viewState);
   const [isToggled, setToggle] = React.useState(false);
@@ -31,8 +37,11 @@ const ImagesContainer = ({ viewCallback, layerCallback, viewState }) => {
   const [image, setImage] = React.useState('');
   const [heatmap, setHeatmap] = React.useState('');
 
+  const [experimentState, setExperiment] = React.useState('LeNet');
+  const [methodState, setMethod] = React.useState('epsilon_plus');
+
   const [watershed, setWatershed] = React.useState();
-  const [layer, changeLayer] = React.useState(0);
+  const [index, changeIndex] = React.useState(0);
 
   async function getImg() {
     await fetch('/api/get_image', {
@@ -40,7 +49,7 @@ const ImagesContainer = ({ viewCallback, layerCallback, viewState }) => {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ image_index: layer })
+      body: JSON.stringify({ image_index: index, experiment })
     }).then(response => {
       if (response.ok) {
         response.json().then(json => {
@@ -58,11 +67,16 @@ const ImagesContainer = ({ viewCallback, layerCallback, viewState }) => {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ image_index: layer })
+      body: JSON.stringify({
+        image_index: index,
+        experiment,
+        method
+      })
     }).then(response => {
       if (response.ok) {
         response.json().then(json => {
           const obj = JSON.parse(json);
+          console.log('reached', obj);
           const img = `data:image/png;base64,${obj.image}`;
           setHeatmap(img);
         });
@@ -80,7 +94,6 @@ const ImagesContainer = ({ viewCallback, layerCallback, viewState }) => {
 
   const maskCallback = value => {
     const watershedMap = JSON.parse(value);
-    console.log(watershedMap.masks[0]);
     setWatershed(watershedMap.masks[0]);
   };
 
@@ -89,26 +102,30 @@ const ImagesContainer = ({ viewCallback, layerCallback, viewState }) => {
   }, [isExpanded, viewCallback]);
 
   React.useEffect(() => {
-    layerCallback(layer);
-  }, [layer, layerCallback]);
+    indexCallback(index);
+  }, [index, indexCallback]);
 
   function handleTextFieldChange(e) {
     if (e.target.value !== '') {
-      changeLayer(Number(e.target.value));
+      changeIndex(Number(e.target.value));
     }
   }
 
-  getImg();
-  getHeatmap();
+  React.useEffect(() => {
+    if (experiment !== '' && method !== '') getHeatmap();
+  }, [index, experiment, method]);
+
+  React.useEffect(() => {
+    if (experiment !== '') getImg();
+  }, [index, experiment]);
 
   return (
     <Grid container spacing={3}>
       <Grid item lg={12} md={12} xl={12} xs={12}>
-        {layer}
         <WatershedButton
           isToggledCallback={toggleCallback}
           maskCallback={maskCallback}
-          imageIndex={layer}
+          imageIndex={index}
         />{' '}
         <TextField
           name="index"
@@ -121,7 +138,7 @@ const ImagesContainer = ({ viewCallback, layerCallback, viewState }) => {
             }
           }}
           style={{ width: '100%' }}
-          value={layer}
+          value={index}
           onChange={handleTextFieldChange}
         />
         <div
@@ -156,8 +173,11 @@ const ImagesContainer = ({ viewCallback, layerCallback, viewState }) => {
 ImagesContainer.propTypes = {
   expansionCallback: PropTypes.func,
   viewCallback: PropTypes.func,
-  layerCallback: PropTypes.func,
-  viewState: PropTypes.string
+  indexCallback: PropTypes.func,
+  viewState: PropTypes.string,
+  settings: PropTypes.bool,
+  experiment: PropTypes.string,
+  method: PropTypes.string
 };
 
 export default ImagesContainer;

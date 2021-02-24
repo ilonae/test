@@ -4,7 +4,10 @@ import PropTypes from 'prop-types';
 import { Box, Card, makeStyles, Grid } from '@material-ui/core';
 import FilterBox from './FilterBox';
 import LayerSwitch from './LayerSwitch';
+import MethodsSwitch from './MethodsSwitch';
 import SortingSwitch from './SortingSwitch';
+
+import DatasetSwitch from './DatasetSwitch';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -17,19 +20,32 @@ const useStyles = makeStyles(() => ({
 const FilterContainer = ({
   parentCallback,
   viewState,
-  layerState,
-  filterAmount
+  indexState,
+  filterAmount,
+  layers,
+  methods,
+  datasets,
+  experimentsCallbackParent,
+  methodsCallbackParent
 }) => {
   const [isFilterView, changeView] = React.useState(viewState);
-  const [layer, setLayer] = React.useState(layerState);
+  const [index, setIndex] = React.useState(1);
   const [filters, setFilter] = React.useState('');
-  const [count, setCount] = React.useState(1);
+  const [count, setCount] = React.useState('l1');
   const [order, setOrder] = React.useState('max');
 
   const classes = useStyles();
 
   const callback = value => {
     changeView(value);
+  };
+
+  const experimentsCallback = value => {
+    experimentsCallbackParent(value);
+  };
+
+  const methodsCallback = value => {
+    methodsCallbackParent(value);
   };
 
   const getFilters = React.useCallback(async () => {
@@ -43,7 +59,9 @@ const FilterContainer = ({
         filter_indices: `${0}:${filterAmount - 1}`,
         sorting: order,
         sample_indices: '0:9',
-        image_index: layer
+        experiment: 'LeNet',
+        image_index: index,
+        method: 'epsilon_plus'
       })
     }).then(response => {
       if (response.ok) {
@@ -67,14 +85,13 @@ const FilterContainer = ({
         });
       }
     });
-  }, [count, filterAmount, layer, order, viewState]);
+  }, [count, filterAmount, index, order, viewState]);
 
-  const indexCallback = value => {
+  const layerCallback = value => {
     setCount(value);
   };
 
   const sortingCallback = value => {
-    console.log(value);
     if (value === true) {
       setOrder('max');
     } else {
@@ -87,9 +104,9 @@ const FilterContainer = ({
   }, [isFilterView, parentCallback]);
 
   React.useEffect(() => {
-    setLayer(layerState);
+    setIndex(indexState);
     getFilters();
-  }, [layerState, count, order, getFilters]);
+  }, [indexState, count, order, getFilters]);
 
   return (
     <Card className={clsx(classes.root)}>
@@ -104,7 +121,12 @@ const FilterContainer = ({
           }}
           xs={12}
         >
-          <LayerSwitch parentCallback={indexCallback} />
+          <DatasetSwitch
+            parentCallback={experimentsCallback}
+            datasets={datasets}
+          />
+          <LayerSwitch parentCallback={layerCallback} layers={layers} />
+          <MethodsSwitch parentCallback={methodsCallback} methods={methods} />
           <SortingSwitch parentCallback={sortingCallback} />
         </Grid>
 
@@ -120,9 +142,13 @@ const FilterContainer = ({
 
 FilterContainer.propTypes = {
   parentCallback: PropTypes.func,
-  layerState: PropTypes.number,
+  experimentsCallbackParent: PropTypes.func,
+  methodsCallbackParent: PropTypes.func,
+  indexState: PropTypes.number,
   viewState: PropTypes.string,
-  filterAmount: PropTypes.number
+  filterAmount: PropTypes.number,
+  layers: PropTypes.array,
+  methods: PropTypes.array
 };
 
 export default FilterContainer;

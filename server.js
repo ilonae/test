@@ -44,6 +44,24 @@ app.post('/api/get_image', (req, res) => {
     });
 });
 
+app.post('/api/get_XAI_available', (req, res) => {
+  const options = {
+    method: req.method,
+    uri: 'http://titan:5050/get_XAI_available',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  };
+
+  request(options)
+    .then(response => {
+      res.status(200).json(response);
+    })
+    .catch(err => {
+      console.log(err);
+    });
+});
+
 app.post('/api/watershed', (req, res) => {
   const options = {
     method: req.method,

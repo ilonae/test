@@ -5,7 +5,8 @@ import { Grid, Box, makeStyles } from '@material-ui/core';
 
 const useStyles = makeStyles(() => ({
   image: {
-    width: '100%'
+    width: '100px',
+    height: '100px'
   }
 }));
 

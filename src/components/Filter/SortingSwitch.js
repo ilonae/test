@@ -20,7 +20,7 @@ const SortingSwitch = ({ parentCallback }) => {
     <Button
       variant="contained"
       color="default"
-      style={{ width: '30%', wordWrap: 'break-word', whiteSpace: 'normal' }}
+      style={{ width: '20%', wordWrap: 'break-word', whiteSpace: 'normal' }}
       onClick={handleChange}
       startIcon={descending ? <ArrowUpwardIcon /> : <ArrowDownwardIcon />}
     >

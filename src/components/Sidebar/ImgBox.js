@@ -6,9 +6,6 @@ import 'react-image-crop/dist/ReactCrop.css';
 import useCanvas from './useCanvas';
 import { Card, makeStyles } from '@material-ui/core';
 
-export const canvasWidth = 500;
-export const canvasHeight = 500;
-
 const useStyles = makeStyles(theme => ({
   root: {
     marginTop: theme.spacing(3)
@@ -23,7 +20,8 @@ const useStyles = makeStyles(theme => ({
 
 const ImgBox = ({ viewType, content, isToggled, watershed, title }) => {
   const classes = useStyles();
-  const [setCoordinates, canvasRef] = React.useState();
+
+  const [setCoordinates] = useCanvas();
   const [ratio, setRatio] = React.useState(0);
   const [x, setX] = React.useState(0);
   const [y, setY] = React.useState(0);
@@ -39,7 +37,7 @@ const ImgBox = ({ viewType, content, isToggled, watershed, title }) => {
   });
 
   const handleCanvasClick = () => {
-    const canvas = canvasRef.current;
+    const canvas = document.querySelector('canvas');
     const ctx = canvas.getContext('2d');
     for (var i = 0; i < watershed.length; i++) {
       for (var j = 0; j < watershed[i].length; j++) {
@@ -58,6 +56,19 @@ const ImgBox = ({ viewType, content, isToggled, watershed, title }) => {
     const dataURL = canvas.toDataURL();
     setCoordinates([dataURL]);
   };
+
+  React.useEffect(() => {
+    if (isToggled === true && title === 'heatmap' && watershed) {
+      console.log(title);
+      handleCanvasClick();
+    }
+  }, [isToggled]);
+
+  React.useEffect(() => {
+    if (title === 'heatmap') {
+      setCoordinates([content]);
+    }
+  }, [content]);
 
   const onImageLoaded = image => {
     setRatio(image.clientHeight / 28);
@@ -116,16 +127,6 @@ const ImgBox = ({ viewType, content, isToggled, watershed, title }) => {
     });
   }
 
-  async function makeClientCrop(crop) {
-    if (canvasRef && crop.width && crop.height) {
-      const croppedImageUrl = await getCroppedImg(
-        canvasRef,
-        crop,
-        'newFile.jpeg'
-      );
-      this.setState({ croppedImageUrl });
-    }
-  }
   return (
     <Card className={viewType === 'DEFAULTVIEW' ? classes.root : classes.side}>
       {title === 'original' ? (
@@ -140,7 +141,10 @@ const ImgBox = ({ viewType, content, isToggled, watershed, title }) => {
           onChange={onCropChange}
         />
       ) : (
-        <div></div>
+        <canvas
+          id={title}
+          style={{ height: '100%', width: '100%', objectFit: 'cover' }}
+        />
       )}
     </Card>
   );
