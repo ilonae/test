@@ -8,7 +8,8 @@ import { Card, makeStyles } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
   root: {
-    marginTop: theme.spacing(3)
+    marginTop: theme.spacing(3),
+    height: '30vh'
   },
   side: {
     width: '50%'
@@ -141,10 +142,7 @@ const ImgBox = ({ viewType, content, isToggled, watershed, title }) => {
           onChange={onCropChange}
         />
       ) : (
-        <canvas
-          id={title}
-          style={{ height: '100%', width: '100%', objectFit: 'cover' }}
-        />
+        <canvas id={title} style={{ height: '100%', width: '100%' }} />
       )}
     </Card>
   );

@@ -88,6 +88,7 @@ const FilterContainer = ({
   }, [count, filterAmount, index, order, viewState]);
 
   const layerCallback = value => {
+    console.log(value);
     setCount(value);
   };
 

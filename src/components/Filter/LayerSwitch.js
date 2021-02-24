@@ -5,7 +5,7 @@ import PropTypes, { number } from 'prop-types';
 import { FormControl, InputLabel, Select } from '@material-ui/core';
 
 const LayerSwitch = ({ parentCallback, layers }) => {
-  const [layerIndex, setLayerIndex] = React.useState(1);
+  const [layerIndex, setLayerIndex] = React.useState('l1');
 
   const [layerArray, setLayerArray] = React.useState([]);
 
