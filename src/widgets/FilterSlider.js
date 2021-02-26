@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 
 const FilterSlider = ({ filtersCallback }) => {
   const [amount, changeAmount] = React.useState(6);
+
   const handleChange = (event, newValue) => {
     changeAmount(newValue);
   };
@@ -16,12 +17,12 @@ const FilterSlider = ({ filtersCallback }) => {
     <div>
       <Typography gutterBottom>Filter amount</Typography>
       <Slider
-        defaultValue={amount}
-        onChange={handleChange}
+        value={amount}
+        onChangeCommitted={handleChange}
         step={2}
         marks
         min={2}
-        max={12}
+        max={8}
         valueLabelDisplay="auto"
       />
     </div>

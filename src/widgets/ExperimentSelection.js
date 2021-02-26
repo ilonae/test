@@ -4,29 +4,30 @@ import PropTypes, { number } from 'prop-types';
 
 import { FormControl, InputLabel, Select } from '@material-ui/core';
 
-const MethodsSwitch = ({ parentCallback, methods }) => {
-  const [method, setMethod] = React.useState('');
-  const [methodsArray, setMethodsArray] = React.useState([]);
+const ExperimentSelection = ({ parentCallback, datasets }) => {
+  const [datasetArray, setDataset] = React.useState();
+
+  const [experiment, setExperiment] = React.useState('');
 
   const handleChange = event => {
-    setMethod(event.target.value);
+    setExperiment(event.target.value);
   };
 
   React.useEffect(() => {
-    setMethodsArray(methods);
-  }, [methods]);
+    parentCallback(experiment);
+  }, [experiment, parentCallback]);
 
   React.useEffect(() => {
-    parentCallback(method);
-  }, [method, parentCallback]);
+    setDataset(datasets);
+  }, [datasets]);
 
   React.useEffect(() => {
-    if (methodsArray) {
-      setMethod(methodsArray[0]);
+    if (datasetArray) {
+      setExperiment(datasetArray[0]);
     }
-  }, [methodsArray]);
+  }, [datasetArray]);
 
-  if (!methodsArray) {
+  if (!datasetArray) {
     return null;
   }
 
@@ -36,16 +37,16 @@ const MethodsSwitch = ({ parentCallback, methods }) => {
       variant="filled"
       style={{ width: '20%', marginRight: '5%' }}
     >
-      <InputLabel htmlFor="methodSelection">Method:</InputLabel>
+      <InputLabel htmlFor="methodSelection">Experiment:</InputLabel>
       <Select
         native
-        value={method}
+        value={experiment}
         onChange={handleChange}
         inputProps={{
           index: 'method'
         }}
       >
-        {methodsArray.map(i => (
+        {datasetArray.map(i => (
           <option key={i} value={i}>
             {i}
           </option>
@@ -54,9 +55,9 @@ const MethodsSwitch = ({ parentCallback, methods }) => {
     </FormControl>
   );
 };
-MethodsSwitch.propTypes = {
+ExperimentSelection.propTypes = {
   parentCallback: PropTypes.func,
-  methods: PropTypes.array
+  dataset: PropTypes.array
 };
 
-export default MethodsSwitch;
+export default ExperimentSelection;

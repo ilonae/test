@@ -1,12 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Box, Grid, Typography } from '@material-ui/core';
+import { Box, Grid, Typography, makeStyles } from '@material-ui/core';
 
-import FilterSample from './FilterSample';
+const useStyles = makeStyles(() => ({
+  image: {
+    width: '100px',
+    height: '100px',
+    imageRendering: 'crisp-edges',
+    border: '1px solid #555'
+  }
+}));
 
 const FilterBox = ({
-  name,
+  name: reference,
   parentCallback,
   viewState,
   relevance,
@@ -14,7 +21,8 @@ const FilterBox = ({
   images
 }) => {
   const [isFilterView, changeView] = React.useState(viewState);
-  const [imgs, setImgs] = React.useState([]);
+  const classes = useStyles();
+  const [imgState, setImages] = React.useState([]);
   const callback = value => {
     changeView(value);
   };
@@ -23,8 +31,20 @@ const FilterBox = ({
   }, [isFilterView, parentCallback]);
 
   React.useEffect(() => {
-    setImgs(images);
-  }, [images]);
+    const makeImages = async () => {
+      const filterImages = [];
+      for (let i = 0; i < images.length; i++) {
+        const img = `data:image/png;base64,${images[i]}`;
+        filterImages.push(
+          <Grid item xs={4} key={`${reference}_image_index${i}`}>
+            <img src={img} className={classes.image} alt="" />
+          </Grid>
+        );
+      }
+      setImages(filterImages);
+    };
+    makeImages();
+  }, [images, classes.image, reference]);
 
   return (
     <Grid item xl={4} lg={4} md={6} xs={6}>
@@ -39,12 +59,11 @@ const FilterBox = ({
           {relevance}
         </Typography>
       </Box>
-      <FilterSample
-        callback={callback}
-        reference={name}
-        images={imgs}
-        viewState={viewState}
-      />
+      <Box p={3}>
+        <Grid container spacing={1} onClick={() => changeView('FILTERVIEW')}>
+          {imgState}
+        </Grid>
+      </Box>
     </Grid>
   );
 };

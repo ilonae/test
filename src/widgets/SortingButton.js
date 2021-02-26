@@ -6,7 +6,7 @@ import { Button, Typography } from '@material-ui/core';
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
 
-const SortingSwitch = ({ parentCallback }) => {
+const SortingButton = ({ parentCallback }) => {
   const [descending, setSorting] = React.useState(true);
 
   const handleChange = () => {
@@ -32,8 +32,8 @@ const SortingSwitch = ({ parentCallback }) => {
     </Button>
   );
 };
-SortingSwitch.propTypes = {
+SortingButton.propTypes = {
   parentCallback: PropTypes.func
 };
 
-export default SortingSwitch;
+export default SortingButton;

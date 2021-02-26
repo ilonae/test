@@ -2,12 +2,12 @@ import React from 'react';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { Box, Card, makeStyles, Grid } from '@material-ui/core';
-import FilterBox from './FilterBox';
-import LayerSwitch from './LayerSwitch';
-import MethodsSwitch from './MethodsSwitch';
-import SortingSwitch from './SortingSwitch';
+import FilterBox from '../container/Filter';
+import LayerSelection from '../widgets/LayerSelection';
+import MethodSelection from '../widgets/MethodSelection';
+import SortingButton from '../widgets/SortingButton';
 
-import DatasetSwitch from './DatasetSwitch';
+import ExperimentSelection from '../widgets/ExperimentSelection';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -17,7 +17,7 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-const FilterContainer = ({
+const FilterComponent = ({
   parentCallback,
   viewState,
   indexState,
@@ -30,8 +30,10 @@ const FilterContainer = ({
 }) => {
   const [isFilterView, changeView] = React.useState(viewState);
   const [index, setIndex] = React.useState(1);
+  const [method, setMethod] = React.useState('epsilon_plus');
+  const [experiment, setExperiment] = React.useState('LeNet');
   const [filters, setFilter] = React.useState('');
-  const [count, setCount] = React.useState('l1');
+  const [layer, selectLayer] = React.useState('l1');
   const [order, setOrder] = React.useState('max');
 
   const classes = useStyles();
@@ -41,10 +43,12 @@ const FilterContainer = ({
   };
 
   const experimentsCallback = value => {
+    setExperiment(value);
     experimentsCallbackParent(value);
   };
 
   const methodsCallback = value => {
+    setMethod(value);
     methodsCallbackParent(value);
   };
 
@@ -55,13 +59,13 @@ const FilterContainer = ({
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        layer: count,
-        filter_indices: `${0}:${filterAmount - 1}`,
+        layer: layer,
+        filter_indices: `${0}:${filterAmount}`,
         sorting: order,
         sample_indices: '0:9',
-        experiment: 'LeNet',
+        experiment: experiment,
         image_index: index,
-        method: 'epsilon_plus'
+        method: method
       })
     }).then(response => {
       if (response.ok) {
@@ -81,15 +85,15 @@ const FilterContainer = ({
               />
             );
           }
+          console.log(filterBox.length);
           setFilter(filterBox);
         });
       }
     });
-  }, [count, filterAmount, index, order, viewState]);
+  }, [layer, filterAmount, index, order, viewState, method, experiment]);
 
   const layerCallback = value => {
-    console.log(value);
-    setCount(value);
+    selectLayer(value);
   };
 
   const sortingCallback = value => {
@@ -105,9 +109,19 @@ const FilterContainer = ({
   }, [isFilterView, parentCallback]);
 
   React.useEffect(() => {
-    setIndex(indexState);
-    getFilters();
-  }, [indexState, count, order, getFilters]);
+    if (
+      (layer &&
+        filterAmount &&
+        index &&
+        order &&
+        viewState &&
+        method &&
+        experiment) !== null
+    ) {
+      setIndex(indexState);
+      getFilters();
+    }
+  }, [indexState, layer, order, getFilters, method]);
 
   return (
     <Card className={clsx(classes.root)}>
@@ -122,13 +136,13 @@ const FilterContainer = ({
           }}
           xs={12}
         >
-          <DatasetSwitch
+          <ExperimentSelection
             parentCallback={experimentsCallback}
             datasets={datasets}
           />
-          <LayerSwitch parentCallback={layerCallback} layers={layers} />
-          <MethodsSwitch parentCallback={methodsCallback} methods={methods} />
-          <SortingSwitch parentCallback={sortingCallback} />
+          <LayerSelection parentCallback={layerCallback} layers={layers} />
+          <MethodSelection parentCallback={methodsCallback} methods={methods} />
+          <SortingButton parentCallback={sortingCallback} />
         </Grid>
 
         <Box mt={3} px={1}>
@@ -141,7 +155,7 @@ const FilterContainer = ({
   );
 };
 
-FilterContainer.propTypes = {
+FilterComponent.propTypes = {
   parentCallback: PropTypes.func,
   experimentsCallbackParent: PropTypes.func,
   methodsCallbackParent: PropTypes.func,
@@ -152,4 +166,4 @@ FilterContainer.propTypes = {
   methods: PropTypes.array
 };
 
-export default FilterContainer;
+export default FilterComponent;

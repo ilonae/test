@@ -17,12 +17,13 @@ app.post('/api/get_filter', (req, res) => {
       'Content-Type': 'application/json'
     }
   };
-
   request(optionsFilter)
     .then(response => {
-      res.json(response);
+      res.status(200).json(response);
     })
-    .catch(err => {});
+    .catch(err => {
+      console.log(err);
+    });
 });
 
 app.post('/api/get_image', (req, res) => {
@@ -34,7 +35,6 @@ app.post('/api/get_image', (req, res) => {
       'Content-Type': 'application/json'
     }
   };
-
   request(options)
     .then(response => {
       res.status(200).json(response);
@@ -52,7 +52,6 @@ app.post('/api/get_XAI_available', (req, res) => {
       'Content-Type': 'application/json'
     }
   };
-
   request(options)
     .then(response => {
       res.status(200).json(response);
@@ -71,7 +70,6 @@ app.post('/api/watershed', (req, res) => {
       'Content-Type': 'application/json'
     }
   };
-
   request(options)
     .then(response => {
       res.status(200).json(response);
@@ -90,7 +88,6 @@ app.post('/api/get_heatmap', async (req, res) => {
       'Content-Type': 'application/json'
     }
   };
-
   request(options)
     .then(response => {
       res.status(200).json(response);

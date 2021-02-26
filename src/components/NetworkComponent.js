@@ -1,8 +1,6 @@
 import React from 'react';
 
-import {
-  makeStyles, Box, Card, CardContent
-} from '@material-ui/core';
+import { makeStyles, Box, Card, CardContent } from '@material-ui/core';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -14,7 +12,7 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-const NetworkContainer = () => {
+const NetworkComponent = () => {
   const classes = useStyles();
   return (
     <Card>
@@ -25,4 +23,4 @@ const NetworkContainer = () => {
   );
 };
 
-export default NetworkContainer;
+export default NetworkComponent;

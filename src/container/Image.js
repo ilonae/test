@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import ReactCrop from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 
-import useCanvas from './useCanvas';
+import useCanvas from '../util/useCanvas';
 import { Card, makeStyles } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
@@ -16,13 +16,17 @@ const useStyles = makeStyles(theme => ({
   },
   crop: {
     display: 'block'
+  },
+  canvas: {
+    height: '100%',
+    width: '100%'
   }
 }));
 
-const ImgBox = ({ viewType, content, isToggled, watershed, title }) => {
+const Image = ({ viewType, content, isToggled, watershed, title }) => {
   const classes = useStyles();
 
-  const [setCoordinates] = useCanvas();
+  const setCoordinates = useCanvas();
   const [ratio, setRatio] = React.useState(0);
   const [x, setX] = React.useState(0);
   const [y, setY] = React.useState(0);
@@ -37,39 +41,38 @@ const ImgBox = ({ viewType, content, isToggled, watershed, title }) => {
     height: 0
   });
 
-  const handleCanvasClick = () => {
-    const canvas = document.querySelector('canvas');
-    const ctx = canvas.getContext('2d');
-    for (var i = 0; i < watershed.length; i++) {
-      for (var j = 0; j < watershed[i].length; j++) {
-        const imageData = ctx.getImageData(i, j, 1, 1);
-        const data = imageData.data;
-        console.log(data.length);
-        let iterator = i * 4 * j;
-        data[iterator] = data[iterator] * watershed[i][j]; // red
-        data[iterator + 1] = data[iterator + 1] * watershed[i][j]; // green
-        data[iterator + 2] = data[iterator + 2] * watershed[i][j]; // blue
-        data[iterator + 3] = 1;
-        ctx.putImageData(imageData, i, j);
-      }
-    }
-
-    const dataURL = canvas.toDataURL();
-    setCoordinates([dataURL]);
-  };
-
   React.useEffect(() => {
+    const handleCanvasClick = () => {
+      const canvas = document.querySelector('canvas');
+      const ctx = canvas.getContext('2d');
+      for (var i = 0; i < watershed.length; i++) {
+        for (var j = 0; j < watershed[i].length; j++) {
+          const imageData = ctx.getImageData(i, j, 1, 1);
+          const data = imageData.data;
+          console.log(data.length);
+          let iterator = i * 4 * j;
+          data[iterator] = data[iterator] * watershed[i][j]; // red
+          data[iterator + 1] = data[iterator + 1] * watershed[i][j]; // green
+          data[iterator + 2] = data[iterator + 2] * watershed[i][j]; // blue
+          data[iterator + 3] = 1;
+          ctx.putImageData(imageData, i, j);
+        }
+      }
+
+      const dataURL = canvas.toDataURL();
+      setCoordinates(dataURL);
+    };
     if (isToggled === true && title === 'heatmap' && watershed) {
       console.log(title);
       handleCanvasClick();
     }
-  }, [isToggled]);
+  }, [isToggled, title, watershed, setCoordinates]);
 
   React.useEffect(() => {
     if (title === 'heatmap') {
-      setCoordinates([content]);
+      setCoordinates(content);
     }
-  }, [content]);
+  }, [content, setCoordinates, title]);
 
   const onImageLoaded = image => {
     setRatio(image.clientHeight / 28);
@@ -133,7 +136,11 @@ const ImgBox = ({ viewType, content, isToggled, watershed, title }) => {
       {title === 'original' ? (
         <ReactCrop
           className={classes.crop}
-          imageStyle={{ height: '100%', width: '100%', objectFit: 'cover' }}
+          imageStyle={{
+            imageRendering: 'crisp-edges',
+            height: '100%',
+            width: '100%'
+          }}
           src={content}
           crop={crop}
           ruleOfThirds
@@ -142,16 +149,16 @@ const ImgBox = ({ viewType, content, isToggled, watershed, title }) => {
           onChange={onCropChange}
         />
       ) : (
-        <canvas id={title} style={{ height: '100%', width: '100%' }} />
+        <canvas id={title} className={classes.canvas} />
       )}
     </Card>
   );
 };
-ImgBox.propTypes = {
+Image.propTypes = {
   isToggled: PropTypes.bool,
   viewType: PropTypes.string,
   content: PropTypes.string,
   watershed: PropTypes.array,
   title: PropTypes.string
 };
-export default ImgBox;
+export default Image;

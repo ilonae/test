@@ -3,8 +3,8 @@ import { makeStyles, Card, Grid } from '@material-ui/core';
 import clsx from 'clsx';
 
 import PropTypes from 'prop-types';
-import SamplesSwitch from './SamplesSwitch';
-import FilterSlider from './FilterSlider';
+import SamplesSwitch from '../widgets/SamplesSwitch';
+import FilterSlider from '../widgets/FilterSlider';
 
 const useStyles = makeStyles({
   root: {
@@ -19,17 +19,12 @@ const useStyles = makeStyles({
   }
 });
 
-const SimpleBottomNavigation = ({ bottomCallback }) => {
+const BottomComponent = ({ bottomCallback }) => {
   const classes = useStyles();
-  const [amount, changeAmount] = React.useState(6);
 
   const filterAmount = value => {
-    changeAmount(value);
+    bottomCallback(value);
   };
-
-  React.useEffect(() => {
-    bottomCallback(amount);
-  }, [amount, bottomCallback]);
 
   return (
     <Card className={clsx(classes.root)}>
@@ -47,8 +42,8 @@ const SimpleBottomNavigation = ({ bottomCallback }) => {
     </Card>
   );
 };
-SimpleBottomNavigation.propTypes = {
+BottomComponent.propTypes = {
   bottomCallback: PropTypes.func
 };
 
-export default SimpleBottomNavigation;
+export default BottomComponent;

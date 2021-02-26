@@ -23,7 +23,7 @@ const WatershedSwitch = ({ imageIndex, isToggledCallback, maskCallback }) => {
     setWatershed(prev => !prev);
   };
 
-  React.useEffect(() => {
+  /*  React.useEffect(() => {
     isToggledCallback(useWatershed);
     const queryWatershed = async () => {
       await fetch('/api/watershed', {
@@ -44,7 +44,7 @@ const WatershedSwitch = ({ imageIndex, isToggledCallback, maskCallback }) => {
     if (useWatershed === true) {
       queryWatershed();
     }
-  }, [useWatershed]);
+  }, [useWatershed]); */
 
   return (
     <div className={clsx(classes.root)}>
