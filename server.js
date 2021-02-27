@@ -26,10 +26,45 @@ app.post('/api/get_filter', (req, res) => {
     });
 });
 
+app.post('/api/get_heatmap_filter', (req, res) => {
+  const optionsFilter = {
+    method: req.method,
+    uri: 'http://titan:5050/heatmap_single_filter',
+    body: JSON.stringify(req.body),
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  };
+  request(optionsFilter)
+    .then(response => {
+      res.status(200).json(response);
+    })
+    .catch(err => {
+      console.log(err);
+    });
+});
+
 app.post('/api/get_image', (req, res) => {
   const options = {
     method: req.method,
     uri: 'http://titan:5050/select_image',
+    body: JSON.stringify(req.body),
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  };
+  request(options)
+    .then(response => {
+      res.status(200).json(response);
+    })
+    .catch(err => {
+      console.log(err);
+    });
+});
+app.post('/api/local_analysis', (req, res) => {
+  const options = {
+    method: req.method,
+    uri: 'http://titan:5050/local_analysis',
     body: JSON.stringify(req.body),
     headers: {
       'Content-Type': 'application/json'

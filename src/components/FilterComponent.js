@@ -2,44 +2,50 @@ import React from 'react';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { Box, Card, makeStyles, Grid } from '@material-ui/core';
-import FilterBox from '../container/Filter';
-import LayerSelection from '../widgets/LayerSelection';
-import MethodSelection from '../widgets/MethodSelection';
+import Filter from '../container/Filter';
 import SortingButton from '../widgets/SortingButton';
 
-import ExperimentSelection from '../widgets/ExperimentSelection';
+import Selection from '../widgets/Selection';
 
 const useStyles = makeStyles(() => ({
   root: {
     height: '85vh',
     position: 'relative',
     overflow: 'auto'
-  }
+  },
+  innergrid: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: '1em'
+  },
+  grid: { width: '100%' }
 }));
 
 const FilterComponent = ({
+  filterAmount,
   parentCallback,
+  filterHeatmapCallback,
   viewState,
   indexState,
-  filterAmount,
   layers,
   methods,
-  datasets,
+  models,
   experimentsCallbackParent,
   methodsCallbackParent
 }) => {
   const [isFilterView, changeView] = React.useState(viewState);
-  const [index, setIndex] = React.useState(1);
-  const [method, setMethod] = React.useState('epsilon_plus');
-  const [experiment, setExperiment] = React.useState('LeNet');
-  const [filters, setFilter] = React.useState('');
-  const [layer, selectLayer] = React.useState('l1');
+  const [index, setIndex] = React.useState();
+  const [method, setMethod] = React.useState();
+  const [experiment, setExperiment] = React.useState();
+  const [filters, setFilter] = React.useState();
+  const [layer, selectLayer] = React.useState();
   const [order, setOrder] = React.useState('max');
 
   const classes = useStyles();
 
-  const callback = value => {
-    changeView(value);
+  const callback = () => {
+    filterHeatmapCallback();
   };
 
   const experimentsCallback = value => {
@@ -52,7 +58,7 @@ const FilterComponent = ({
     methodsCallbackParent(value);
   };
 
-  const getFilters = React.useCallback(async () => {
+  async function getFilter() {
     await fetch('/api/get_filter', {
       method: 'POST',
       headers: {
@@ -75,7 +81,7 @@ const FilterComponent = ({
           const filterBox = [];
           for (let i = 0; i < filterIndices.length; i++) {
             filterBox.push(
-              <FilterBox
+              <Filter
                 images={obj.images[i]}
                 filterIndex={filterIndices[i]}
                 parentCallback={callback}
@@ -90,7 +96,16 @@ const FilterComponent = ({
         });
       }
     });
-  }, [layer, filterAmount, index, order, viewState, method, experiment]);
+  }
+
+  React.useEffect(() => {
+    if (
+      (layer && filterAmount && order && experiment && index && method) !==
+      undefined
+    ) {
+      getFilter();
+    }
+  }, [layer, filterAmount, order, index, method]);
 
   const layerCallback = value => {
     selectLayer(value);
@@ -109,39 +124,28 @@ const FilterComponent = ({
   }, [isFilterView, parentCallback]);
 
   React.useEffect(() => {
-    if (
-      (layer &&
-        filterAmount &&
-        index &&
-        order &&
-        viewState &&
-        method &&
-        experiment) !== null
-    ) {
-      setIndex(indexState);
-      getFilters();
-    }
-  }, [indexState, layer, order, getFilters, method]);
+    setIndex(indexState);
+  }, [indexState]);
 
   return (
     <Card className={clsx(classes.root)}>
-      <Grid m={6} style={{ width: '100%' }} container spacing={3}>
-        <Grid
-          item
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'center',
-            marginTop: '1em'
-          }}
-          xs={12}
-        >
-          <ExperimentSelection
+      <Grid m={6} className={classes.grid} container spacing={3}>
+        <Grid item className={classes.innergrid} xs={12}>
+          <Selection
+            select={'Experiment'}
             parentCallback={experimentsCallback}
-            datasets={datasets}
+            params={models}
           />
-          <LayerSelection parentCallback={layerCallback} layers={layers} />
-          <MethodSelection parentCallback={methodsCallback} methods={methods} />
+          <Selection
+            select={'Layer'}
+            parentCallback={layerCallback}
+            params={layers}
+          />
+          <Selection
+            select={'Method'}
+            parentCallback={methodsCallback}
+            params={methods}
+          />
           <SortingButton parentCallback={sortingCallback} />
         </Grid>
 
@@ -163,7 +167,8 @@ FilterComponent.propTypes = {
   viewState: PropTypes.string,
   filterAmount: PropTypes.number,
   layers: PropTypes.array,
-  methods: PropTypes.array
+  methods: PropTypes.array,
+  models: PropTypes.array
 };
 
 export default FilterComponent;

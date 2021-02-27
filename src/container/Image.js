@@ -84,11 +84,29 @@ const Image = ({ viewType, content, isToggled, watershed, title }) => {
     });
   };
 
+  async function getLocalAnalysis() {
+    if ((x && y && width && height) !== null) {
+      await fetch('/api/local_analysis', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ x, y, width, height })
+      }).then(response => {
+        if (response.ok) {
+          response.json().then(json => {
+            console.log(json);
+          });
+        }
+      });
+    }
+  }
+
   const onCropComplete = crop => {
-    setX(crop.x / ratio);
-    setY(crop.y / ratio);
-    setWidth(crop.width / ratio);
-    setHeight(crop.height / ratio);
+    setX(parseInt(crop.x / ratio));
+    setY(parseInt(crop.y / ratio));
+    setWidth(parseInt(crop.width / ratio));
+    setHeight(parseInt(crop.height / ratio));
   };
 
   const onCropChange = crop => {

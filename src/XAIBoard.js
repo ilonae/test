@@ -8,8 +8,8 @@ import NetworkComponent from './components/NetworkComponent';
 import BottomComponent from './components/BottomComponent';
 
 const XAIBoard = () => {
-  const [isExpanded, changeLayout] = React.useState('DEFAULTVIEW');
-  const [filterAmount, changeFilterAmount] = React.useState(0);
+  const [viewType, changeViewType] = React.useState('DEFAULTVIEW');
+  const [filterAmount, changeFilterAmount] = React.useState();
   const [index, changeIndex] = React.useState(0);
   const [experiment, changeExperiment] = React.useState('');
   const [method, changeMethod] = React.useState('');
@@ -17,10 +17,15 @@ const XAIBoard = () => {
 
   const [layers, setLayers] = React.useState();
   const [methods, setMethods] = React.useState();
-  const [datasets, setExperiments] = React.useState();
+  const [models, setExperiments] = React.useState();
+
+  const getFilterHeatmap = () => {
+    console.log('test');
+    getSingleHeatmap();
+  };
 
   const viewState = value => {
-    changeLayout(value);
+    changeViewType(value);
   };
 
   const indexState = value => {
@@ -36,9 +41,29 @@ const XAIBoard = () => {
   };
 
   const selectedFilterAmount = value => {
-    console.log(value);
     changeFilterAmount(value);
   };
+
+  const getSingleHeatmap = React.useCallback(async () => {
+    await fetch('/api/get_heatmap_filter', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        experiment: experiment,
+        image_index: index,
+        method: method,
+        filter_index: 1
+      })
+    }).then(response => {
+      if (response.ok) {
+        response.json().then(json => {
+          console.log(json);
+        });
+      }
+    });
+  }, [index, method, experiment]);
 
   async function getSettings() {
     await fetch('/api/get_XAI_available', {
@@ -50,7 +75,6 @@ const XAIBoard = () => {
       if (response.ok) {
         response.json().then(json => {
           const obj = JSON.parse(json);
-          console.log(obj.layers);
           const experiments = obj.experiments;
           const methods = obj.methods;
           const layers = obj.layers;
@@ -79,7 +103,7 @@ const XAIBoard = () => {
           expansionCallback={viewState}
           indexCallback={indexState}
           viewCallback={viewState}
-          viewState={isExpanded}
+          viewState={viewType}
           experiment={experiment}
           method={method}
         />
@@ -95,7 +119,7 @@ const XAIBoard = () => {
           expansionCallback={viewState}
           indexCallback={indexState}
           viewCallback={viewState}
-          viewState={isExpanded}
+          viewState={viewType}
           experiment={experiment}
           method={method}
         />
@@ -103,14 +127,15 @@ const XAIBoard = () => {
       <Grid item lg={10} md={10} xl={10} xs={10}>
         <FilterComponent
           filterAmount={filterAmount}
+          models={models}
           experimentsCallbackParent={selectedExperiment}
+          filterHeatmapCallback={getFilterHeatmap}
           methodsCallbackParent={selectedMethod}
           parentCallback={viewState}
           indexState={index}
-          viewState={isExpanded}
+          viewState={viewType}
           layers={layer}
           methods={methods}
-          datasets={datasets}
         />
         <BottomComponent bottomCallback={selectedFilterAmount} />
       </Grid>
@@ -130,7 +155,7 @@ const XAIBoard = () => {
     <div>
       <Container maxWidth="xl">
         {(function() {
-          switch (isExpanded) {
+          switch (viewType) {
             case 'IMAGEVIEW':
               return imageGrid;
             case 'DEFAULTVIEW':

@@ -9,7 +9,8 @@ const useStyles = makeStyles(() => ({
     height: '100px',
     imageRendering: 'crisp-edges',
     border: '1px solid #555'
-  }
+  },
+  typography: { wordWrap: 'break-word' }
 }));
 
 const FilterBox = ({
@@ -20,15 +21,8 @@ const FilterBox = ({
   filterIndex,
   images
 }) => {
-  const [isFilterView, changeView] = React.useState(viewState);
   const classes = useStyles();
   const [imgState, setImages] = React.useState([]);
-  const callback = value => {
-    changeView(value);
-  };
-  React.useEffect(() => {
-    parentCallback(isFilterView);
-  }, [isFilterView, parentCallback]);
 
   React.useEffect(() => {
     const makeImages = async () => {
@@ -48,7 +42,7 @@ const FilterBox = ({
 
   return (
     <Grid item xl={4} lg={4} md={6} xs={6}>
-      <Box mx={3} style={{ wordWrap: 'break-word' }}>
+      <Box mx={3} className={classes.typography}>
         <Typography>
           Filter:
           {filterIndex}
@@ -60,7 +54,7 @@ const FilterBox = ({
         </Typography>
       </Box>
       <Box p={3}>
-        <Grid container spacing={1} onClick={() => changeView('FILTERVIEW')}>
+        <Grid container spacing={1} onClick={() => parentCallback()}>
           {imgState}
         </Grid>
       </Box>
