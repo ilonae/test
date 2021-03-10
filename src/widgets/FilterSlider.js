@@ -3,15 +3,23 @@ import { Slider, Typography } from '@material-ui/core';
 
 import PropTypes from 'prop-types';
 
-const FilterSlider = ({ filtersCallback }) => {
+const FilterSlider = ({ filtersCallback, selectedAmount }) => {
   const [amount, changeAmount] = React.useState(6);
 
-  const handleChange = (event, newValue) => {
+  const handleChange = newValue => {
+    console.log(newValue);
     changeAmount(newValue);
   };
 
   React.useEffect(() => {
+    if (selectedAmount) {
+      changeAmount(selectedAmount);
+    }
+  }, [selectedAmount]);
+
+  React.useEffect(() => {
     filtersCallback(amount);
+    console.log(amount);
   }, [amount, filtersCallback]);
   return (
     <div>

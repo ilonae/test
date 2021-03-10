@@ -19,10 +19,10 @@ const useStyles = makeStyles({
   }
 });
 
-const BottomComponent = ({ bottomCallback }) => {
+const BottomComponent = ({ bottomCallback, filterAmount }) => {
   const classes = useStyles();
 
-  const filterAmount = value => {
+  const filterAmountCallback = value => {
     bottomCallback(value);
   };
 
@@ -30,7 +30,10 @@ const BottomComponent = ({ bottomCallback }) => {
     <Card className={clsx(classes.root)}>
       <Grid container spacing={8}>
         <Grid item xs={4}>
-          <FilterSlider filtersCallback={filterAmount} />
+          <FilterSlider
+            filtersCallback={filterAmountCallback}
+            selectedAmount={filterAmount}
+          />
         </Grid>
         <Grid item xs={4}>
           Placeholder

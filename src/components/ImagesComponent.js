@@ -20,7 +20,7 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     flexDirection: 'row'
   },
-  textfield: { width: '100%' }
+  textfield: { width: '95%' }
 }));
 
 const ImagesComponent = ({
@@ -30,16 +30,24 @@ const ImagesComponent = ({
   image,
   heatmap,
   parentCallback,
-  index
+  index: parentIndex
 }) => {
   const classes = useStyles();
   const [isExpanded, changeLayout] = React.useState(viewState);
   const [isToggled, setToggle] = React.useState(false);
   const [watershed, setWatershed] = React.useState();
 
+  const [index, setIndex] = React.useState(0);
+
+  function handleEnter(e) {
+    if (e.key === 'Enter') {
+      indexCallback(index);
+    }
+  }
+
   function handleIndexChange(e) {
     if (e.target.value !== '') {
-      indexCallback(Number(e.target.value));
+      setIndex(Number(e.target.value));
     }
   }
 
@@ -61,6 +69,12 @@ const ImagesComponent = ({
   };
 
   React.useEffect(() => {
+    if (parentIndex) {
+      setIndex(parentIndex);
+    }
+  }, [parentIndex]);
+
+  React.useEffect(() => {
     viewCallback(isExpanded);
   }, [isExpanded, viewCallback]);
 
@@ -70,21 +84,19 @@ const ImagesComponent = ({
         <WatershedButton
           isToggledCallback={toggleCallback}
           maskCallback={maskCallback}
-          imageIndex={index}
+          imageIndex={parentIndex}
         />{' '}
-        <TextField
-          name="index"
-          label="Selected index"
-          type="number"
-          InputProps={{
-            inputProps: {
-              min: 0
-            }
-          }}
-          className={classes.textfield}
-          value={index}
-          onChange={handleIndexChange}
-        />
+        <div>
+          <input
+            type="number"
+            name="index"
+            label="Selected index"
+            onKeyDown={handleEnter}
+            onChange={handleIndexChange}
+            className={classes.textfield}
+            value={index}
+          />
+        </div>
         <div
           className={
             isExpanded === 'DEFAULTVIEW' ? classes.root : classes.expanded

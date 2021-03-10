@@ -66,7 +66,7 @@ const XAIBoard = () => {
     setSingleLayer(value);
   };
 
-  const selectedFilterAmount = value => {
+  const filterAmountCallback = value => {
     changeFilterAmount(value);
   };
 
@@ -158,7 +158,7 @@ const XAIBoard = () => {
           parentCallback={localAnalysis}
           index={index}
         />
-        <BottomComponent bottomCallback={selectedFilterAmount} />
+        <BottomComponent bottomCallback={filterAmountCallback} />
       </Grid>
     </Grid>
   );
@@ -196,7 +196,7 @@ const XAIBoard = () => {
           layerCallbackParent={selectedLayer}
           filters={filterData}
         />
-        <BottomComponent bottomCallback={selectedFilterAmount} />
+        <BottomComponent bottomCallback={filterAmountCallback} />
       </Grid>
     </Grid>
   );
@@ -205,7 +205,10 @@ const XAIBoard = () => {
     <Grid container spacing={3}>
       <Grid item lg={12} md={12} xl={12} xs={12}>
         <NetworkComponent />
-        <BottomComponent bottomCallback={selectedFilterAmount} />
+        <BottomComponent
+          bottomCallback={filterAmountCallback}
+          filterAmount={filterAmount}
+        />
       </Grid>
     </Grid>
   );

@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import ReactCrop from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 
-import useCanvas from '../util/useCanvas';
 import { Card, makeStyles } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
@@ -16,10 +15,6 @@ const useStyles = makeStyles(theme => ({
   },
   crop: {
     display: 'block'
-  },
-  canvas: {
-    height: '100%',
-    width: '100%'
   }
 }));
 
@@ -33,7 +28,6 @@ const Image = ({
 }) => {
   const classes = useStyles();
 
-  const setCoordinates = useCanvas();
   const [ratio, setRatio] = React.useState(0);
 
   const [crop, setCrop] = React.useState({
@@ -71,12 +65,6 @@ const Image = ({
     }
   }, [isToggled, title, watershed, setCoordinates]);
  */
-  React.useEffect(() => {
-    if (title === 'heatmap') {
-      setCoordinates(content);
-      console.log('trigger');
-    }
-  }, [content, title]);
 
   const onImageLoaded = image => {
     setRatio(image.clientHeight / 28);
@@ -112,7 +100,6 @@ const Image = ({
           }
 
           const content = 'data:image/png;base64,' + btoa(binary);
-          setCoordinates(content);
         });
       }
     });
@@ -130,24 +117,20 @@ const Image = ({
 
   return (
     <Card className={viewType === 'DEFAULTVIEW' ? classes.root : classes.side}>
-      {title === 'original' ? (
-        <ReactCrop
-          className={classes.crop}
-          imageStyle={{
-            imageRendering: 'crisp-edges',
-            height: '100%',
-            width: '100%'
-          }}
-          src={content}
-          crop={crop}
-          ruleOfThirds
-          onImageLoaded={onImageLoaded}
-          onComplete={onCropComplete}
-          onChange={onCropChange}
-        />
-      ) : (
-        <canvas id={title} className={classes.canvas} />
-      )}
+      <ReactCrop
+        className={classes.crop}
+        imageStyle={{
+          imageRendering: 'crisp-edges',
+          height: '100%',
+          width: '100%'
+        }}
+        src={content}
+        crop={crop}
+        ruleOfThirds
+        onImageLoaded={onImageLoaded}
+        onComplete={onCropComplete}
+        onChange={onCropChange}
+      />
     </Card>
   );
 };
