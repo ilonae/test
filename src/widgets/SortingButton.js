@@ -6,26 +6,42 @@ import { Button, Typography } from '@material-ui/core';
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
 
-const SortingButton = ({ parentCallback }) => {
+const SortingButton = ({ parentCallback, parentOrder }) => {
   const [descending, setSorting] = React.useState(true);
+  const [order, setOrder] = React.useState();
+  const inputEl = React.useRef();
 
-  const handleChange = () => {
+  const handleChange = e => {
     setSorting(!descending);
   };
+  React.useEffect(() => {
+    if (order) {
+      parentCallback(order);
+    }
+  }, [order]);
 
   React.useEffect(() => {
-    parentCallback(descending);
-  }, [descending, parentCallback]);
+    setOrder(descending ? 'max' : 'min');
+  }, [descending]);
+
+  React.useEffect(() => {
+    if (parentOrder) {
+      setOrder(parentOrder);
+    }
+  }, []);
+
   return (
     <Button
       variant="contained"
       color="default"
       style={{ width: '20%', wordWrap: 'break-word', whiteSpace: 'normal' }}
       onClick={handleChange}
-      startIcon={descending ? <ArrowUpwardIcon /> : <ArrowDownwardIcon />}
+      ref={inputEl}
+      value={order}
+      startIcon={order === 'max' ? <ArrowDownwardIcon /> : <ArrowUpwardIcon />}
     >
       <Typography noWrap>
-        {descending
+        {order === 'max'
           ? 'Sort by lowest contribution'
           : 'Sort by highest contribution'}
       </Typography>
@@ -33,6 +49,7 @@ const SortingButton = ({ parentCallback }) => {
   );
 };
 SortingButton.propTypes = {
+  order: PropTypes.string,
   parentCallback: PropTypes.func
 };
 

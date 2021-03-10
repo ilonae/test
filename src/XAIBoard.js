@@ -1,31 +1,52 @@
 import 'react-perfect-scrollbar/dist/css/styles.css';
 import React from 'react';
 
-import { Container, Grid } from '@material-ui/core';
+import { Container, Grid, CircularProgress } from '@material-ui/core';
+
 import FilterComponent from './components/FilterComponent';
 import ImagesComponent from './components/ImagesComponent';
 import NetworkComponent from './components/NetworkComponent';
 import BottomComponent from './components/BottomComponent';
 
+import queueries from './util/queries';
+
 const XAIBoard = () => {
   const [viewType, changeViewType] = React.useState('DEFAULTVIEW');
-  const [filterAmount, changeFilterAmount] = React.useState();
+  const [filterAmount, changeFilterAmount] = React.useState(6);
   const [index, changeIndex] = React.useState(0);
   const [experiment, changeExperiment] = React.useState('');
   const [method, changeMethod] = React.useState('');
   const [layer, changeLayer] = React.useState([]);
 
-  const [layers, setLayers] = React.useState();
+  const [experimentLayers, setExperimentsLayers] = React.useState();
   const [methods, setMethods] = React.useState();
   const [models, setExperiments] = React.useState();
 
+  const [singleLayer, setSingleLayer] = React.useState('');
+  const [image, setImage] = React.useState('');
+  const [heatmap, setHeatmap] = React.useState('');
+  const [order, setOrder] = React.useState('max');
+
+  const [isLoading, setLoading] = React.useState(true);
+  const [filterData, setFilterData] = React.useState();
+
+  const [prevView, setPrevView] = React.useState('');
+
+  const localAnalysis = (x, y, width, height) => {
+    queueries.getLocalAnalysis(x, y, width, height);
+  };
+
   const getFilterHeatmap = () => {
     console.log('test');
-    getSingleHeatmap();
+  };
+
+  const selectedOrder = value => {
+    setOrder(value);
   };
 
   const viewState = value => {
     changeViewType(value);
+    setPrevView(value);
   };
 
   const indexState = value => {
@@ -37,64 +58,92 @@ const XAIBoard = () => {
   };
 
   const selectedMethod = value => {
-    changeMethod(value);
+    if (value) {
+      changeMethod(value);
+    }
+  };
+  const selectedLayer = value => {
+    setSingleLayer(value);
   };
 
   const selectedFilterAmount = value => {
     changeFilterAmount(value);
   };
 
-  const getSingleHeatmap = React.useCallback(async () => {
-    await fetch('/api/get_heatmap_filter', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        experiment: experiment,
-        image_index: index,
-        method: method,
-        filter_index: 1
-      })
-    }).then(response => {
-      if (response.ok) {
-        response.json().then(json => {
-          console.log(json);
-        });
-      }
-    });
-  }, [index, method, experiment]);
-
-  async function getSettings() {
-    await fetch('/api/get_XAI_available', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    }).then(response => {
-      if (response.ok) {
-        response.json().then(json => {
-          const obj = JSON.parse(json);
-          const experiments = obj.experiments;
-          const methods = obj.methods;
-          const layers = obj.layers;
-          setLayers(layers);
-          setMethods(methods);
-          setExperiments(experiments);
-        });
-      }
-    });
-  }
-
   React.useEffect(() => {
-    if (layers) {
-      changeLayer(layers[experiment]);
-    }
-  }, [experiment, layers]);
-
-  React.useEffect(() => {
-    getSettings();
+    const fetchSettings = async () => {
+      await queueries.getSettings().then(data => {
+        setExperimentsLayers(data.layers);
+        setMethods(data.methods);
+        setExperiments(data.experiments);
+      });
+    };
+    fetchSettings();
   }, []);
+
+  React.useEffect(() => {
+    if (methods && models) {
+      changeMethod(methods[0]);
+      changeExperiment(models[0]);
+    }
+  }, [methods, models]);
+
+  React.useEffect(() => {
+    if (prevView) {
+      console.log(prevView);
+    }
+  }, [prevView]);
+
+  React.useEffect(() => {
+    if (experiment) {
+      setPrevView(viewType);
+      changeViewType('LOADINGVIEW');
+      changeLayer(experimentLayers[experiment]);
+      setSingleLayer(experimentLayers[experiment][0]);
+    }
+  }, [experimentLayers, experiment]);
+
+  React.useEffect(() => {
+    if (experiment && singleLayer && method && order && filterAmount) {
+      const fetchImages = async () => {
+        changeViewType('LOADINGVIEW');
+        const image = queueries.getImg(index, experiment);
+        const heatmap = queueries.getHeatmap(index, experiment, method);
+        const filters = queueries.getFilter(
+          singleLayer,
+          filterAmount,
+          order,
+          experiment,
+          index,
+          method
+        );
+        const contents = [image, heatmap, filters];
+        Promise.allSettled(contents).then(results => {
+          setImage(results[0].value);
+          console.log(results[1].value);
+          setHeatmap(results[1].value);
+          setFilterData(results[2].value);
+        });
+      };
+      fetchImages();
+      setTimeout(() => {
+        changeViewType(prevView);
+      }, 3000);
+    }
+  }, [index, method, singleLayer, order, filterAmount]);
+
+  const loadingGrid = (
+    <Grid
+      container
+      spacing={3}
+      direction="row"
+      justify="center"
+      alignItems="stretch"
+      style={{ paddingTop: '50vh' }}
+    >
+      <CircularProgress />
+    </Grid>
+  );
 
   const imageGrid = (
     <Grid container spacing={3}>
@@ -104,8 +153,10 @@ const XAIBoard = () => {
           indexCallback={indexState}
           viewCallback={viewState}
           viewState={viewType}
-          experiment={experiment}
-          method={method}
+          image={image}
+          heatmap={heatmap}
+          parentCallback={localAnalysis}
+          index={index}
         />
         <BottomComponent bottomCallback={selectedFilterAmount} />
       </Grid>
@@ -120,22 +171,30 @@ const XAIBoard = () => {
           indexCallback={indexState}
           viewCallback={viewState}
           viewState={viewType}
-          experiment={experiment}
-          method={method}
+          image={image}
+          heatmap={heatmap}
+          parentCallback={localAnalysis}
+          index={index}
         />
       </Grid>
       <Grid item lg={10} md={10} xl={10} xs={10}>
         <FilterComponent
           filterAmount={filterAmount}
+          parentCallback={viewState}
+          filterHeatmapCallback={getFilterHeatmap}
+          orderCallback={selectedOrder}
+          viewState={viewType}
+          selectedLayer={singleLayer}
+          selectedExperiment={experiment}
+          selectedMethod={method}
+          layers={layer}
+          order={order}
+          methods={methods}
           models={models}
           experimentsCallbackParent={selectedExperiment}
-          filterHeatmapCallback={getFilterHeatmap}
           methodsCallbackParent={selectedMethod}
-          parentCallback={viewState}
-          indexState={index}
-          viewState={viewType}
-          layers={layer}
-          methods={methods}
+          layerCallbackParent={selectedLayer}
+          filters={filterData}
         />
         <BottomComponent bottomCallback={selectedFilterAmount} />
       </Grid>
@@ -162,6 +221,8 @@ const XAIBoard = () => {
               return defaultGrid;
             case 'FILTERVIEW':
               return filterGrid;
+            case 'LOADINGVIEW':
+              return loadingGrid;
             default:
               return defaultGrid;
           }

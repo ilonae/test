@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import Image from '../container/Image';
 import WatershedButton from '../widgets/WatershedSwitch';
 import ExpansionButton from '../widgets/ExpansionButton';
-
 const useStyles = makeStyles(theme => ({
   root: {
     overflow: 'hidden',
@@ -28,20 +27,19 @@ const ImagesComponent = ({
   viewCallback,
   indexCallback,
   viewState,
-  experiment,
-  method
+  image,
+  heatmap,
+  parentCallback,
+  index
 }) => {
   const classes = useStyles();
   const [isExpanded, changeLayout] = React.useState(viewState);
   const [isToggled, setToggle] = React.useState(false);
-  const [image, setImage] = React.useState('');
-  const [heatmap, setHeatmap] = React.useState('');
   const [watershed, setWatershed] = React.useState();
-  const [index, changeIndex] = React.useState(0);
 
   function handleIndexChange(e) {
     if (e.target.value !== '') {
-      changeIndex(Number(e.target.value));
+      indexCallback(Number(e.target.value));
     }
   }
 
@@ -53,6 +51,10 @@ const ImagesComponent = ({
     setToggle(value);
   };
 
+  const localAnalysisCallback = (x, y, width, height) => {
+    parentCallback(x, y, width, height);
+  };
+
   const maskCallback = value => {
     const watershedMap = JSON.parse(value);
     setWatershed(watershedMap.masks[0]);
@@ -61,55 +63,6 @@ const ImagesComponent = ({
   React.useEffect(() => {
     viewCallback(isExpanded);
   }, [isExpanded, viewCallback]);
-
-  React.useEffect(() => {
-    indexCallback(index);
-  }, [index, indexCallback]);
-
-  React.useEffect(() => {
-    async function getImg() {
-      await fetch('/api/get_image', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ image_index: index, experiment })
-      }).then(response => {
-        if (response.ok) {
-          response.json().then(json => {
-            const obj = JSON.parse(json);
-            const img = `data:image/png;base64,${obj.image}`;
-            setImage(img);
-          });
-        }
-      });
-    }
-    async function getHeatmap() {
-      await fetch('/api/get_heatmap', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          image_index: index,
-          experiment,
-          method
-        })
-      }).then(response => {
-        if (response.ok) {
-          response.json().then(json => {
-            const obj = JSON.parse(json);
-            const img = `data:image/png;base64,${obj.image}`;
-            setHeatmap(img);
-          });
-        }
-      });
-    }
-    if (experiment && method) {
-      getImg();
-      getHeatmap();
-    }
-  }, [index, experiment, method]);
 
   return (
     <Grid container spacing={3}>
@@ -142,6 +95,7 @@ const ImagesComponent = ({
             title={'original'}
             viewType={isExpanded}
             content={image}
+            getLocalAnalysisCallback={localAnalysisCallback}
           />
 
           <Image
@@ -149,6 +103,7 @@ const ImagesComponent = ({
             title={'heatmap'}
             viewType={isExpanded}
             content={heatmap}
+            getLocalAnalysisCallback={localAnalysisCallback}
           />
         </div>
         <ExpansionButton
@@ -166,7 +121,8 @@ ImagesComponent.propTypes = {
   indexCallback: PropTypes.func,
   viewState: PropTypes.string,
   experiment: PropTypes.string,
-  method: PropTypes.string
+  method: PropTypes.string,
+  parentCallback: PropTypes.func
 };
 
 export default ImagesComponent;

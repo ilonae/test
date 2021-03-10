@@ -22,7 +22,7 @@ const FilterSlider = ({ filtersCallback }) => {
         step={2}
         marks
         min={2}
-        max={8}
+        max={6}
         valueLabelDisplay="auto"
       />
     </div>

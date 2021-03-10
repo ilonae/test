@@ -8,6 +8,23 @@ const port = process.env.PORT || 5000;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+app.post('/api/png_array', (req, res) => {
+  const optionsFilter = {
+    method: req.method,
+    uri: 'http://titan:5050/png_array',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  };
+  request(optionsFilter)
+    .then(response => {
+      res.status(200).json(response);
+    })
+    .catch(err => {
+      console.log(err);
+    });
+});
+
 app.post('/api/get_filter', (req, res) => {
   const optionsFilter = {
     method: req.method,

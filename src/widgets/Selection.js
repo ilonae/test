@@ -10,33 +10,24 @@ const useStyles = makeStyles(() => ({
     marginRight: '5%'
   }
 }));
-const Selection = ({ select, parentCallback, params }) => {
+const Selection = ({ select, parentCallback, params, selectedParam }) => {
   const [parameters, setParameters] = React.useState();
   const [parameter, setParameter] = React.useState();
 
   const classes = useStyles();
 
   const handleChange = event => {
+    console.log(event.target.value);
     setParameter(event.target.value);
+    parentCallback(event.target.value);
   };
 
   React.useEffect(() => {
-    if (parameter) {
-      parentCallback(parameter);
-    }
-  }, [parameter, parentCallback]);
-
-  React.useEffect(() => {
-    if (typeof params !== 'undefined' && params.length > 0) {
+    if (typeof params !== 'undefined' && params.length > 0 && selectedParam) {
       setParameters(params);
+      setParameter(selectedParam);
     }
-  }, [params]);
-
-  React.useEffect(() => {
-    if (parameters) {
-      setParameter(parameters[0]);
-    }
-  }, [parameters]);
+  }, [params, selectedParam]);
 
   if (!parameters) {
     return null;
@@ -63,6 +54,7 @@ const Selection = ({ select, parentCallback, params }) => {
   );
 };
 Selection.propTypes = {
+  selectedParam: PropTypes.string,
   select: PropTypes.string,
   parentCallback: PropTypes.func,
   params: PropTypes.array

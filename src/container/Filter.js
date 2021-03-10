@@ -7,10 +7,21 @@ const useStyles = makeStyles(() => ({
   image: {
     width: '100px',
     height: '100px',
-    imageRendering: 'crisp-edges',
     border: '1px solid #555'
   },
-  typography: { wordWrap: 'break-word' }
+  typography: { wordWrap: 'break-word' },
+  positive: {
+    backgroundColor: 'rgba(255, 0, 0, 0.2)',
+    paddingTop: '5%',
+    width: '90%',
+    marginRight: '1%'
+  },
+  negative: {
+    backgroundColor: 'rgba(0, 0, 255, 0.2)',
+    paddingTop: '5%',
+    width: '90%',
+    marginRight: '1%'
+  }
 }));
 
 const FilterBox = ({
@@ -42,22 +53,24 @@ const FilterBox = ({
 
   return (
     <Grid item xl={4} lg={4} md={6} xs={6}>
-      <Box mx={3} className={classes.typography}>
-        <Typography>
-          Filter:
-          {filterIndex}
-        </Typography>
+      <div className={relevance >= 0 ? classes.positive : classes.negative}>
+        <Box mx={3} className={classes.typography}>
+          <Typography>
+            Filter:
+            {filterIndex}
+          </Typography>
 
-        <Typography>
-          Contribution:
-          {relevance}
-        </Typography>
-      </Box>
-      <Box p={3}>
-        <Grid container spacing={1} onClick={() => parentCallback()}>
-          {imgState}
-        </Grid>
-      </Box>
+          <Typography>
+            Contribution:
+            {relevance}
+          </Typography>
+        </Box>
+        <Box p={3}>
+          <Grid container onClick={() => parentCallback()}>
+            {imgState}
+          </Grid>
+        </Box>
+      </div>
     </Grid>
   );
 };

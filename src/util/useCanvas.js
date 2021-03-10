@@ -5,6 +5,7 @@ const useCanvas = () => {
 
   useEffect(() => {
     if (coordinates) {
+      console.log(coordinates);
       const canvas = document.querySelector('canvas');
       canvas.imageSmoothingEnabled = false;
       const ctx = canvas.getContext('2d');

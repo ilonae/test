@@ -23,15 +23,18 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const Image = ({ viewType, content, isToggled, watershed, title }) => {
+const Image = ({
+  viewType,
+  content,
+  isToggled,
+  watershed,
+  title,
+  getLocalAnalysisCallback
+}) => {
   const classes = useStyles();
 
   const setCoordinates = useCanvas();
   const [ratio, setRatio] = React.useState(0);
-  const [x, setX] = React.useState(0);
-  const [y, setY] = React.useState(0);
-  const [width, setWidth] = React.useState(0);
-  const [height, setHeight] = React.useState(0);
 
   const [crop, setCrop] = React.useState({
     x: 0,
@@ -41,7 +44,7 @@ const Image = ({ viewType, content, isToggled, watershed, title }) => {
     height: 0
   });
 
-  React.useEffect(() => {
+  /*   React.useEffect(() => {
     const handleCanvasClick = () => {
       const canvas = document.querySelector('canvas');
       const ctx = canvas.getContext('2d');
@@ -67,12 +70,13 @@ const Image = ({ viewType, content, isToggled, watershed, title }) => {
       handleCanvasClick();
     }
   }, [isToggled, title, watershed, setCoordinates]);
-
+ */
   React.useEffect(() => {
     if (title === 'heatmap') {
       setCoordinates(content);
+      console.log('trigger');
     }
-  }, [content, setCoordinates, title]);
+  }, [content, title]);
 
   const onImageLoaded = image => {
     setRatio(image.clientHeight / 28);
@@ -84,70 +88,45 @@ const Image = ({ viewType, content, isToggled, watershed, title }) => {
     });
   };
 
-  async function getLocalAnalysis() {
-    if ((x && y && width && height) !== null) {
-      await fetch('/api/local_analysis', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ x, y, width, height })
-      }).then(response => {
-        if (response.ok) {
-          response.json().then(json => {
-            console.log(json);
+  async function pngArray() {
+    await fetch('/api/png_array', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).then(response => {
+      if (response.ok) {
+        response.json().then(json => {
+          const res = json.split('\x89PNG');
+          function isempty(x) {
+            if (x !== '') return true;
+          }
+          const filtered = res.filter(isempty);
+          filtered.forEach(function(e, i, a) {
+            a[i] = '\x89PNG' + a[i];
           });
-        }
-      });
-    }
+
+          var binary = '';
+          for (var i = 0; i < filtered[0].length; i++) {
+            binary += String.fromCharCode(filtered[0].charCodeAt(i) & 0xff);
+          }
+
+          const content = 'data:image/png;base64,' + btoa(binary);
+          setCoordinates(content);
+        });
+      }
+    });
   }
 
-  const onCropComplete = crop => {
-    setX(parseInt(crop.x / ratio));
-    setY(parseInt(crop.y / ratio));
-    setWidth(parseInt(crop.width / ratio));
-    setHeight(parseInt(crop.height / ratio));
+  const onCropComplete = async crop => {
+    if ((crop.width && crop.height) !== 0) {
+      getLocalAnalysisCallback(crop.x, crop.y, crop.width, crop.height);
+    }
   };
 
   const onCropChange = crop => {
     setCrop(crop);
   };
-
-  function getCroppedImg(image, crop, fileName) {
-    const canvas = document.createElement('canvas');
-    const scaleX = image.naturalWidth / image.width;
-    const scaleY = image.naturalHeight / image.height;
-    canvas.width = crop.width;
-    canvas.height = crop.height;
-    const ctx = canvas.getContext('2d');
-    console.log(canvas.width);
-
-    ctx.drawImage(
-      image,
-      crop.x * scaleX,
-      crop.y * scaleY,
-      crop.width * scaleX,
-      crop.height * scaleY,
-      0,
-      0,
-      crop.width,
-      crop.height
-    );
-
-    return new Promise((resolve, reject) => {
-      canvas.toBlob(blob => {
-        if (!blob) {
-          //reject(new Error('Canvas is empty'));
-          console.error('Canvas is empty');
-          return;
-        }
-        blob.name = fileName;
-        window.URL.revokeObjectURL(this.fileUrl);
-        this.fileUrl = window.URL.createObjectURL(blob);
-        resolve(this.fileUrl);
-      }, 'image/jpeg');
-    });
-  }
 
   return (
     <Card className={viewType === 'DEFAULTVIEW' ? classes.root : classes.side}>
@@ -177,6 +156,7 @@ Image.propTypes = {
   viewType: PropTypes.string,
   content: PropTypes.string,
   watershed: PropTypes.array,
-  title: PropTypes.string
+  title: PropTypes.string,
+  getLocalAnalysisCallback: PropTypes.func
 };
 export default Image;
