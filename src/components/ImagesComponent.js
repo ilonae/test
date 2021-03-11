@@ -29,7 +29,7 @@ const ImagesComponent = ({
   viewState,
   image,
   heatmap,
-  parentCallback,
+  parentLACallback,
   index: parentIndex
 }) => {
   const classes = useStyles();
@@ -60,7 +60,7 @@ const ImagesComponent = ({
   };
 
   const localAnalysisCallback = (x, y, width, height) => {
-    parentCallback(x, y, width, height);
+    parentLACallback(x, y, width, height);
   };
 
   const maskCallback = value => {
@@ -134,7 +134,7 @@ ImagesComponent.propTypes = {
   viewState: PropTypes.string,
   experiment: PropTypes.string,
   method: PropTypes.string,
-  parentCallback: PropTypes.func
+  parentLACallback: PropTypes.func
 };
 
 export default ImagesComponent;

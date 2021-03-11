@@ -33,7 +33,22 @@ const XAIBoard = () => {
   const [prevView, setPrevView] = React.useState('');
 
   const localAnalysis = (x, y, width, height) => {
-    queueries.getLocalAnalysis(x, y, width, height);
+    const filters = queueries.getLocalAnalysis(
+      x,
+      y,
+      width,
+      height,
+      order,
+      singleLayer,
+      experiment,
+      index,
+      method,
+      filterAmount
+    );
+
+    Promise.resolve(filters).then(results => {
+      setFilterData(results);
+    });
   };
 
   const getFilterHeatmap = () => {
@@ -155,10 +170,13 @@ const XAIBoard = () => {
           viewState={viewType}
           image={image}
           heatmap={heatmap}
-          parentCallback={localAnalysis}
+          parentLACallback={localAnalysis}
           index={index}
         />
-        <BottomComponent bottomCallback={filterAmountCallback} />
+        <BottomComponent
+          filterAmount={filterAmount}
+          bottomCallback={filterAmountCallback}
+        />
       </Grid>
     </Grid>
   );
@@ -173,7 +191,7 @@ const XAIBoard = () => {
           viewState={viewType}
           image={image}
           heatmap={heatmap}
-          parentCallback={localAnalysis}
+          parentLACallback={localAnalysis}
           index={index}
         />
       </Grid>
@@ -196,7 +214,10 @@ const XAIBoard = () => {
           layerCallbackParent={selectedLayer}
           filters={filterData}
         />
-        <BottomComponent bottomCallback={filterAmountCallback} />
+        <BottomComponent
+          filterAmount={filterAmount}
+          bottomCallback={filterAmountCallback}
+        />
       </Grid>
     </Grid>
   );

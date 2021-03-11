@@ -70,6 +70,7 @@ const FilterComponent = ({
 
   React.useEffect(() => {
     if (filters) {
+      console.log('passed');
       const filterIndices = filters.filter_indices;
       const filterBox = [];
       for (let i = 0; i < filterIndices.length; i++) {

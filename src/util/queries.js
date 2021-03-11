@@ -1,7 +1,16 @@
-import { useState, useEffect } from 'react';
-
-const getLocalAnalysis = async (x, y, width, height) => {
-  await fetch('/api/local_analysis', {
+const getLocalAnalysis = async (
+  x,
+  y,
+  width,
+  height,
+  order,
+  selectedLayer,
+  experiment,
+  index,
+  method,
+  filterAmount
+) => {
+  return await fetch('/api/local_analysis', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -11,20 +20,18 @@ const getLocalAnalysis = async (x, y, width, height) => {
       y,
       width,
       height,
-      layer: 'l1',
-      filter_indices: `${0}:${2}`,
-      sorting: 'max',
+      layer: selectedLayer,
+      filter_indices: `${0}:${filterAmount}`,
+      sorting: order,
       sample_indices: '0:9',
-      experiment: 'LeNet',
-      image_index: 0,
-      method: 'epsilon_plus'
+      experiment: experiment,
+      image_index: index,
+      method: method
     })
-  }).then(response => {
-    if (response.ok) {
-      response.json().then(json => {
-        console.log(json);
-      });
-    }
+  }).then(async response => {
+    const json = await response.json();
+    const localAnalysisObj = JSON.parse(json);
+    return localAnalysisObj;
   });
 };
 

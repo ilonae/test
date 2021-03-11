@@ -4,11 +4,10 @@ import { Slider, Typography } from '@material-ui/core';
 import PropTypes from 'prop-types';
 
 const FilterSlider = ({ filtersCallback, selectedAmount }) => {
-  const [amount, changeAmount] = React.useState(6);
+  const [amount, changeAmount] = React.useState(0);
 
-  const handleChange = newValue => {
-    console.log(newValue);
-    changeAmount(newValue);
+  const handleChange = (event, newValue) => {
+    filtersCallback(newValue);
   };
 
   React.useEffect(() => {
@@ -17,10 +16,6 @@ const FilterSlider = ({ filtersCallback, selectedAmount }) => {
     }
   }, [selectedAmount]);
 
-  React.useEffect(() => {
-    filtersCallback(amount);
-    console.log(amount);
-  }, [amount, filtersCallback]);
   return (
     <div>
       <Typography gutterBottom>Filter amount</Typography>
@@ -30,7 +25,7 @@ const FilterSlider = ({ filtersCallback, selectedAmount }) => {
         step={2}
         marks
         min={2}
-        max={6}
+        max={12}
         valueLabelDisplay="auto"
       />
     </div>
