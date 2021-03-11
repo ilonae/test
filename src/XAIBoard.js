@@ -27,10 +27,18 @@ const XAIBoard = () => {
   const [heatmap, setHeatmap] = React.useState('');
   const [order, setOrder] = React.useState('max');
 
-  const [isLoading, setLoading] = React.useState(true);
   const [filterData, setFilterData] = React.useState();
 
   const [prevView, setPrevView] = React.useState('');
+
+  const setWatershed = bool => {
+    if (bool === true) {
+      const watershed = queueries.getWatershed(index, method, experiment);
+      Promise.resolve(watershed).then(result => {
+        setHeatmap('data:image/png;base64,' + result.masks[1]);
+      });
+    }
+  };
 
   const localAnalysis = (x, y, width, height) => {
     const filters = queueries.getLocalAnalysis(
@@ -172,6 +180,7 @@ const XAIBoard = () => {
           heatmap={heatmap}
           parentLACallback={localAnalysis}
           index={index}
+          parentToggleCallback={setWatershed}
         />
         <BottomComponent
           filterAmount={filterAmount}
@@ -193,6 +202,7 @@ const XAIBoard = () => {
           heatmap={heatmap}
           parentLACallback={localAnalysis}
           index={index}
+          parentToggleCallback={setWatershed}
         />
       </Grid>
       <Grid item lg={10} md={10} xl={10} xs={10}>

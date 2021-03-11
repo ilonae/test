@@ -119,6 +119,25 @@ const getFilter = async (
   });
 };
 
+const getWatershed = async (imageIndex, method, experiment, height) => {
+  return await fetch('/api/watershed', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      image_index: imageIndex,
+      method: method,
+      experiment: experiment,
+      height: 2
+    })
+  }).then(async response => {
+    const json = await response.json();
+    const obj = JSON.parse(json);
+    return obj;
+  });
+};
+
 /* const getSingleHeatmap = React.useCallback(async () => {
   await fetch('/api/get_heatmap_filter', {
     method: 'POST',
@@ -140,4 +159,11 @@ const getFilter = async (
   });
 }, [index, method, experiment]); */
 
-export default { getLocalAnalysis, getImg, getHeatmap, getSettings, getFilter };
+export default {
+  getLocalAnalysis,
+  getImg,
+  getHeatmap,
+  getSettings,
+  getFilter,
+  getWatershed
+};

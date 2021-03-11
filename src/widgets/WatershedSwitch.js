@@ -15,13 +15,16 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-const WatershedSwitch = ({ imageIndex, isToggledCallback, maskCallback }) => {
+const WatershedSwitch = ({ isToggledCallback }) => {
   const classes = useStyles();
   const [useWatershed, setWatershed] = React.useState(false);
 
   const toggleButton = async () => {
     setWatershed(prev => !prev);
   };
+  React.useEffect(() => {
+    isToggledCallback(useWatershed);
+  }, [useWatershed]);
 
   /*  React.useEffect(() => {
     isToggledCallback(useWatershed);
@@ -68,9 +71,7 @@ const WatershedSwitch = ({ imageIndex, isToggledCallback, maskCallback }) => {
 };
 
 WatershedSwitch.propTypes = {
-  imageIndex: PropTypes.number,
-  isToggledCallback: PropTypes.func,
-  maskCallback: PropTypes.func
+  isToggledCallback: PropTypes.func
 };
 
 export default WatershedSwitch;

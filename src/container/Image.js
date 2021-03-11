@@ -18,14 +18,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const Image = ({
-  viewType,
-  content,
-  isToggled,
-  watershed,
-  title,
-  getLocalAnalysisCallback
-}) => {
+const Image = ({ viewType, content, getLocalAnalysisCallback }) => {
   const classes = useStyles();
 
   const [ratio, setRatio] = React.useState(0);

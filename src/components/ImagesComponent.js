@@ -30,11 +30,11 @@ const ImagesComponent = ({
   image,
   heatmap,
   parentLACallback,
-  index: parentIndex
+  index: parentIndex,
+  parentToggleCallback
 }) => {
   const classes = useStyles();
   const [isExpanded, changeLayout] = React.useState(viewState);
-  const [isToggled, setToggle] = React.useState(false);
   const [watershed, setWatershed] = React.useState();
 
   const [index, setIndex] = React.useState(0);
@@ -56,7 +56,7 @@ const ImagesComponent = ({
   };
 
   const toggleCallback = value => {
-    setToggle(value);
+    parentToggleCallback(value);
   };
 
   const localAnalysisCallback = (x, y, width, height) => {
@@ -81,11 +81,7 @@ const ImagesComponent = ({
   return (
     <Grid container spacing={3}>
       <Grid item lg={12} md={12} xl={12} xs={12}>
-        <WatershedButton
-          isToggledCallback={toggleCallback}
-          maskCallback={maskCallback}
-          imageIndex={parentIndex}
-        />{' '}
+        <WatershedButton isToggledCallback={toggleCallback} />{' '}
         <div>
           <input
             type="number"
@@ -103,16 +99,12 @@ const ImagesComponent = ({
           }
         >
           <Image
-            isToggled={isToggled}
-            title={'original'}
             viewType={isExpanded}
             content={image}
             getLocalAnalysisCallback={localAnalysisCallback}
           />
 
           <Image
-            isToggled={isToggled}
-            title={'heatmap'}
             viewType={isExpanded}
             content={heatmap}
             getLocalAnalysisCallback={localAnalysisCallback}
@@ -134,7 +126,8 @@ ImagesComponent.propTypes = {
   viewState: PropTypes.string,
   experiment: PropTypes.string,
   method: PropTypes.string,
-  parentLACallback: PropTypes.func
+  parentLACallback: PropTypes.func,
+  parentToggleCallback: PropTypes.func
 };
 
 export default ImagesComponent;
