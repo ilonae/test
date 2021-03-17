@@ -31,12 +31,96 @@ const XAIBoard = () => {
 
   const [prevView, setPrevView] = React.useState('');
 
+  let context;
+
   const setWatershed = bool => {
     if (bool === true) {
+      var element = document.getElementsByClassName('ReactCrop__image')[1];
+      var canvas = document.getElementById('canvas');
       const watershed = queueries.getWatershed(index, method, experiment);
-      Promise.resolve(watershed).then(result => {
-        setHeatmap('data:image/png;base64,' + result.masks[1]);
+      Promise.resolve(watershed).then(results => {
+        context = canvas.getContext('2d');
+        element.parentNode.removeChild(element);
+        console.log(results.masks.length);
+
+        var img1 = new Image();
+
+        img1.onload = function() {
+          for (let i = 1; i < results.masks.length; i++) {
+            var img2 = new Image();
+
+            img2.src = 'data:image/png;base64,' + results.masks[i];
+            img2.onload = function() {
+              context.globalAlpha = 1.0;
+              context.drawImage(img1, 0, 0);
+              /*               var imgd = context.getImageData(0, 0, 135, 135),
+                pix = imgd.data,
+                newColor = { r: 0, g: 0, b: 0, a: 0 };
+
+              for (var i = 0, n = pix.length; i < n; i += 4) {
+                var r = pix[i],
+                  g = pix[i + 1],
+                  b = pix[i + 2];
+
+                if (r == 0 && g == 0 && b == 0) {
+                  // Change the white to the new color.
+                  pix[i] = newColor.r;
+                  pix[i + 1] = newColor.g;
+                  pix[i + 2] = newColor.b;
+                  pix[i + 3] = newColor.a;
+                }
+              }
+
+              context.putImageData(imgd, 0, 0); */
+              context.globalAlpha = 1 / results.masks.length; //Remove if pngs have alpha
+              context.drawImage(img2, 0, 0);
+              /*               var imgd = context.getImageData(0, 0, 135, 135),
+                pix = imgd.data,
+                newColor = { r: 0, g: 0, b: 0, a: 0 };
+
+              for (var i = 0, n = pix.length; i < n; i += 4) {
+                var r = pix[i],
+                  g = pix[i + 1],
+                  b = pix[i + 2];
+
+                if (r == 0 && g == 0 && b == 0) {
+                  // Change the white to the new color.
+                  pix[i] = newColor.r;
+                  pix[i + 1] = newColor.g;
+                  pix[i + 2] = newColor.b;
+                  pix[i + 3] = newColor.a;
+                }
+              }
+
+              context.putImageData(imgd, 0, 0); */
+            };
+          }
+        };
+
+        img1.src = 'data:image/png;base64,' + results.masks[0];
+
+        /* for (let i = 0; i < results.masks.length; i++) {
+          const currImg = loadImage(
+            'data:image/png;base64,' + results.masks[i]
+          );
+          imgArray.push(currImg);
+        }
+        context.globalAlpha = 1;
+        const firstImg = imgArray[0];
+        firstImg.onload = context.drawImage(firstImg, 0, 0);
+
+        context.globalAlpha = 1 / results.masks.length;
+        for (let i = 1; i < imgArray.length; i++) {
+          let currImg = imgArray[i];
+          currImg.onload = context.drawImage(currImg, 0, 0);
+        } */
       });
+    } else {
+      var canvas = document.getElementById('canvas');
+
+      var element = document.getElementsByClassName('ReactCrop__image')[1];
+
+      canvas.insertAdjacentHTML('beforebegin', element.innerHTML);
     }
   };
 
@@ -99,6 +183,7 @@ const XAIBoard = () => {
         setExperimentsLayers(data.layers);
         setMethods(data.methods);
         setExperiments(data.experiments);
+        console.log(data.cnnLayers);
       });
     };
     fetchSettings();
@@ -156,15 +241,63 @@ const XAIBoard = () => {
   }, [index, method, singleLayer, order, filterAmount]);
 
   const loadingGrid = (
-    <Grid
-      container
-      spacing={3}
-      direction="row"
-      justify="center"
-      alignItems="stretch"
-      style={{ paddingTop: '50vh' }}
-    >
-      <CircularProgress />
+    <Grid container spacing={3}>
+      <Grid
+        container
+        spacing={3}
+        direction="row"
+        justify="center"
+        alignItems="stretch"
+        style={{
+          paddingTop: '50vh',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(255, 255, 255, 0.5)',
+          zIndex: 1
+        }}
+      >
+        <CircularProgress />
+      </Grid>
+      <Grid item lg={2} md={2} xl={2} xs={2}>
+        <ImagesComponent
+          expansionCallback={viewState}
+          indexCallback={indexState}
+          viewCallback={viewState}
+          viewState={viewType}
+          image={image}
+          heatmap={heatmap}
+          parentLACallback={localAnalysis}
+          index={index}
+          parentToggleCallback={setWatershed}
+        />
+      </Grid>
+      <Grid item lg={10} md={10} xl={10} xs={10}>
+        <FilterComponent
+          filterAmount={filterAmount}
+          parentCallback={viewState}
+          filterHeatmapCallback={getFilterHeatmap}
+          orderCallback={selectedOrder}
+          viewState={viewType}
+          selectedLayer={singleLayer}
+          selectedExperiment={experiment}
+          selectedMethod={method}
+          layers={layer}
+          order={order}
+          methods={methods}
+          models={models}
+          experimentsCallbackParent={selectedExperiment}
+          methodsCallbackParent={selectedMethod}
+          layerCallbackParent={selectedLayer}
+          filters={filterData}
+        />
+        <BottomComponent
+          filterAmount={filterAmount}
+          bottomCallback={filterAmountCallback}
+        />
+      </Grid>
     </Grid>
   );
 

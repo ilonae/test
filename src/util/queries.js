@@ -81,10 +81,12 @@ const getSettings = async () => {
     const experiments = obj.experiments;
     const methods = obj.methods;
     const layers = obj.layers;
+    const cnnLayers = obj.cnn_layers;
     const values = {
       experiments,
       methods,
-      layers
+      layers,
+      cnnLayers
     };
     return values;
   });
@@ -98,7 +100,7 @@ const getFilter = async (
   index,
   method
 ) => {
-  return await fetch('/api/get_filter', {
+  return await fetch('/api/global_analysis', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'

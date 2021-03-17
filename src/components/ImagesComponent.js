@@ -101,12 +101,14 @@ const ImagesComponent = ({
           <Image
             viewType={isExpanded}
             content={image}
+            title={'image'}
             getLocalAnalysisCallback={localAnalysisCallback}
           />
 
           <Image
             viewType={isExpanded}
             content={heatmap}
+            title={'heatmap'}
             getLocalAnalysisCallback={localAnalysisCallback}
           />
         </div>

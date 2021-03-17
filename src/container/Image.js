@@ -15,10 +15,17 @@ const useStyles = makeStyles(theme => ({
   },
   crop: {
     display: 'block'
+  },
+  canvas: {
+    position: 'relative',
+    width: '800%',
+    height: '500%',
+    overflow: 'hidden',
+    display: 'block'
   }
 }));
 
-const Image = ({ viewType, content, getLocalAnalysisCallback }) => {
+const Image = ({ viewType, content, getLocalAnalysisCallback, title }) => {
   const classes = useStyles();
 
   const [ratio, setRatio] = React.useState(0);
@@ -112,6 +119,7 @@ const Image = ({ viewType, content, getLocalAnalysisCallback }) => {
     <Card className={viewType === 'DEFAULTVIEW' ? classes.root : classes.side}>
       <ReactCrop
         className={classes.crop}
+        id={title}
         imageStyle={{
           imageRendering: 'crisp-edges',
           height: '100%',
@@ -124,6 +132,11 @@ const Image = ({ viewType, content, getLocalAnalysisCallback }) => {
         onComplete={onCropComplete}
         onChange={onCropChange}
       />
+      {title === 'heatmap' ? (
+        <canvas className={classes.canvas} id="canvas"></canvas>
+      ) : (
+        <div></div>
+      )}
     </Card>
   );
 };

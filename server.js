@@ -25,10 +25,10 @@ app.post('/api/png_array', (req, res) => {
     });
 });
 
-app.post('/api/get_filter', (req, res) => {
+app.post('/api/global_analysis', (req, res) => {
   const optionsFilter = {
     method: req.method,
-    uri: 'http://titan:5050/get_filter',
+    uri: 'http://titan:5050/global_analysis',
     body: JSON.stringify(req.body),
     headers: {
       'Content-Type': 'application/json'
