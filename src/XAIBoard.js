@@ -124,7 +124,7 @@ const XAIBoard = () => {
     }
   };
 
-  const localAnalysis = (x, y, width, height) => {
+  const localAnalysis = (x, y, width, height, size = 20, maskId = 0) => {
     const filters = queueries.getLocalAnalysis(
       x,
       y,
@@ -135,7 +135,9 @@ const XAIBoard = () => {
       experiment,
       index,
       method,
-      filterAmount
+      filterAmount,
+      size,
+      maskId
     );
 
     Promise.resolve(filters).then(results => {
@@ -215,15 +217,16 @@ const XAIBoard = () => {
     if (experiment && singleLayer && method && order && filterAmount) {
       const fetchImages = async () => {
         changeViewType('LOADINGVIEW');
-        const image = queueries.getImg(index, experiment);
-        const heatmap = queueries.getHeatmap(index, experiment, method);
+        const image = queueries.getImg(index, experiment, 50);
+        const heatmap = queueries.getHeatmap(index, experiment, method, 50);
         const filters = queueries.getFilter(
           singleLayer,
           filterAmount,
           order,
           experiment,
           index,
-          method
+          method,
+          20
         );
         const contents = [image, heatmap, filters];
         Promise.allSettled(contents).then(results => {

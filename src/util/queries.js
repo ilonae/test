@@ -8,7 +8,9 @@ const getLocalAnalysis = async (
   experiment,
   index,
   method,
-  filterAmount
+  filterAmount,
+  size,
+  maskId
 ) => {
   return await fetch('/api/local_analysis', {
     method: 'POST',
@@ -26,7 +28,9 @@ const getLocalAnalysis = async (
       sample_indices: '0:9',
       experiment: experiment,
       image_index: index,
-      method: method
+      method: method,
+      size,
+      mask_id: maskId
     })
   }).then(async response => {
     const json = await response.json();
@@ -35,13 +39,13 @@ const getLocalAnalysis = async (
   });
 };
 
-const getImg = async (index, experiment) => {
+const getImg = async (index, experiment, size) => {
   return await fetch('/api/get_image', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ image_index: index, experiment })
+    body: JSON.stringify({ image_index: index, experiment, size })
   }).then(async response => {
     const json = await response.json();
     const obj = JSON.parse(json);
@@ -50,16 +54,17 @@ const getImg = async (index, experiment) => {
   });
 };
 
-const getHeatmap = async (index, experiment, method) => {
+const getHeatmap = async (index, experiment, method, size) => {
   return await fetch('/api/get_heatmap', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      image_index: index,
       experiment,
-      method
+      image_index: index,
+      method,
+      size
     })
   }).then(async response => {
     const json = await response.json();
@@ -98,7 +103,8 @@ const getFilter = async (
   order,
   experiment,
   index,
-  method
+  method,
+  size
 ) => {
   return await fetch('/api/global_analysis', {
     method: 'POST',
@@ -112,7 +118,8 @@ const getFilter = async (
       sample_indices: '0:9',
       experiment: experiment,
       image_index: index,
-      method: method
+      method: method,
+      size
     })
   }).then(async response => {
     const json = await response.json();
