@@ -63,11 +63,6 @@ const ImagesComponent = ({
     parentLACallback(x, y, width, height);
   };
 
-  const maskCallback = value => {
-    const watershedMap = JSON.parse(value);
-    setWatershed(watershedMap.masks[0]);
-  };
-
   React.useEffect(() => {
     if (parentIndex) {
       setIndex(parentIndex);
@@ -95,18 +90,20 @@ const ImagesComponent = ({
         </div>
         <div
           className={
-            isExpanded === 'DEFAULTVIEW' ? classes.root : classes.expanded
+            ['LOADINGVIEW', 'DEFAULTVIEW'].includes(viewState)
+              ? classes.root
+              : classes.expanded
           }
         >
           <Image
-            viewType={isExpanded}
+            viewType={viewState}
             content={image}
             title={'image'}
             getLocalAnalysisCallback={localAnalysisCallback}
           />
 
           <Image
-            viewType={isExpanded}
+            viewType={viewState}
             content={heatmap}
             title={'heatmap'}
             getLocalAnalysisCallback={localAnalysisCallback}

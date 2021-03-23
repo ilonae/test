@@ -1,11 +1,12 @@
 import React from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core';
-import Switch from '@material-ui/core/Switch';
 import Grid from '@material-ui/core/Grid';
 
-import Checkbox from '@material-ui/core/Checkbox';
-import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
+
+import PropTypes from 'prop-types';
+import ButtonGroup from '@material-ui/core/ButtonGroup';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -24,71 +25,85 @@ const useStyles = makeStyles(() => ({
       padding: '7px',
       float: 'left',
       color: '#fff'
-    },
-    '& my-checkbox-wrapper': {
-      background: 'red!important'
     }
   },
   checked: {
+    padding: '3em',
     '&:checked + label': {
       background: 'blue!important'
-    },
-
-    checkbox: { checkedColor: 'red' }
+    }
   }
 }));
 
-const SamplesSwitch = () => {
+const SamplesSwitch = ({
+  modus,
+  isCnnLayer,
+  activationsCallback,
+  buttonClickedCallback
+}) => {
   const classes = useStyles();
-  const [name, setName] = React.useState(false);
 
-  function handleCheckboxChange(checkbox) {
-    const val = checkbox.target.value;
-    setName(val => !val);
-  }
+  const [selectedBtn, setSelectedBtn] = React.useState(0);
+
+  React.useEffect(() => {
+    if (modus) {
+      setSelectedBtn(modus);
+    }
+  }, [modus]);
+
+  const selectionCallback = () => {
+    activationsCallback(isCnnLayer);
+  };
+
+  const toggleButton = val => {
+    if (selectedBtn === val) {
+      setSelectedBtn(0);
+
+      buttonClickedCallback(0);
+    } else {
+      buttonClickedCallback(val);
+    }
+  };
+
   return (
-    <div className={clsx(classes.root)}>
-      <Typography component="div">
-        <Grid
-          component="div"
-          container
-          spacing={1}
-          className={clsx(classes.root)}
-        >
-          <div
-            lass="switch-toggle switch-3 switch-candy"
-            className={classes.switchToggle}
+    <Grid component="div" container spacing={1} className={clsx(classes.root)}>
+      <ButtonGroup className="mb-2">
+        <ButtonGroup disableElevation variant="contained" color="primary">
+          {isCnnLayer === 1 ? (
+            <Button
+              color={selectedBtn === 1 ? 'primary' : 'default'}
+              onClick={() => {
+                toggleButton(1);
+                selectionCallback();
+              }}
+            >
+              Activations
+            </Button>
+          ) : (
+            <div></div>
+          )}
+          <Button
+            color={selectedBtn === 2 ? 'primary' : 'default'}
+            onClick={() => toggleButton(2)}
           >
-            <input
-              id="activations"
-              className={classes.checked}
-              type="radio"
-              onClick={handleCheckboxChange.bind(this)}
-            />
-            <label htmlFor="activations">Activations</label>
-
-            <input
-              id="realSamples"
-              type="radio"
-              value={name}
-              className={classes.checked}
-              onChange={handleCheckboxChange.bind(this)}
-            />
-            <label htmlFor="realSamples"> Real Samples</label>
-
-            <input
-              className={classes.checked}
-              id="syntheticSamples"
-              type="radio"
-              value={name}
-              onClick={handleCheckboxChange.bind(this)}
-            />
-            <label htmlFor="syntheticSamples">Synthetic samples</label>
-          </div>
-        </Grid>
-      </Typography>
-    </div>
+            Real Samples
+          </Button>
+          <Button
+            color={selectedBtn === 3 ? 'primary' : 'default'}
+            onClick={() => toggleButton(3)}
+          >
+            Synthetic Samples
+          </Button>
+        </ButtonGroup>
+      </ButtonGroup>
+    </Grid>
   );
+};
+
+SamplesSwitch.propTypes = {
+  modus: PropTypes.number,
+  activationsCallback: PropTypes.func,
+  buttonClickedCallback: PropTypes.func
 };
 
 export default SamplesSwitch;

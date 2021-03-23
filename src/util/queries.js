@@ -104,23 +104,36 @@ const getFilter = async (
   experiment,
   index,
   method,
-  size
+  size,
+  isCnn = undefined
 ) => {
+  const cnnQuery = JSON.stringify({
+    layer: layer,
+    filter_indices: `${0}:${filterAmount}`,
+    sorting: order,
+    sample_indices: '0:9',
+    experiment: experiment,
+    image_index: index,
+    method: method,
+    size,
+    cnn_activation: isCnn
+  });
+  const defQuery = JSON.stringify({
+    layer: layer,
+    filter_indices: `${0}:${filterAmount}`,
+    sorting: order,
+    sample_indices: '0:9',
+    experiment: experiment,
+    image_index: index,
+    method: method,
+    size
+  });
   return await fetch('/api/global_analysis', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({
-      layer: layer,
-      filter_indices: `${0}:${filterAmount}`,
-      sorting: order,
-      sample_indices: '0:9',
-      experiment: experiment,
-      image_index: index,
-      method: method,
-      size
-    })
+    body: isCnn != undefined ? cnnQuery : defQuery
   }).then(async response => {
     const json = await response.json();
     const obj = JSON.parse(json);

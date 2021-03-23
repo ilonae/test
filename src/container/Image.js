@@ -116,7 +116,13 @@ const Image = ({ viewType, content, getLocalAnalysisCallback, title }) => {
   };
 
   return (
-    <Card className={viewType === 'DEFAULTVIEW' ? classes.root : classes.side}>
+    <Card
+      className={
+        ['LOADINGVIEW', 'DEFAULTVIEW'].includes(viewType)
+          ? classes.root
+          : classes.side
+      }
+    >
       <ReactCrop
         className={classes.crop}
         id={title}

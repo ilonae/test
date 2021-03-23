@@ -25,3 +25,13 @@ export function useRenderCount(name = '') {
   console.info(name, 'renders:', counterRef.current);
   return counterRef.current;
 }
+
+export function getViewPort() {
+  var elem =
+    document.compatMode === 'CSS1Compat'
+      ? document.documentElement
+      : document.body;
+
+  var height = elem.clientHeight;
+  var width = elem.clientWidth;
+}

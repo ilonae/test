@@ -19,11 +19,24 @@ const useStyles = makeStyles({
   }
 });
 
-const BottomComponent = ({ bottomCallback, filterAmount }) => {
+const BottomComponent = ({
+  modus,
+  bottomCallback,
+  filterAmount,
+  isCnnLayer,
+  isCnnCallback,
+  selectedButtonCallback
+}) => {
   const classes = useStyles();
 
   const filterAmountCallback = value => {
     bottomCallback(value);
+  };
+  const activationsCallback = value => {
+    isCnnCallback(value);
+  };
+  const buttonClickedCallback = value => {
+    selectedButtonCallback(value);
   };
 
   return (
@@ -36,17 +49,27 @@ const BottomComponent = ({ bottomCallback, filterAmount }) => {
           />
         </Grid>
         <Grid item xs={4}>
+          {isCnnLayer}
           Placeholder
         </Grid>
         <Grid item xs={4}>
-          <SamplesSwitch />
+          <SamplesSwitch
+            modus={modus}
+            isCnnLayer={isCnnLayer}
+            activationsCallback={activationsCallback}
+            buttonClickedCallback={buttonClickedCallback}
+          />
         </Grid>
       </Grid>
     </Card>
   );
 };
 BottomComponent.propTypes = {
-  bottomCallback: PropTypes.func
+  modus: PropTypes.number,
+  isCnnLayer: PropTypes.number,
+  bottomCallback: PropTypes.func,
+  isCnnCallback: PropTypes.func,
+  selectedButtonCallback: PropTypes.func
 };
 
 export default BottomComponent;
