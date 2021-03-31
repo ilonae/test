@@ -13,6 +13,8 @@ import queueries from './util/queries';
 const XAIBoard = () => {
   const [viewType, changeViewType] = React.useState('DEFAULTVIEW');
   const [filterAmount, changeFilterAmount] = React.useState(6);
+  const [size, setSize] = React.useState(28);
+  const [filterSize, setFilterSize] = React.useState(28);
 
   const [modus, changeModus] = React.useState(0);
   const [index, changeIndex] = React.useState(0);
@@ -43,7 +45,7 @@ const XAIBoard = () => {
     if (bool === true) {
       var element = document.getElementsByClassName('ReactCrop__image')[1];
       var canvas = document.getElementById('canvas');
-      const watershed = queueries.getWatershed(index, method, experiment);
+      const watershed = queueries.getWatershed(index, method, experiment, size);
       Promise.resolve(watershed).then(results => {
         context = canvas.getContext('2d');
         element.parentNode.removeChild(element);
@@ -130,7 +132,7 @@ const XAIBoard = () => {
     }
   };
 
-  const localAnalysis = (x, y, width, height, size = 20, maskId = 0) => {
+  const localAnalysis = (x, y, width, height, size, maskId = 0) => {
     const filters = queueries.getLocalAnalysis(
       x,
       y,
@@ -207,7 +209,7 @@ const XAIBoard = () => {
           experiment,
           index,
           method,
-          20,
+          9,
           queryActivations
         );
 
@@ -265,12 +267,21 @@ const XAIBoard = () => {
   }, [experimentLayers, experiment]);
 
   React.useEffect(() => {
-    console.log(window.innerHeight, window.innerWidth);
-  }, [window.innerHeight, window.innerWidth]);
+    if (filterData) {
+      var i = new Image();
+
+      i.onload = function() {
+        //alert(i.width + ', ' + i.height);
+      };
+
+      //i.src = filterData.images[0][0];
+    }
+  }, [filterData]);
 
   React.useEffect(() => {
     if (
       experiment &&
+      size &&
       singleLayer &&
       method &&
       order &&
@@ -281,8 +292,27 @@ const XAIBoard = () => {
         changeViewType('LOADINGVIEW');
         changeModus(0);
         setActivations(0);
-        const image = queueries.getImg(index, experiment, 50);
-        const heatmap = queueries.getHeatmap(index, experiment, method, 50);
+        const image = queueries.getImg(index, experiment, size);
+        const heatmap = queueries.getHeatmap(index, experiment, method, size);
+
+        let box = document.getElementsByName('filterCard');
+        let smallerSide;
+        if (box[0] !== undefined) {
+          let width = box[0].clientWidth;
+          let height = box[0].clientHeight;
+          if (width < height) {
+            smallerSide = width;
+          } else {
+            smallerSide = height;
+          }
+          console.log(smallerSide);
+        }
+
+        var filterSize = filterAmount === 2 ? smallerSide : smallerSide / 2;
+        const imagesize = Math.floor(filterSize / 3);
+
+        setFilterSize(imagesize);
+
         const filters = queueries.getFilter(
           singleLayer,
           filterAmount,
@@ -290,7 +320,7 @@ const XAIBoard = () => {
           experiment,
           index,
           method,
-          20
+          filterSize
         );
         const contents = [image, heatmap, filters];
         Promise.allSettled(contents).then(results => {
@@ -321,7 +351,7 @@ const XAIBoard = () => {
           left: 0,
           right: 0,
           bottom: 0,
-          background: 'rgba(255, 255, 255, 0.5)',
+          background: 'rgba(255, 255, 255, 0.7)',
           zIndex: 1
         }}
       >

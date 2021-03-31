@@ -133,7 +133,7 @@ const getFilter = async (
     headers: {
       'Content-Type': 'application/json'
     },
-    body: isCnn != undefined ? cnnQuery : defQuery
+    body: isCnn !== undefined ? cnnQuery : defQuery
   }).then(async response => {
     const json = await response.json();
     const obj = JSON.parse(json);
@@ -141,7 +141,7 @@ const getFilter = async (
   });
 };
 
-const getWatershed = async (imageIndex, method, experiment, height) => {
+const getWatershed = async (imageIndex, method, experiment, size) => {
   return await fetch('/api/watershed', {
     method: 'POST',
     headers: {
@@ -151,7 +151,7 @@ const getWatershed = async (imageIndex, method, experiment, height) => {
       image_index: imageIndex,
       method: method,
       experiment: experiment,
-      height: 2
+      size
     })
   }).then(async response => {
     const json = await response.json();

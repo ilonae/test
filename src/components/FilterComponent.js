@@ -74,6 +74,7 @@ const FilterComponent = ({
       for (let i = 0; i < filterIndices.length; i++) {
         filterBox.push(
           <Filter
+            filterAmount={filterIndices.length}
             images={filters.images[i]}
             filterIndex={filterIndices[i]}
             parentCallback={callback}
@@ -87,8 +88,8 @@ const FilterComponent = ({
     }
   }, [filters]);
   return (
-    <Card className={clsx(classes.root)}>
-      <Grid m={6} className={classes.grid} container spacing={3}>
+    <Card className={clsx(classes.root)} name={'filterCard'}>
+      <Grid className={classes.grid} container>
         <Grid item className={classes.innergrid} xs={12}>
           <Selection
             select={'Experiment'}
@@ -111,7 +112,7 @@ const FilterComponent = ({
           <SortingButton parentOrder={order} parentCallback={sortingCallback} />
         </Grid>
 
-        <Box mt={3} px={1}>
+        <Box mt={3} p={5}>
           <Grid container spacing={3}>
             {filterBoxes}
           </Grid>
