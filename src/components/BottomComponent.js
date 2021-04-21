@@ -43,14 +43,14 @@ const BottomComponent = ({
     <Card className={clsx(classes.root)}>
       <Grid container spacing={8}>
         <Grid item xs={4}>
+        Placeholder
+        </Grid>
+        <Grid item xs={4}>
+        
           <FilterSlider
             filtersCallback={filterAmountCallback}
             selectedAmount={filterAmount}
           />
-        </Grid>
-        <Grid item xs={4}>
-          {isCnnLayer}
-          Placeholder
         </Grid>
         <Grid item xs={4}>
           <SamplesSwitch

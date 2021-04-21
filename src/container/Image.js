@@ -3,12 +3,11 @@ import PropTypes from 'prop-types';
 import ReactCrop from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 
-import { Card, makeStyles } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
   root: {
-    marginTop: theme.spacing(3),
-    height: '30vh'
+    marginTop: theme.spacing(3)
   },
   side: {
     width: '50%'
@@ -27,8 +26,6 @@ const useStyles = makeStyles(theme => ({
 
 const Image = ({ viewType, content, getLocalAnalysisCallback, title }) => {
   const classes = useStyles();
-
-  const [ratio, setRatio] = React.useState(0);
 
   const [crop, setCrop] = React.useState({
     x: 0,
@@ -67,7 +64,6 @@ const Image = ({ viewType, content, getLocalAnalysisCallback, title }) => {
  */
 
   const onImageLoaded = image => {
-    setRatio(image.clientHeight / 28);
     setCrop({
       x: 0,
       y: 0,
@@ -106,8 +102,9 @@ const Image = ({ viewType, content, getLocalAnalysisCallback, title }) => {
   }
 
   const onCropComplete = async crop => {
+
     if ((crop.width && crop.height) !== 0) {
-      getLocalAnalysisCallback(crop.x, crop.y, crop.width, crop.height);
+      getLocalAnalysisCallback(Math.floor(crop.x), Math.floor(crop.y), crop.width, crop.height);
     }
   };
 
@@ -116,7 +113,7 @@ const Image = ({ viewType, content, getLocalAnalysisCallback, title }) => {
   };
 
   return (
-    <Card
+    <div
       className={
         ['LOADINGVIEW', 'DEFAULTVIEW'].includes(viewType)
           ? classes.root
@@ -125,7 +122,7 @@ const Image = ({ viewType, content, getLocalAnalysisCallback, title }) => {
     >
       <ReactCrop
         className={classes.crop}
-        id={title}
+        
         imageStyle={{
           imageRendering: 'crisp-edges',
           height: '100%',
@@ -133,17 +130,12 @@ const Image = ({ viewType, content, getLocalAnalysisCallback, title }) => {
         }}
         src={content}
         crop={crop}
-        ruleOfThirds
         onImageLoaded={onImageLoaded}
         onComplete={onCropComplete}
         onChange={onCropChange}
       />
-      {title === 'heatmap' ? (
-        <canvas className={classes.canvas} id="canvas"></canvas>
-      ) : (
-        <div></div>
-      )}
-    </Card>
+      
+    </div>
   );
 };
 Image.propTypes = {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { makeStyles, TextField, Grid } from '@material-ui/core';
+import { makeStyles, Grid } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import Image from '../container/Image';
 import WatershedButton from '../widgets/WatershedSwitch';
@@ -35,7 +35,6 @@ const ImagesComponent = ({
 }) => {
   const classes = useStyles();
   const [isExpanded, changeLayout] = React.useState(viewState);
-  const [watershed, setWatershed] = React.useState();
 
   const [index, setIndex] = React.useState(0);
 
@@ -44,6 +43,8 @@ const ImagesComponent = ({
       indexCallback(index);
     }
   }
+
+
 
   function handleIndexChange(e) {
     if (e.target.value !== '') {
@@ -74,8 +75,8 @@ const ImagesComponent = ({
   }, [isExpanded, viewCallback]);
 
   return (
-    <Grid container spacing={3}>
-      <Grid item lg={12} md={12} xl={12} xs={12}>
+    <Grid container spacing={3}  >
+      <Grid item lg={12} md={12} xl={12} xs={12} name={'imgCard'}>
         <WatershedButton isToggledCallback={toggleCallback} />{' '}
         <div>
           <input

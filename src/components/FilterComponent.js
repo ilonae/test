@@ -19,7 +19,10 @@ const useStyles = makeStyles(() => ({
     justifyContent: 'center',
     marginTop: '1em'
   },
-  grid: { width: '100%' }
+  grid: { width: '100%' },
+  centering: {
+    justifyContent : 'center'
+  }
 }));
 
 const FilterComponent = ({
@@ -37,15 +40,11 @@ const FilterComponent = ({
   experimentsCallbackParent,
   methodsCallbackParent,
   layerCallbackParent,
-  filters
+  filters,
+  filterImgSize
 }) => {
-  const [isFilterView, changeView] = React.useState(viewState);
   const [filterBoxes, setFilterBoxes] = React.useState([]);
   const classes = useStyles();
-
-  const callback = () => {
-    filterHeatmapCallback();
-  };
 
   const experimentsCallback = value => {
     experimentsCallbackParent(value);
@@ -64,10 +63,13 @@ const FilterComponent = ({
   };
 
   React.useEffect(() => {
-    parentCallback(isFilterView);
-  }, [isFilterView, parentCallback]);
+    parentCallback(viewState);
+  }, [viewState, parentCallback]);
 
   React.useEffect(() => {
+    const callback = () => {
+      filterHeatmapCallback();
+    };
     if (filters) {
       const filterIndices = filters.filter_indices;
       const filterBox = [];
@@ -81,12 +83,13 @@ const FilterComponent = ({
             key={`filter_index_${i}`}
             viewState={viewState}
             relevance={filters.relevance[i]}
+            filterImgSize={filterImgSize}
           />
         );
       }
       setFilterBoxes(filterBox);
     }
-  }, [filters]);
+  }, [filters,filterImgSize, viewState, filterHeatmapCallback]);
   return (
     <Card className={clsx(classes.root)} name={'filterCard'}>
       <Grid className={classes.grid} container>
@@ -113,7 +116,7 @@ const FilterComponent = ({
         </Grid>
 
         <Box mt={3} p={5}>
-          <Grid container spacing={3}>
+          <Grid container spacing={3} className={classes.centering} >
             {filterBoxes}
           </Grid>
         </Box>
@@ -135,7 +138,8 @@ FilterComponent.propTypes = {
   filterAmount: PropTypes.number,
   layers: PropTypes.array,
   methods: PropTypes.array,
-  models: PropTypes.array
+  models: PropTypes.array,
+  filterImgSize: PropTypes.number
 };
 
 export default FilterComponent;

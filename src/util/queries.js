@@ -9,8 +9,7 @@ const getLocalAnalysis = async (
   index,
   method,
   filterAmount,
-  size,
-  maskId
+
 ) => {
   return await fetch('/api/local_analysis', {
     method: 'POST',
@@ -28,9 +27,7 @@ const getLocalAnalysis = async (
       sample_indices: '0:9',
       experiment: experiment,
       image_index: index,
-      method: method,
-      size,
-      mask_id: maskId
+      method: method
     })
   }).then(async response => {
     const json = await response.json();
@@ -181,7 +178,7 @@ const getWatershed = async (imageIndex, method, experiment, size) => {
   });
 }, [index, method, experiment]); */
 
-export default {
+const queries = {
   getLocalAnalysis,
   getImg,
   getHeatmap,
@@ -189,3 +186,5 @@ export default {
   getFilter,
   getWatershed
 };
+
+export default  queries;

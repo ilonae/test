@@ -24,7 +24,7 @@ const WatershedSwitch = ({ isToggledCallback }) => {
   };
   React.useEffect(() => {
     isToggledCallback(useWatershed);
-  }, [useWatershed]);
+  }, [useWatershed, isToggledCallback]);
 
   /*  React.useEffect(() => {
     isToggledCallback(useWatershed);

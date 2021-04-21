@@ -4,27 +4,36 @@ import PropTypes from 'prop-types';
 import { Box, Grid, Typography, makeStyles } from '@material-ui/core';
 
 const useStyles = makeStyles(() => ({
-  image: {
+
+  image:(filterImageSize)=>({
     border: '1px solid #555',
-    width: '100%',
+  maxWidth: '100%',
+  maxHeight: '100%',
+  width: filterImageSize,
+  height: filterImageSize,
+ }),
+
+  container:{
+    textAlign: 'center',
     height: '100%'
+  },
+  wrapper:{
+    backgroundColor: '#fff',
+  height: '500px',
+  width: '500px',
   },
   typography: {
     wordWrap: 'break-word'
   },
   positive: {
     backgroundColor: 'rgba(255, 0, 0, 0.2)',
-    paddingBottom: '100%',
     flexDirection: 'column',
-    width: '100%',
-    height: '0'
+    width: '100%'
   },
   negative: {
     backgroundColor: 'rgba(0, 0, 255, 0.2)',
-    paddingBottom: '100%',
     flexDirection: 'column',
-    width: '100%',
-    height: '0'
+    width: '100%'
   }
 }));
 
@@ -35,28 +44,39 @@ const FilterBox = ({
   viewState,
   relevance,
   filterIndex,
-  images
+  images,
+  filterImgSize
 }) => {
-  const classes = useStyles();
+  const classes = useStyles(filterImgSize);
   const [imgState, setImages] = React.useState([]);
 
   var imageSize = images.length === 9 ? 4 : 12;
 
+  React.useEffect(() => {
+    console.log(filterImgSize)
+  },[filterImgSize]
+  );
+
+  console.log(filterImgSize)
   React.useEffect(() => {
     const makeImages = async () => {
       const filterImages = [];
       for (let i = 0; i < images.length; i++) {
         const img = `data:image/png;base64,${images[i]}`;
         filterImages.push(
-          <Grid item xs={imageSize} key={`${reference}_image_index${i}`}>
+          <Grid item xs={imageSize} className={classes.container} key={`${reference}_image_index${i}`}>
             <img src={img} className={classes.image} alt="" />
           </Grid>
         );
       }
       setImages(filterImages);
     };
+   if(images && filterImgSize){
+    console.log(filterImgSize)
     makeImages();
-  }, [images, classes.image, reference]);
+   }
+
+  }, [images, classes.image, reference, filterImgSize, classes.container, imageSize]);
 
   var filterSize =
     filterAmount === 2
@@ -74,7 +94,7 @@ const FilterBox = ({
       <div className={relevance >= 0 ? classes.positive : classes.negative}>
         <Box mx={3} className={classes.typography} pt={3}>
           <Typography>
-            Filter:
+            Filter: 
             {filterIndex}
           </Typography>
 
@@ -99,7 +119,8 @@ FilterBox.propTypes = {
   viewState: PropTypes.string,
   relevance: PropTypes.number,
   filterIndex: PropTypes.number,
-  images: PropTypes.array
+  images: PropTypes.array,
+  filterImgSize: PropTypes.number
 };
 
 export default FilterBox;

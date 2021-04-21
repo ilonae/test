@@ -67,8 +67,7 @@ const SamplesSwitch = ({
 
   return (
     <Grid component="div" container spacing={1} className={clsx(classes.root)}>
-      <ButtonGroup className="mb-2">
-        <ButtonGroup disableElevation variant="contained" color="primary">
+        <ButtonGroup className="mb-2" variant="contained" color="primary">
           {isCnnLayer === 1 ? (
             <Button
               color={selectedBtn === 1 ? 'primary' : 'default'}
@@ -80,7 +79,7 @@ const SamplesSwitch = ({
               Activations
             </Button>
           ) : (
-            <div></div>
+            null
           )}
           <Button
             color={selectedBtn === 2 ? 'primary' : 'default'}
@@ -94,7 +93,6 @@ const SamplesSwitch = ({
           >
             Synthetic Samples
           </Button>
-        </ButtonGroup>
       </ButtonGroup>
     </Grid>
   );

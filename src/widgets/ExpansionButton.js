@@ -24,7 +24,9 @@ const ExpansionButton = ({ expansionCallback, viewState }) => {
 
   return (
     <div>
-      {view === 'DEFAULTVIEW' ? (
+      {
+        ['LOADINGVIEW', 'DEFAULTVIEW'].includes(view)
+        ? (
         <Button
           className={classes.root}
           variant="contained"

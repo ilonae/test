@@ -1,6 +1,8 @@
 import 'react-perfect-scrollbar/dist/css/styles.css';
 import React from 'react';
 
+import { makeStyles } from '@material-ui/core';
+
 import { Container, Grid, CircularProgress } from '@material-ui/core';
 
 import FilterComponent from './components/FilterComponent';
@@ -9,12 +11,23 @@ import NetworkComponent from './components/NetworkComponent';
 import BottomComponent from './components/BottomComponent';
 
 import queueries from './util/queries';
+import helper from './util/helper';
+
+const useStyles = makeStyles(theme => ({
+  root: {
+    height: '100%'
+  }
+}));
 
 const XAIBoard = () => {
+
+  const classes = useStyles();
   const [viewType, changeViewType] = React.useState('DEFAULTVIEW');
   const [filterAmount, changeFilterAmount] = React.useState(6);
-  const [size, setSize] = React.useState(28);
-  const [filterSize, setFilterSize] = React.useState(28);
+  const [imgSize, setImgSize] = React.useState(28);
+  const [filterImgSize, setFilterImgSize] = React.useState(28);
+
+  const [filterActivationsSize, setFilterActivationsSize] = React.useState(28);
 
   const [modus, changeModus] = React.useState(0);
   const [index, changeIndex] = React.useState(0);
@@ -36,103 +49,113 @@ const XAIBoard = () => {
   const [order, setOrder] = React.useState('max');
 
   const [filterData, setFilterData] = React.useState();
-
   const [prevView, setPrevView] = React.useState('');
 
-  let context;
+let element = document.getElementsByClassName('ReactCrop__image')[1];
 
-  const setWatershed = bool => {
-    if (bool === true) {
-      var element = document.getElementsByClassName('ReactCrop__image')[1];
-      var canvas = document.getElementById('canvas');
-      const watershed = queueries.getWatershed(index, method, experiment, size);
-      Promise.resolve(watershed).then(results => {
-        context = canvas.getContext('2d');
-        element.parentNode.removeChild(element);
-        console.log(results.masks.length);
 
-        var img1 = new Image();
+const setWatershed = bool => {
+  
+  if(element){
+    let width = element.clientWidth;
+    let height = element.clientHeight;
+      var canvas = document.createElement('canvas');
+      canvas.height = height; //get original canvas height
+      canvas.width = width; // get original canvas width
+      var context = canvas.getContext('2d');
+  if (bool === true ) {
+    const watershed = queueries.getWatershed(index, method, experiment, imgSize);
+    Promise.resolve(watershed).then(results => {
+      console.log(results.masks.length);
+      var img1 = new Image();
+      img1.onload = function() {
+        for (let i = 1; i < results.masks.length; i++) {
+          var img2 = new Image();
+          img2.src = 'data:image/png;base64,' + results.masks[i];
+          img2.onload = function() {
+            context.globalAlpha = 1.0;
+            context.drawImage(img1, 0, 0);
+            /*               var imgd = context.getImageData(0, 0, 135, 135),
+              pix = imgd.data,
+              newColor = { r: 0, g: 0, b: 0, a: 0 };
 
-        img1.onload = function() {
-          for (let i = 1; i < results.masks.length; i++) {
-            var img2 = new Image();
+            for (var i = 0, n = pix.length; i < n; i += 4) {
+              var r = pix[i],
+                g = pix[i + 1],
+                b = pix[i + 2];
 
-            img2.src = 'data:image/png;base64,' + results.masks[i];
-            img2.onload = function() {
-              context.globalAlpha = 1.0;
-              context.drawImage(img1, 0, 0);
-              /*               var imgd = context.getImageData(0, 0, 135, 135),
-                pix = imgd.data,
-                newColor = { r: 0, g: 0, b: 0, a: 0 };
+              if (r == 0 && g == 0 && b == 0) {
+                // Change the white to the new color.
+                pix[i] = newColor.r;
+                pix[i + 1] = newColor.g;
+                pix[i + 2] = newColor.b;
+                pix[i + 3] = newColor.a;
 
-              for (var i = 0, n = pix.length; i < n; i += 4) {
-                var r = pix[i],
-                  g = pix[i + 1],
-                  b = pix[i + 2];
+}
+}
 
-                if (r == 0 && g == 0 && b == 0) {
-                  // Change the white to the new color.
-                  pix[i] = newColor.r;
-                  pix[i + 1] = newColor.g;
-                  pix[i + 2] = newColor.b;
-                  pix[i + 3] = newColor.a;
-                }
-              }
+context.putImageData(imgd, 0, 0); */
+context.globalAlpha = 1 / results.masks.length; //Remove if pngs have alpha
+context.drawImage(img2, 0, 0);
+/*               var imgd = context.getImageData(0, 0, 135, 135),
+  pix = imgd.data,
+  newColor = { r: 0, g: 0, b: 0, a: 0 };
 
-              context.putImageData(imgd, 0, 0); */
-              context.globalAlpha = 1 / results.masks.length; //Remove if pngs have alpha
-              context.drawImage(img2, 0, 0);
-              /*               var imgd = context.getImageData(0, 0, 135, 135),
-                pix = imgd.data,
-                newColor = { r: 0, g: 0, b: 0, a: 0 };
+for (var i = 0, n = pix.length; i < n; i += 4) {
+  var r = pix[i],
+    g = pix[i + 1],
+    b = pix[i + 2];
 
-              for (var i = 0, n = pix.length; i < n; i += 4) {
-                var r = pix[i],
-                  g = pix[i + 1],
-                  b = pix[i + 2];
+  if (r == 0 && g == 0 && b == 0) {
+    // Change the white to the new color.
+    pix[i] = newColor.r;
+    pix[i + 1] = newColor.g;
+    pix[i + 2] = newColor.b;
+    pix[i + 3] = newColor.a;
+  }
+}
 
-                if (r == 0 && g == 0 && b == 0) {
-                  // Change the white to the new color.
-                  pix[i] = newColor.r;
-                  pix[i + 1] = newColor.g;
-                  pix[i + 2] = newColor.b;
-                  pix[i + 3] = newColor.a;
-                }
-              }
+context.putImageData(imgd, 0, 0); */
+};
+}
+};
 
-              context.putImageData(imgd, 0, 0); */
-            };
-          }
-        };
+img1.src = 'data:image/png;base64,' + results.masks[0];
+canvas.setAttribute("id", "canvas");
+element.parentNode.appendChild(canvas)
+element.parentNode.removeChild(element);
 
-        img1.src = 'data:image/png;base64,' + results.masks[0];
+/* for (let i = 0; i < results.masks.length; i++) {
+  const currImg = loadImage(
+    'data:image/png;base64,' + results.masks[i]
+  );
+  imgArray.push(currImg);
+}
+context.globalAlpha = 1;
+const firstImg = imgArray[0];
+firstImg.onload = context.drawImage(firstImg, 0, 0);
 
-        /* for (let i = 0; i < results.masks.length; i++) {
-          const currImg = loadImage(
-            'data:image/png;base64,' + results.masks[i]
-          );
-          imgArray.push(currImg);
-        }
-        context.globalAlpha = 1;
-        const firstImg = imgArray[0];
-        firstImg.onload = context.drawImage(firstImg, 0, 0);
+context.globalAlpha = 1 / results.masks.length;
+for (let i = 1; i < imgArray.length; i++) {
+  let currImg = imgArray[i];
+  currImg.onload = context.drawImage(currImg, 0, 0);
+} */
+});
+} else {
+  const canvas = document.getElementById('canvas');
+  if(canvas){
+    canvas.parentNode.appendChild(element)
+  canvas.parentNode.removeChild(canvas);
+  }
+}
+}
+};
 
-        context.globalAlpha = 1 / results.masks.length;
-        for (let i = 1; i < imgArray.length; i++) {
-          let currImg = imgArray[i];
-          currImg.onload = context.drawImage(currImg, 0, 0);
-        } */
-      });
-    } else {
-      var canvas = document.getElementById('canvas');
 
-      var element = document.getElementsByClassName('ReactCrop__image')[1];
 
-      canvas.insertAdjacentHTML('beforebegin', element.innerHTML);
-    }
-  };
+  const localAnalysis = async (x, y, width, height, maskId = 0) => {
 
-  const localAnalysis = (x, y, width, height, size, maskId = 0) => {
+      changeViewType('LOADINGVIEW');
     const filters = queueries.getLocalAnalysis(
       x,
       y,
@@ -143,14 +166,17 @@ const XAIBoard = () => {
       experiment,
       index,
       method,
-      filterAmount,
-      size,
-      maskId
+      filterAmount
     );
 
-    Promise.resolve(filters).then(results => {
-      setFilterData(results);
-    });
+    setTimeout(() => {
+      Promise.resolve(filters).then(results => { 
+        setFilterData(results);
+      });
+      changeViewType(prevView);
+    }, 3000);
+
+
   };
 
   const getFilterHeatmap = () => {
@@ -196,12 +222,23 @@ const XAIBoard = () => {
     console.log(value);
     setActivations(value);
   };
+  React.useEffect(() => {
+    if (experiment) {
+      setPrevView(viewType);
+      changeViewType('LOADINGVIEW');
+      console.log(experimentLayers[experiment]);
+      changeLayer(experimentLayers[experiment]);
+      setSingleLayer(experimentLayers[experiment][0]);
+      setCnn(Object.values(cnnLayers[experiment])[0]);
+    }
+  }, [experimentLayers, experiment, cnnLayers]);
 
   React.useEffect(() => {
-    console.log(queryActivations);
     if (queryActivations === 1) {
+      setFilterImgSize(filterActivationsSize)
       const fetchActivations = async () => {
         changeViewType('LOADINGVIEW');
+        console.log(singleLayer)
         const filters = queueries.getFilter(
           singleLayer,
           filterAmount,
@@ -209,7 +246,7 @@ const XAIBoard = () => {
           experiment,
           index,
           method,
-          9,
+          filterActivationsSize,
           queryActivations
         );
 
@@ -223,7 +260,7 @@ const XAIBoard = () => {
         changeViewType(prevView);
       }, 3000);
     }
-  }, [queryActivations]);
+  }, [queryActivations, filterAmount, index, method, order, singleLayer,filterImgSize]);
 
   React.useEffect(() => {
     const fetchSettings = async () => {
@@ -233,6 +270,7 @@ const XAIBoard = () => {
         setExperiments(data.experiments);
         setCnnLayers(data.cnnLayers);
       });
+      setImgSize(helper.defineImgs());
     };
     fetchSettings();
   }, []);
@@ -250,38 +288,23 @@ const XAIBoard = () => {
     }
   }, [methods, models]);
 
-  React.useEffect(() => {
-    if (prevView) {
-      console.log(prevView);
-    }
-  }, [prevView]);
 
   React.useEffect(() => {
-    if (experiment) {
-      setPrevView(viewType);
-      changeViewType('LOADINGVIEW');
-      changeLayer(experimentLayers[experiment]);
-      setSingleLayer(experimentLayers[experiment][0]);
-      setCnn(Object.values(cnnLayers[experiment])[0]);
-    }
-  }, [experimentLayers, experiment]);
+    function handleResize() {
+    const imageSize = helper.defineFilterImageSize(filterAmount);
+    setFilterImgSize(imageSize)
+    setFilterActivationsSize(imageSize*3)
+}
+    window.addEventListener('resize', handleResize)
+});
 
-  React.useEffect(() => {
-    if (filterData) {
-      var i = new Image();
 
-      i.onload = function() {
-        //alert(i.width + ', ' + i.height);
-      };
 
-      //i.src = filterData.images[0][0];
-    }
-  }, [filterData]);
 
   React.useEffect(() => {
     if (
       experiment &&
-      size &&
+      imgSize &&
       singleLayer &&
       method &&
       order &&
@@ -292,27 +315,11 @@ const XAIBoard = () => {
         changeViewType('LOADINGVIEW');
         changeModus(0);
         setActivations(0);
-        const image = queueries.getImg(index, experiment, size);
-        const heatmap = queueries.getHeatmap(index, experiment, method, size);
-
-        let box = document.getElementsByName('filterCard');
-        let smallerSide;
-        if (box[0] !== undefined) {
-          let width = box[0].clientWidth;
-          let height = box[0].clientHeight;
-          if (width < height) {
-            smallerSide = width;
-          } else {
-            smallerSide = height;
-          }
-          console.log(smallerSide);
-        }
-
-        var filterSize = filterAmount === 2 ? smallerSide : smallerSide / 2;
-        const imagesize = Math.floor(filterSize / 3);
-
-        setFilterSize(imagesize);
-
+        const image = queueries.getImg(index, experiment, imgSize);
+        const heatmap = queueries.getHeatmap(index, experiment, method, imgSize);
+        const imageSize = helper.defineFilterImageSize(filterAmount);
+        setFilterImgSize(imageSize)
+        setFilterActivationsSize(imageSize*3)
         const filters = queueries.getFilter(
           singleLayer,
           filterAmount,
@@ -320,7 +327,7 @@ const XAIBoard = () => {
           experiment,
           index,
           method,
-          filterSize
+          imageSize
         );
         const contents = [image, heatmap, filters];
         Promise.allSettled(contents).then(results => {
@@ -334,7 +341,7 @@ const XAIBoard = () => {
         changeViewType(prevView);
       }, 3000);
     }
-  }, [index, method, singleLayer, order, filterAmount, modus]);
+  }, [index, method, singleLayer, order, filterAmount, modus, imgSize]);
 
   const loadingGrid = (
     <Grid container spacing={3}>
@@ -357,7 +364,7 @@ const XAIBoard = () => {
       >
         <CircularProgress />
       </Grid>
-      <Grid item lg={2} md={2} xl={2} xs={2}>
+      <Grid item  xl={2} lg={3}   md={4} xs={4}>
         <ImagesComponent
           expansionCallback={viewState}
           indexCallback={indexState}
@@ -370,7 +377,7 @@ const XAIBoard = () => {
           parentToggleCallback={setWatershed}
         />
       </Grid>
-      <Grid item lg={10} md={10} xl={10} xs={10}>
+      <Grid item xl={10} lg={9}  md={8} xs={8}>
         <FilterComponent
           filterAmount={filterAmount}
           parentCallback={viewState}
@@ -388,6 +395,7 @@ const XAIBoard = () => {
           methodsCallbackParent={selectedMethod}
           layerCallbackParent={selectedLayer}
           filters={filterData}
+          filterImgSize={filterImgSize}
         />
         <BottomComponent
           modus={modus}
@@ -429,7 +437,7 @@ const XAIBoard = () => {
 
   const defaultGrid = (
     <Grid container spacing={3}>
-      <Grid item lg={2} md={2} xl={2} xs={2}>
+      <Grid item  xl={2} lg={3}   md={4} xs={4} >
         <ImagesComponent
           expansionCallback={viewState}
           indexCallback={indexState}
@@ -442,7 +450,8 @@ const XAIBoard = () => {
           parentToggleCallback={setWatershed}
         />
       </Grid>
-      <Grid item lg={10} md={10} xl={10} xs={10}>
+     
+      <Grid item xl={10} lg={9}  md={8} xs={8}>
         <FilterComponent
           filterAmount={filterAmount}
           parentCallback={viewState}
@@ -460,6 +469,7 @@ const XAIBoard = () => {
           methodsCallbackParent={selectedMethod}
           layerCallbackParent={selectedLayer}
           filters={filterData}
+          filterImgSize={filterImgSize}
         />
         <BottomComponent
           modus={modus}
@@ -491,7 +501,7 @@ const XAIBoard = () => {
 
   return (
     <div>
-      <Container maxWidth="xl">
+      <Container maxWidth="xl" className={classes.root}>
         {(function() {
           switch (viewType) {
             case 'IMAGEVIEW':

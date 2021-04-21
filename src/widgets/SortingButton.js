@@ -18,7 +18,7 @@ const SortingButton = ({ parentCallback, parentOrder }) => {
     if (order) {
       parentCallback(order);
     }
-  }, [order]);
+  }, [order,parentCallback]);
 
   React.useEffect(() => {
     setOrder(descending ? 'max' : 'min');
@@ -28,7 +28,7 @@ const SortingButton = ({ parentCallback, parentOrder }) => {
     if (parentOrder) {
       setOrder(parentOrder);
     }
-  }, []);
+  }, [parentOrder]);
 
   return (
     <Button
