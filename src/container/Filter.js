@@ -45,19 +45,19 @@ const FilterBox = ({
   relevance,
   filterIndex,
   images,
-  filterImgSize
+  filterImgSize,
+  viewCallback
 }) => {
   const classes = useStyles(filterImgSize);
   const [imgState, setImages] = React.useState([]);
+  const [view, changeView] = React.useState(viewState);
+
+  React.useEffect(() => {
+    viewCallback(view);
+  }, [view, viewCallback]);
 
   var imageSize = images.length === 9 ? 4 : 12;
 
-  React.useEffect(() => {
-    console.log(filterImgSize)
-  },[filterImgSize]
-  );
-
-  console.log(filterImgSize)
   React.useEffect(() => {
     const makeImages = async () => {
       const filterImages = [];
@@ -90,7 +90,7 @@ const FilterBox = ({
       : 3;
 
   return (
-    <Grid item xl={filterSize} lg={filterSize} name={'filter'}>
+    <Grid item xl={filterSize} lg={filterSize} name={'filter'} onClick={() => changeView('FILTERVIEW')}>
       <div className={relevance >= 0 ? classes.positive : classes.negative}>
         <Box mx={3} className={classes.typography} pt={3}>
           <Typography>

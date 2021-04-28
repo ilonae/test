@@ -9,6 +9,8 @@ const getLocalAnalysis = async (
   index,
   method,
   filterAmount,
+  imageSize,
+  maskId
 
 ) => {
   return await fetch('/api/local_analysis', {
@@ -27,7 +29,9 @@ const getLocalAnalysis = async (
       sample_indices: '0:9',
       experiment: experiment,
       image_index: index,
-      method: method
+      method: method,
+      mask_id: -1,
+      size:imageSize
     })
   }).then(async response => {
     const json = await response.json();

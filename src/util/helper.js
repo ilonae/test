@@ -17,6 +17,16 @@ const imageSize = Math.floor(filterSize / 3);
 return imageSize
 };
 
+const normLocalSelection =(x,y,width, height, imgSize) => {
+  const newX=x/imgSize;
+  const newY=y/imgSize;
+  const newWidth=width/imgSize;
+  const newHeight= height/imgSize ;
+  console.log(newX,newY, newWidth, newHeight)
+
+  return {newX,newY, newWidth, newHeight}
+}
+
 const defineImgs =  () => {
 
 let box = document.getElementsByName('imgCard');
@@ -29,5 +39,5 @@ return imgWidth;
   };
 
 
-var helper = {defineFilterImageSize, defineImgs}
+var helper = {defineFilterImageSize, defineImgs, normLocalSelection}
 export default helper;

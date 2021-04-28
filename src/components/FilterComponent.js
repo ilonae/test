@@ -41,7 +41,8 @@ const FilterComponent = ({
   methodsCallbackParent,
   layerCallbackParent,
   filters,
-  filterImgSize
+  filterImgSize,
+  viewCallback
 }) => {
   const [filterBoxes, setFilterBoxes] = React.useState([]);
   const classes = useStyles();
@@ -60,6 +61,10 @@ const FilterComponent = ({
 
   const sortingCallback = value => {
     orderCallback(value);
+  };
+
+  const viewTypeCallback = value => {
+    viewCallback(value);
   };
 
   React.useEffect(() => {
@@ -84,6 +89,7 @@ const FilterComponent = ({
             viewState={viewState}
             relevance={filters.relevance[i]}
             filterImgSize={filterImgSize}
+            viewCallback={viewTypeCallback}
           />
         );
       }

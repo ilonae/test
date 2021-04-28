@@ -9,6 +9,7 @@ import FilterComponent from './components/FilterComponent';
 import ImagesComponent from './components/ImagesComponent';
 import NetworkComponent from './components/NetworkComponent';
 import BottomComponent from './components/BottomComponent';
+import TextFader from './widgets/TextFader';
 
 import queueries from './util/queries';
 import helper from './util/helper';
@@ -16,8 +17,12 @@ import helper from './util/helper';
 const useStyles = makeStyles(theme => ({
   root: {
     height: '100%'
-  }
-}));
+  },
+loading: {
+display: 'table-cell',
+        textAlign: 'center',
+        verticalAlign: 'middle'
+}}));
 
 const XAIBoard = () => {
 
@@ -153,28 +158,38 @@ for (let i = 1; i < imgArray.length; i++) {
 
 
 
-  const localAnalysis = async (x, y, width, height, maskId = 0) => {
+  const localAnalysis = async (x, y, width, height, maskId = -1) => {
+    console.log(imgSize)
+    console.log(x,y,width,height)
+    setPrevView(viewType);
 
-      changeViewType('LOADINGVIEW');
-    const filters = queueries.getLocalAnalysis(
-      x,
-      y,
-      width,
-      height,
+    const normedValues = helper.normLocalSelection(x,y,width,height, imgSize);
+    /* console.log(filterImgSize)
+    console.log(normedValues.newX, normedValues.newY, normedValues.newWidth, normedValues.newHeight);
+      */ changeViewType('LOADINGVIEW');
+    const filters = await queueries.getLocalAnalysis(
+      normedValues.newX, 
+      normedValues.newY,
+      normedValues.newWidth, 
+      normedValues.newHeight,
       order,
       singleLayer,
       experiment,
       index,
       method,
-      filterAmount
+      filterAmount,
+      filterImgSize,
+      maskId
     );
 
-    setTimeout(() => {
+
       Promise.resolve(filters).then(results => { 
         setFilterData(results);
+        console.log(prevView)
+        changeViewType(prevView);
       });
-      changeViewType(prevView);
-    }, 3000);
+      
+
 
 
   };
@@ -361,8 +376,10 @@ for (let i = 1; i < imgArray.length; i++) {
           background: 'rgba(255, 255, 255, 0.7)',
           zIndex: 1
         }}
-      >
-        <CircularProgress />
+      ><div className={classes.loading}>
+        <CircularProgress size='10vh' />
+        <TextFader/>
+        </div>
       </Grid>
       <Grid item  xl={2} lg={3}   md={4} xs={4}>
         <ImagesComponent
@@ -396,6 +413,7 @@ for (let i = 1; i < imgArray.length; i++) {
           layerCallbackParent={selectedLayer}
           filters={filterData}
           filterImgSize={filterImgSize}
+          viewCallback={viewState}
         />
         <BottomComponent
           modus={modus}
@@ -470,6 +488,7 @@ for (let i = 1; i < imgArray.length; i++) {
           layerCallbackParent={selectedLayer}
           filters={filterData}
           filterImgSize={filterImgSize}
+          viewCallback={viewState}
         />
         <BottomComponent
           modus={modus}
@@ -486,7 +505,9 @@ for (let i = 1; i < imgArray.length; i++) {
   const filterGrid = (
     <Grid container spacing={3}>
       <Grid item lg={12} md={12} xl={12} xs={12}>
-        <NetworkComponent />
+        <NetworkComponent
+        filterAmount={filterAmount}
+        filters={filterData} />
         <BottomComponent
           modus={modus}
           isCnnLayer={isCnn}
