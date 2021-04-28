@@ -161,13 +161,12 @@ for (let i = 1; i < imgArray.length; i++) {
   const localAnalysis = async (x, y, width, height, maskId = -1) => {
     console.log(imgSize)
     console.log(x,y,width,height)
-    setPrevView(viewType);
 
     const normedValues = helper.normLocalSelection(x,y,width,height, imgSize);
     /* console.log(filterImgSize)
     console.log(normedValues.newX, normedValues.newY, normedValues.newWidth, normedValues.newHeight);
       */ changeViewType('LOADINGVIEW');
-    const filters = await queueries.getLocalAnalysis(
+    const filters = queueries.getLocalAnalysis(
       normedValues.newX, 
       normedValues.newY,
       normedValues.newWidth, 
@@ -182,14 +181,12 @@ for (let i = 1; i < imgArray.length; i++) {
       maskId
     );
 
-
+    setTimeout(() => {
       Promise.resolve(filters).then(results => { 
         setFilterData(results);
-        console.log(prevView)
-        changeViewType(prevView);
       });
-      
-
+      changeViewType(prevView);
+    }, 20000);
 
 
   };
