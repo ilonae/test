@@ -3,7 +3,7 @@ import React from 'react';
 
 import { makeStyles } from '@material-ui/core';
 
-import { Container, Grid, CircularProgress } from '@material-ui/core';
+import { Container, Grid, CircularProgress, Table} from '@material-ui/core';
 
 import FilterComponent from './components/FilterComponent';
 import ImagesComponent from './components/ImagesComponent';
@@ -159,9 +159,6 @@ for (let i = 1; i < imgArray.length; i++) {
 
 
   const localAnalysis = async (x, y, width, height, maskId = -1) => {
-    console.log(imgSize)
-    console.log(x,y,width,height)
-
     const normedValues = helper.normLocalSelection(x,y,width,height, imgSize);
     /* console.log(filterImgSize)
     console.log(normedValues.newX, normedValues.newY, normedValues.newWidth, normedValues.newHeight);
@@ -181,14 +178,11 @@ for (let i = 1; i < imgArray.length; i++) {
       maskId
     );
 
-    setTimeout(() => {
-      Promise.resolve(filters).then(results => { 
-        setFilterData(results);
-      });
-      changeViewType(prevView);
-    }, 20000);
-
-
+    const data = await Promise.resolve(filters);
+    changeViewType(prevView);
+    if(data){
+      setFilterData(data);     
+    }
   };
 
   const getFilterHeatmap = () => {
@@ -262,15 +256,18 @@ for (let i = 1; i < imgArray.length; i++) {
           queryActivations
         );
 
-        Promise.resolve(filters).then(results => {
-          setFilterData(results);
-        });
+        const data = await Promise.resolve(filters);
+        changeViewType(prevView);
+
+        if(data){
+          setFilterData(data);
+        }
+       
       };
 
       fetchActivations();
-      setTimeout(() => {
-        changeViewType(prevView);
-      }, 3000);
+      
+  
     }
   }, [queryActivations, filterAmount, index, method, order, singleLayer,filterImgSize]);
 
@@ -304,7 +301,7 @@ for (let i = 1; i < imgArray.length; i++) {
   React.useEffect(() => {
     function handleResize() {
     const imageSize = helper.defineFilterImageSize(filterAmount);
-    setFilterImgSize(imageSize)
+    
     setFilterActivationsSize(imageSize*3)
 }
     window.addEventListener('resize', handleResize)
@@ -342,16 +339,17 @@ for (let i = 1; i < imgArray.length; i++) {
           imageSize
         );
         const contents = [image, heatmap, filters];
-        Promise.allSettled(contents).then(results => {
-          setImage(results[0].value);
-          setHeatmap(results[1].value);
-          setFilterData(results[2].value);
-        });
+        const data = await Promise.all(contents);
+        changeViewType(prevView);
+       
+ 
+        if(data){
+          setImage(data[0]);
+          setHeatmap(data[1]);
+          setFilterData(data[2]);
+        }
       };
       fetchImages();
-      setTimeout(() => {
-        changeViewType(prevView);
-      }, 3000);
     }
   }, [index, method, singleLayer, order, filterAmount, modus, imgSize]);
 
@@ -519,7 +517,7 @@ for (let i = 1; i < imgArray.length; i++) {
 
   return (
     <div>
-      <Container maxWidth="xl" className={classes.root}>
+      <Container maxWidth="xl">
         {(function() {
           switch (viewType) {
             case 'IMAGEVIEW':

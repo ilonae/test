@@ -5,13 +5,16 @@ import Image from '../container/Image';
 import WatershedButton from '../widgets/WatershedSwitch';
 import ExpansionButton from '../widgets/ExpansionButton';
 const useStyles = makeStyles(theme => ({
-  root: {
+  images: {
     overflow: 'hidden',
     position: 'relative',
     display: 'flex',
     flexDirection: 'column',
     height: 'auto',
     marginBottom: theme.spacing(3)
+  },
+  root:{
+    height:'100%'
   },
   expanded: {
     height: '70vh',
@@ -75,7 +78,7 @@ const ImagesComponent = ({
   }, [isExpanded, viewCallback]);
 
   return (
-    <Grid container spacing={3}  >
+    <Grid container spacing={3} className={classes.root}  >
       <Grid item lg={12} md={12} xl={12} xs={12} name={'imgCard'}>
         <WatershedButton isToggledCallback={toggleCallback} />{' '}
         <div>
@@ -92,7 +95,7 @@ const ImagesComponent = ({
         <div
           className={
             ['LOADINGVIEW', 'DEFAULTVIEW'].includes(viewState)
-              ? classes.root
+              ? classes.images
               : classes.expanded
           }
         >

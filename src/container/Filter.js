@@ -1,39 +1,58 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Box, Grid, Typography, makeStyles } from '@material-ui/core';
+import { Grid, Typography, makeStyles,createStyles, createMuiTheme,Container } from '@material-ui/core';
 
-const useStyles = makeStyles(() => ({
 
-  image:(filterImageSize)=>({
+const useStyles =makeStyles(() =>({
+  image:()=>({
     border: '1px solid #555',
-  maxWidth: '100%',
-  maxHeight: '100%',
-  width: filterImageSize,
-  height: filterImageSize,
+    verticalAlign:'middle',
+    width: '100%',
+    height:'100%',
+    display: 'block'
  }),
-
-  container:{
-    textAlign: 'center',
-    height: '100%'
-  },
-  wrapper:{
-    backgroundColor: '#fff',
-  height: '500px',
-  width: '500px',
-  },
   typography: {
-    wordWrap: 'break-word'
+    wordWrap: 'break-word',
+    height:'10%'
+  },
+  centering: {
+    textAlign : 'center',
+    maxHeight: '100%'
+  },
+  height:{
+    height:'80%',
+    width:'80%',
+    display: 'grid',
+  gridTemplate: 'repeat(3, 1fr) / repeat(3, 1fr)'
   },
   positive: {
     backgroundColor: 'rgba(255, 0, 0, 0.2)',
-    flexDirection: 'column',
-    width: '100%'
+    display: 'flex',
+    flexWrap: 'wrap', /* Optional. only if you want the items to wrap */
+    justifyContent: 'center',/* For horizontal alignment */
+    alignItems: 'center',
+    paddingBottom: '5%',
+    paddingTop:'5%'
+  },
+  test:{
+    padding: '10px',
+  overflow: 'hidden',
+  minWidth: '0'
   },
   negative: {
     backgroundColor: 'rgba(0, 0, 255, 0.2)',
-    flexDirection: 'column',
-    width: '100%'
+    display: 'flex',
+    flexWrap: 'wrap', /* Optional. only if you want the items to wrap */
+    justifyContent: 'center',/* For horizontal alignment */
+    alignItems: 'center',
+    paddingBottom: '5%',
+    paddingTop:'5%'
+
+  },
+  gridItem:{
+    width: '33%',
+    height:'33%'
   }
 }));
 
@@ -51,6 +70,31 @@ const FilterBox = ({
   const classes = useStyles(filterImgSize);
   const [imgState, setImages] = React.useState([]);
   const [view, changeView] = React.useState(viewState);
+  const [filterWidth, setFilterWidth] = React.useState(null);
+
+
+  React.useEffect(() => {
+    function handleResize() {
+      const fWidth = getComputedStyle(document.getElementsByName('filter')[0])
+    .getPropertyValue("width")
+    .trim(); // the result have a leading whitespace.
+    setFilterWidth(
+     fWidth
+    );
+}
+    window.addEventListener('resize', handleResize)
+});
+
+React.useLayoutEffect(() => {
+  const fWidth = getComputedStyle(document.getElementsByName('filter')[0])
+    .getPropertyValue("width")
+    .trim(); // the result have a leading whitespace.
+    setFilterWidth(
+     fWidth
+    );
+  
+  }, []);
+
 
   React.useEffect(() => {
     viewCallback(view);
@@ -64,9 +108,9 @@ const FilterBox = ({
       for (let i = 0; i < images.length; i++) {
         const img = `data:image/png;base64,${images[i]}`;
         filterImages.push(
-          <Grid item xs={imageSize} className={classes.container} key={`${reference}_image_index${i}`}>
-            <img src={img} className={classes.image} alt="" />
-          </Grid>
+          <Container  xs={imageSize} className={classes.test} key={`${reference}_image_index${i}`}>
+            <img src={img} className={classes.image} name= {'image'} alt="" />
+          </Container>
         );
       }
       setImages(filterImages);
@@ -76,7 +120,7 @@ const FilterBox = ({
     makeImages();
    }
 
-  }, [images, classes.image, reference, filterImgSize, classes.container, imageSize]);
+  }, [images, classes.image, reference, filterImgSize, imageSize]);
 
   var filterSize =
     filterAmount === 2
@@ -90,9 +134,10 @@ const FilterBox = ({
       : 3;
 
   return (
-    <Grid item xl={filterSize} lg={filterSize} name={'filter'} onClick={() => changeView('FILTERVIEW')}>
-      <div className={relevance >= 0 ? classes.positive : classes.negative}>
-        <Box mx={3} className={classes.typography} pt={3}>
+    <Grid item xl={filterSize} lg={filterSize}  onClick={() => changeView('FILTERVIEW')}>
+      <div className={relevance >= 0 ? classes.positive : classes.negative} style={{height:filterWidth}} name={'filter'}>
+       
+        <div className={classes.typography}>
           <Typography>
             Filter: 
             {filterIndex}
@@ -102,13 +147,13 @@ const FilterBox = ({
             Contribution:
             {relevance}
           </Typography>
-        </Box>
-        <Box p={3}>
-          <Grid container spacing={3} onClick={() => parentCallback()}>
+        </div>
+        <div className={classes.height}  onClick={() => parentCallback()} >
+         
             {imgState}
-          </Grid>
-        </Box>
-      </div>
+         
+          </div>
+        </div>
     </Grid>
   );
 };

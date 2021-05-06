@@ -76,6 +76,7 @@ const FilterComponent = ({
       filterHeatmapCallback();
     };
     if (filters) {
+      console.log(filters)
       const filterIndices = filters.filter_indices;
       const filterBox = [];
       for (let i = 0; i < filterIndices.length; i++) {
@@ -95,10 +96,10 @@ const FilterComponent = ({
       }
       setFilterBoxes(filterBox);
     }
-  }, [filters,filterImgSize, viewState, filterHeatmapCallback]);
+  }, [filters, viewState, filterHeatmapCallback]);
   return (
     <Card className={clsx(classes.root)} name={'filterCard'}>
-      <Grid className={classes.grid} container>
+      <Grid className={classes.grid} container spacing={5}>
         <Grid item className={classes.innergrid} xs={12}>
           <Selection
             select={'Experiment'}
@@ -121,11 +122,11 @@ const FilterComponent = ({
           <SortingButton parentOrder={order} parentCallback={sortingCallback} />
         </Grid>
 
-        <Box mt={3} p={5}>
-          <Grid container spacing={3} className={classes.centering} >
+        <Grid item xs={12}>
+          <Grid container spacing={5} className={classes.centering} >
             {filterBoxes}
           </Grid>
-        </Box>
+        </Grid>
       </Grid>
     </Card>
   );
