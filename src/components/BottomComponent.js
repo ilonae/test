@@ -8,14 +8,14 @@ import FilterSlider from '../widgets/FilterSlider';
 
 const useStyles = makeStyles({
   root: {
-    width: '100%',
+
     height: '10vh',
     marginTop: '2vh',
     position: 'relative',
     justifyContent: 'center',
     display: 'flex',
     alignItems: 'center',
-    padding: '1vh'
+    padding: '3vh'
   }
 });
 

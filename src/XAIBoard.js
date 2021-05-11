@@ -47,6 +47,7 @@ const XAIBoard = () => {
   const [cnnLayers, setCnnLayers] = React.useState();
   const [queryActivations, setActivations] = React.useState(0);
   const [isCnn, setCnn] = React.useState(0);
+  const [filterIndex, setFilterIndex] = React.useState(0);
 
   const [singleLayer, setSingleLayer] = React.useState('');
   const [image, setImage] = React.useState('');
@@ -189,6 +190,11 @@ for (let i = 1; i < imgArray.length; i++) {
     console.log('test');
   };
 
+  const currentFilterIndex = value => {
+    
+    console.log(value)
+
+  }
   const selectedOrder = value => {
     setOrder(value);
   };
@@ -409,6 +415,7 @@ for (let i = 1; i < imgArray.length; i++) {
           filters={filterData}
           filterImgSize={filterImgSize}
           viewCallback={viewState}
+          indexCallback={currentFilterIndex}
         />
         <BottomComponent
           modus={modus}
@@ -484,6 +491,7 @@ for (let i = 1; i < imgArray.length; i++) {
           filters={filterData}
           filterImgSize={filterImgSize}
           viewCallback={viewState}
+          indexCallback={currentFilterIndex}
         />
         <BottomComponent
           modus={modus}
@@ -501,8 +509,13 @@ for (let i = 1; i < imgArray.length; i++) {
     <Grid container spacing={3}>
       <Grid item lg={12} md={12} xl={12} xs={12}>
         <NetworkComponent
+        viewState={viewType}
+        viewCallback={viewState}
         filterAmount={filterAmount}
         filters={filterData} />
+        
+         </Grid>
+         <Grid item lg={12} md={12} xl={12} xs={12}>
         <BottomComponent
           modus={modus}
           isCnnLayer={isCnn}
@@ -511,7 +524,7 @@ for (let i = 1; i < imgArray.length; i++) {
           bottomCallback={filterAmountCallback}
           selectedButtonCallback={buttonClickedCallback}
         />
-      </Grid>
+       </Grid>
     </Grid>
   );
 

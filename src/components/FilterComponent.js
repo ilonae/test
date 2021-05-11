@@ -42,13 +42,18 @@ const FilterComponent = ({
   layerCallbackParent,
   filters,
   filterImgSize,
-  viewCallback
+  viewCallback,
+  indexCallback
 }) => {
   const [filterBoxes, setFilterBoxes] = React.useState([]);
   const classes = useStyles();
 
   const experimentsCallback = value => {
     experimentsCallbackParent(value);
+  };
+
+  const indexing = value => {
+    indexCallback(value);
   };
 
   const methodsCallback = value => {
@@ -64,6 +69,7 @@ const FilterComponent = ({
   };
 
   const viewTypeCallback = value => {
+    console.log(value)
     viewCallback(value);
   };
 
@@ -76,7 +82,7 @@ const FilterComponent = ({
       filterHeatmapCallback();
     };
     if (filters) {
-      console.log(filters)
+      console.log(filterImgSize)
       const filterIndices = filters.filter_indices;
       const filterBox = [];
       for (let i = 0; i < filterIndices.length; i++) {
@@ -91,6 +97,7 @@ const FilterComponent = ({
             relevance={filters.relevance[i]}
             filterImgSize={filterImgSize}
             viewCallback={viewTypeCallback}
+            filterIndexCallback={indexing}
           />
         );
       }

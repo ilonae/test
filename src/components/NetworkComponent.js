@@ -1,14 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import Button from '@material-ui/core/Button';
 import DagreGraph from 'dagre-d3-react'
+import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import { makeStyles, Box, Card, CardContent } from '@material-ui/core';
 import * as d3 from 'd3'
 
 
 const useStyles = makeStyles(() => ({
   root: {
-    height: '70vh',
-    margin: '2vh',
+    height: '72vh',
     position: 'relative',
     display: 'flex',
     flexDirection: 'row'
@@ -23,15 +24,24 @@ const useStyles = makeStyles(() => ({
     stroke: 'black',
     fill: 'black',
     strokeWidth: '1.5px'
+  },
+  fulltext:{
+    whiteSpace: 'nowrap'
   }
 }));
 
 
 
-const NetworkComponent = ({filterAmount, filters}) => {
+const NetworkComponent = ({filterAmount, filters, viewState, viewCallback}) => {
 
 
   const classes = useStyles();
+  const [view, changeView] = React.useState(viewState);
+
+
+  React.useEffect(() => {
+    viewCallback(view);
+  }, [view, viewCallback]);
 
 
     function handleClick(event, node) {
@@ -165,13 +175,21 @@ for (var img in filterData2.images) {
   return (
     <Card>
       <CardContent className={classes.root}>
-        <Box position="relative">Selected Filter:</Box>
+        <Box display="flex"  flexDirection="column" position="relative">
+        <Box flexGrow={1}>Selected Filter:</Box>
+               <Button 
+               startIcon={<ArrowBackIosIcon />} 
+               onClick={() => changeView('DEFAULTVIEW')}
+               alignSelf="flex-end"
+            variant="contained"
+          className={classes.fulltext}
+          > Return back </Button></Box>
         <DagreGraph
             nodes={data.nodes}
             links={data.links}
           
-            width='1000'
-            height='700'
+            width='100%'
+            height='100%'
             animate={1000}
             fitBoundaries
             zoomable
@@ -180,6 +198,8 @@ for (var img in filterData2.images) {
         />
 
        {/*  <RD3Component data={d3} /> */}
+
+
       </CardContent>
     </Card>
   );

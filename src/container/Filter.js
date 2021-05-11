@@ -65,7 +65,8 @@ const FilterBox = ({
   filterIndex,
   images,
   filterImgSize,
-  viewCallback
+  viewCallback,
+  filterIndexCallback
 }) => {
   const classes = useStyles(filterImgSize);
   const [imgState, setImages] = React.useState([]);
@@ -134,7 +135,7 @@ React.useLayoutEffect(() => {
       : 3;
 
   return (
-    <Grid item xl={filterSize} lg={filterSize}  onClick={() => changeView('FILTERVIEW')}>
+    <Grid item xl={filterSize} lg={filterSize}  onClick={() => {changeView('FILTERVIEW'); filterIndexCallback(filterIndex)}} onDragStart={(e)=>{e.preventDefault()}}>
       <div className={relevance >= 0 ? classes.positive : classes.negative} style={{height:filterWidth}} name={'filter'}>
        
         <div className={classes.typography}>
