@@ -75,6 +75,28 @@ const getHeatmap = async (index, experiment, method, size) => {
   });
 };
 
+const getAttributionGraph = async (imageIndex, experiment, method, size, layer, filterIndex) => {
+  return await fetch('/api/attribution_graph', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      experiment,
+      image_index: imageIndex,
+      method,
+      layer,
+      filter_index: filterIndex,
+      size,
+      view_prev:1
+    })
+  }).then(async response => {
+    const json = await response.json();
+    const obj = JSON.parse(json);
+    return (obj);
+  });
+};
+
 const getSettings = async () => {
   return await fetch('/api/get_XAI_available', {
     method: 'POST',
@@ -188,7 +210,8 @@ const queries = {
   getHeatmap,
   getSettings,
   getFilter,
-  getWatershed
+  getWatershed,
+  getAttributionGraph
 };
 
 export default  queries;

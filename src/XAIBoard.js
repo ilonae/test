@@ -3,7 +3,7 @@ import React from 'react';
 
 import { makeStyles } from '@material-ui/core';
 
-import { Container, Grid, CircularProgress, Table} from '@material-ui/core';
+import { Container, Grid, CircularProgress} from '@material-ui/core';
 
 import FilterComponent from './components/FilterComponent';
 import ImagesComponent from './components/ImagesComponent';
@@ -36,6 +36,8 @@ const XAIBoard = () => {
 
   const [modus, changeModus] = React.useState(0);
   const [index, changeIndex] = React.useState(0);
+
+  const [filterIndex, changeFilterIndex] = React.useState(0);
   const [experiment, changeExperiment] = React.useState('');
   const [method, changeMethod] = React.useState('');
   const [layer, changeLayer] = React.useState([]);
@@ -47,7 +49,6 @@ const XAIBoard = () => {
   const [cnnLayers, setCnnLayers] = React.useState();
   const [queryActivations, setActivations] = React.useState(0);
   const [isCnn, setCnn] = React.useState(0);
-  const [filterIndex, setFilterIndex] = React.useState(0);
 
   const [singleLayer, setSingleLayer] = React.useState('');
   const [image, setImage] = React.useState('');
@@ -55,6 +56,7 @@ const XAIBoard = () => {
   const [order, setOrder] = React.useState('max');
 
   const [filterData, setFilterData] = React.useState();
+  const [graphData, setGraphData] = React.useState();
   const [prevView, setPrevView] = React.useState('');
 
 let element = document.getElementsByClassName('ReactCrop__image')[1];
@@ -191,8 +193,7 @@ for (let i = 1; i < imgArray.length; i++) {
   };
 
   const currentFilterIndex = value => {
-    
-    console.log(value)
+    changeFilterIndex(value);
 
   }
   const selectedOrder = value => {
@@ -302,6 +303,31 @@ for (let i = 1; i < imgArray.length; i++) {
       changeExperiment(models[0]);
     }
   }, [methods, models]);
+
+  React.useEffect(() => {
+    if (viewType === "FILTERVIEW" && filterIndex) {
+      const fetchGraph= async () => {
+        changeViewType('LOADINGVIEW');
+       
+        const filters = queueries.getAttributionGraph(
+          index,
+          experiment,
+          method, 
+          filterImgSize,
+          singleLayer,
+          filterIndex
+        );
+        const data = await Promise.resolve(filters);
+        changeViewType(prevView);
+        if(data){
+          setGraphData(data);
+        }
+       
+      };
+
+      fetchGraph();
+    }
+  }, [filterIndex]);
 
 
   React.useEffect(() => {
@@ -414,7 +440,6 @@ for (let i = 1; i < imgArray.length; i++) {
           layerCallbackParent={selectedLayer}
           filters={filterData}
           filterImgSize={filterImgSize}
-          viewCallback={viewState}
           indexCallback={currentFilterIndex}
         />
         <BottomComponent
@@ -490,7 +515,6 @@ for (let i = 1; i < imgArray.length; i++) {
           layerCallbackParent={selectedLayer}
           filters={filterData}
           filterImgSize={filterImgSize}
-          viewCallback={viewState}
           indexCallback={currentFilterIndex}
         />
         <BottomComponent
@@ -511,8 +535,8 @@ for (let i = 1; i < imgArray.length; i++) {
         <NetworkComponent
         viewState={viewType}
         viewCallback={viewState}
-        filterAmount={filterAmount}
-        filters={filterData} />
+        graph={graphData} 
+        filterIndex={filterIndex}/>
         
          </Grid>
          <Grid item lg={12} md={12} xl={12} xs={12}>

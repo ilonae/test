@@ -27,16 +27,64 @@ const useStyles = makeStyles(() => ({
   },
   fulltext:{
     whiteSpace: 'nowrap'
+  },
+  imagecontainer:{
+    display:'grid',
+    gridTemplate:'repeat(3, 1fr) / repeat(3, 1fr)',
+    gridGap :'5px',
+    height:'100%',
+    width:'100%'
+  },
+  images:{
+    display:'block',
+    width:'50px',
+    height:'50px',
+    overflow:'hidden'
   }
 }));
 
 
 
-const NetworkComponent = ({filterAmount, filters, viewState, viewCallback}) => {
+const NetworkComponent = ({graph, viewState, viewCallback,filterIndex}) => {
 
 
   const classes = useStyles();
   const [view, changeView] = React.useState(viewState);
+  
+
+  if(graph){
+    for (const link in graph.links){
+      graph.links[link]['config']=  {curve: d3.curveBasis, style: 'stroke: black;fill: none; stroke-width: 1.5px;'};
+    }
+    for (const node in graph.nodes){
+      graph.nodes[node]['labelType']= 'html';
+      graph.nodes[node]['config']= {style: 'fill: #afa'};
+      const nodeId = graph.nodes[node]['id'];
+      for (const prop in graph.properties){
+        console.log(graph.properties[nodeId])
+        if(graph.properties[prop]===graph.nodes[node]['id']){
+          var imgs = document.createElement("div");
+          imgs.setAttribute('class', classes.imagecontainer);
+          for (let img in graph.properties[prop]['images']) {
+            var image = document.createElement('img');
+            image.src = 'data:image/png;base64,'+graph.properties[prop]['images'][img];
+            image.setAttribute('class', classes.images);
+            imgs.appendChild(image)
+            
+          }
+          graph.nodes[node]['label']= imgs;
+          
+        
+        
+      }
+  
+}
+    };
+
+
+
+    console.log(graph)
+  }
 
 
   React.useEffect(() => {
@@ -176,17 +224,17 @@ for (var img in filterData2.images) {
     <Card>
       <CardContent className={classes.root}>
         <Box display="flex"  flexDirection="column" position="relative">
-        <Box flexGrow={1}>Selected Filter:</Box>
+        <Box flexGrow={1}>Selected Filter: {filterIndex}</Box>
                <Button 
                startIcon={<ArrowBackIosIcon />} 
                onClick={() => changeView('DEFAULTVIEW')}
-               alignSelf="flex-end"
+              
             variant="contained"
           className={classes.fulltext}
-          > Return back </Button></Box>
-        <DagreGraph
-            nodes={data.nodes}
-            links={data.links}
+          > Return back </Button></Box>{
+            graph?<DagreGraph
+            nodes={graph.nodes}
+            links={graph.links}
           
             width='100%'
             height='100%'
@@ -195,7 +243,8 @@ for (var img in filterData2.images) {
             zoomable
             onNodeClick={e => console.log(e)}
             onRelationshipClick={e => console.log(e)}
-        />
+        />:null}
+        
 
        {/*  <RD3Component data={d3} /> */}
 
@@ -206,8 +255,8 @@ for (var img in filterData2.images) {
 };
 
 NetworkComponent.propTypes = {
-  filterAmount: PropTypes.number,
-  filters: PropTypes.array
+  graph: PropTypes.object,
+  filterIndex: PropTypes.number
 };
 
 

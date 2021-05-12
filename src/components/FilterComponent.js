@@ -42,10 +42,10 @@ const FilterComponent = ({
   layerCallbackParent,
   filters,
   filterImgSize,
-  viewCallback,
   indexCallback
 }) => {
   const [filterBoxes, setFilterBoxes] = React.useState([]);
+  const [filterIndex, setFilterIndex] = React.useState(0);
   const classes = useStyles();
 
   const experimentsCallback = value => {
@@ -53,7 +53,8 @@ const FilterComponent = ({
   };
 
   const indexing = value => {
-    indexCallback(value);
+    setFilterIndex(value)
+    console.log(value)
   };
 
   const methodsCallback = value => {
@@ -68,14 +69,14 @@ const FilterComponent = ({
     orderCallback(value);
   };
 
-  const viewTypeCallback = value => {
-    console.log(value)
-    viewCallback(value);
-  };
 
   React.useEffect(() => {
-    parentCallback(viewState);
-  }, [viewState, parentCallback]);
+    if( filterIndex){
+    parentCallback('FILTERVIEW');
+    indexCallback(filterIndex);
+   
+    }
+  }, [parentCallback,filterIndex]);
 
   React.useEffect(() => {
     const callback = () => {
@@ -93,10 +94,8 @@ const FilterComponent = ({
             filterIndex={filterIndices[i]}
             parentCallback={callback}
             key={`filter_index_${i}`}
-            viewState={viewState}
             relevance={filters.relevance[i]}
             filterImgSize={filterImgSize}
-            viewCallback={viewTypeCallback}
             filterIndexCallback={indexing}
           />
         );

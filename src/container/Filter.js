@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Grid, Typography, makeStyles,createStyles, createMuiTheme,Container } from '@material-ui/core';
+import { Grid, Typography, makeStyles,Container } from '@material-ui/core';
 
 
 const useStyles =makeStyles(() =>({
@@ -60,18 +60,19 @@ const FilterBox = ({
   filterAmount,
   name: reference,
   parentCallback,
-  viewState,
   relevance,
   filterIndex,
   images,
   filterImgSize,
-  viewCallback,
   filterIndexCallback
 }) => {
   const classes = useStyles(filterImgSize);
   const [imgState, setImages] = React.useState([]);
-  const [view, changeView] = React.useState(viewState);
   const [filterWidth, setFilterWidth] = React.useState(null);
+
+  const propagateCallback = () => {
+     filterIndexCallback(filterIndex);
+  };
 
 
   React.useEffect(() => {
@@ -96,10 +97,6 @@ React.useLayoutEffect(() => {
   
   }, []);
 
-
-  React.useEffect(() => {
-    viewCallback(view);
-  }, [view, viewCallback]);
 
   var imageSize = images.length === 9 ? 4 : 12;
 
@@ -135,7 +132,7 @@ React.useLayoutEffect(() => {
       : 3;
 
   return (
-    <Grid item xl={filterSize} lg={filterSize}  onClick={() => {changeView('FILTERVIEW'); filterIndexCallback(filterIndex)}} onDragStart={(e)=>{e.preventDefault()}}>
+    <Grid item xl={filterSize} lg={filterSize}  onClick={() => propagateCallback()} onDragStart={(e)=>{e.preventDefault()}}>
       <div className={relevance >= 0 ? classes.positive : classes.negative} style={{height:filterWidth}} name={'filter'}>
        
         <div className={classes.typography}>
