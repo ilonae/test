@@ -60,25 +60,17 @@ const NetworkComponent = ({graph, viewState, viewCallback,filterIndex}) => {
       graph.nodes[node]['labelType']= 'html';
       graph.nodes[node]['config']= {style: 'fill: #afa'};
       const nodeId = graph.nodes[node]['id'];
-      for (const prop in graph.properties){
-        console.log(graph.properties[nodeId])
-        if(graph.properties[prop]===graph.nodes[node]['id']){
+      console.log(graph.properties[nodeId])
           var imgs = document.createElement("div");
           imgs.setAttribute('class', classes.imagecontainer);
-          for (let img in graph.properties[prop]['images']) {
+          for (let img in graph.properties[nodeId]['images']) {
             var image = document.createElement('img');
-            image.src = 'data:image/png;base64,'+graph.properties[prop]['images'][img];
+            image.src = 'data:image/png;base64,'+graph.properties[nodeId]['images'][img];
             image.setAttribute('class', classes.images);
             imgs.appendChild(image)
             
           }
           graph.nodes[node]['label']= imgs;
-          
-        
-        
-      }
-  
-}
     };
 
 
