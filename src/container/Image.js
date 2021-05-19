@@ -10,16 +10,10 @@ const useStyles = makeStyles(theme => ({
     marginTop: theme.spacing(3)
   },
   side: {
-    width: '50%'
+    width: 'auto',
+    height:'50vh'
   },
   crop: {
-    display: 'block'
-  },
-  canvas: {
-    position: 'relative',
-    width: '800%',
-    height: '500%',
-    overflow: 'hidden',
     display: 'block'
   }
 }));

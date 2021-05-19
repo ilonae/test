@@ -1,7 +1,7 @@
 import React from 'react';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import { Box, Card, makeStyles, Grid } from '@material-ui/core';
+import { Card, makeStyles, Grid } from '@material-ui/core';
 import Filter from '../container/Filter';
 import SortingButton from '../widgets/SortingButton';
 
@@ -9,7 +9,7 @@ import Selection from '../widgets/Selection';
 
 const useStyles = makeStyles(() => ({
   root: {
-    height: '85vh',
+    height: '84vh',
     position: 'relative',
     overflow: 'auto'
   },
@@ -17,10 +17,13 @@ const useStyles = makeStyles(() => ({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: '1em'
+    marginTop: '1em',
+    
   },
+
   grid: { width: '100%' },
-  centering: {
+  centering: {paddingLeft: '3vh',
+  paddingBottom: '5vh',
     justifyContent : 'center'
   }
 }));
@@ -54,7 +57,6 @@ const FilterComponent = ({
 
   const indexing = value => {
     setFilterIndex(value)
-    console.log(value)
   };
 
   const methodsCallback = value => {
@@ -83,15 +85,16 @@ const FilterComponent = ({
       filterHeatmapCallback();
     };
     if (filters) {
-      console.log(filterImgSize)
+
       const filterIndices = filters.filter_indices;
       const filterBox = [];
       for (let i = 0; i < filterIndices.length; i++) {
+        const currIndex= filterIndices[i];
         filterBox.push(
           <Filter
             filterAmount={filterIndices.length}
-            images={filters.images[i]}
-            filterIndex={filterIndices[i]}
+            images={filters.images[currIndex]}
+            filterIndex={currIndex}
             parentCallback={callback}
             key={`filter_index_${i}`}
             relevance={filters.relevance[i]}
@@ -108,6 +111,7 @@ const FilterComponent = ({
       <Grid className={classes.grid} container spacing={5}>
         <Grid item className={classes.innergrid} xs={12}>
           <Selection
+          
             select={'Experiment'}
             selectedParam={selectedExperiment}
             parentCallback={experimentsCallback}

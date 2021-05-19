@@ -27,11 +27,13 @@ const useStyles = makeStyles(() => ({
       color: '#fff'
     }
   },
-  checked: {
-    padding: '3em',
-    '&:checked + label': {
-      background: 'blue!important'
-    }
+  checked:{
+    color: 'white',
+    background: '#009374!important'
+  },
+  default: {
+    color: 'white',
+    background: '#66BFAC!important'
   }
 }));
 
@@ -67,11 +69,11 @@ const SamplesSwitch = ({
 
   return (
     <Grid component="div" container spacing={1} className={clsx(classes.root)}>
-        <ButtonGroup className="mb-2" variant="contained" color="primary">
+        <ButtonGroup className="mb-2" variant="contained" >
           {isCnnLayer === 1 ? (
             <Button
-              color={selectedBtn === 1 ? 'primary' : 'default'}
-              onClick={() => {
+            className={selectedBtn === 1 ?  classes.checked: classes.default }
+            onClick={() => {
                 toggleButton(1);
                 selectionCallback();
               }}
@@ -82,13 +84,13 @@ const SamplesSwitch = ({
             null
           )}
           <Button
-            color={selectedBtn === 2 ? 'primary' : 'default'}
+            className={selectedBtn === 2 ? classes.checked: classes.default}
             onClick={() => toggleButton(2)}
           >
             Real Samples
           </Button>
           <Button
-            color={selectedBtn === 3 ? 'primary' : 'default'}
+            className={selectedBtn === 3 ?  classes.checked: classes.default}
             onClick={() => toggleButton(3)}
           >
             Synthetic Samples

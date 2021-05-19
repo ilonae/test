@@ -1,20 +1,21 @@
 import React from 'react';
-import { makeStyles, Grid } from '@material-ui/core';
+import { makeStyles, Grid, Card, Typography } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import Image from '../container/Image';
 import WatershedButton from '../widgets/WatershedSwitch';
 import ExpansionButton from '../widgets/ExpansionButton';
 const useStyles = makeStyles(theme => ({
   images: {
-    overflow: 'hidden',
     position: 'relative',
     display: 'flex',
     flexDirection: 'column',
     height: 'auto',
-    marginBottom: theme.spacing(3)
   },
   root:{
-    height:'100%'
+    height:'92vh',
+    padding:'3vh',
+    paddingLeft:'6vh',
+    paddingRight:'6vh'
   },
   expanded: {
     height: '70vh',
@@ -23,7 +24,11 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     flexDirection: 'row'
   },
-  textfield: { width: '95%' }
+  centering:{
+    justifyContent:'center'
+  },
+  textfield: { width: '95%',
+height:'5vh' }
 }));
 
 const ImagesComponent = ({
@@ -78,21 +83,9 @@ const ImagesComponent = ({
   }, [isExpanded, viewCallback]);
 
   return (
-    <Grid container spacing={3} className={classes.root}  >
-      <Grid item lg={12} md={12} xl={12} xs={12} name={'imgCard'}>
-        <WatershedButton isToggledCallback={toggleCallback} />{' '}
-        <div>
-          <input
-            type="number"
-            name="index"
-            label="Selected index"
-            onKeyDown={handleEnter}
-            onChange={handleIndexChange}
-            className={classes.textfield}
-            value={index}
-          />
-        </div>
-        <div
+    <Card className={classes.root} name={'imgCard'} >
+    <Grid container spacing={5} className={classes.centering} >
+        <Grid item
           className={
             ['LOADINGVIEW', 'DEFAULTVIEW'].includes(viewState)
               ? classes.images
@@ -112,13 +105,33 @@ const ImagesComponent = ({
             title={'heatmap'}
             getLocalAnalysisCallback={localAnalysisCallback}
           />
+        </Grid>
+
+        <Grid item lg={12} md={12} xl={12} xs={12} >
+        <WatershedButton isToggledCallback={toggleCallback} />{' '}
+        <div>
+
+
+        <Typography gutterBottom>Image Index:</Typography>
+          <input
+            type="number"
+            name="index"
+            label="Selected index"
+            onKeyDown={handleEnter}
+            onChange={handleIndexChange}
+            className={classes.textfield}
+            value={index}
+          />
         </div>
         <ExpansionButton
           expansionCallback={expansionCallback}
           viewState={isExpanded}
+          
         />
-      </Grid>
+        </Grid>
+  
     </Grid>
+    </Card>
   );
 };
 

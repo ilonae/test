@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Button from '@material-ui/core/Button';
 import DagreGraph from 'dagre-d3-react'
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
-import { makeStyles, Box, Card, CardContent } from '@material-ui/core';
+import { makeStyles, Box, Card, CardContent,Typography } from '@material-ui/core';
 import * as d3 from 'd3'
 
 
@@ -25,21 +25,26 @@ const useStyles = makeStyles(() => ({
     fill: 'black',
     strokeWidth: '1.5px'
   },
-  fulltext:{
-    whiteSpace: 'nowrap'
+  buttonback:{
+    whiteSpace: 'nowrap',
+    color: 'white',
+    background: '#66BFAC!important'
   },
   imagecontainer:{
     display:'grid',
+    alignItems:'center',
+    justifyItems:'center',
+    textAlign:'center',
     gridTemplate:'repeat(3, 1fr) / repeat(3, 1fr)',
-    gridGap :'5px',
-    height:'100%',
-    width:'100%'
+    height:'20vh',
+    width:'20vh'
   },
   images:{
-    display:'block',
-    width:'50px',
-    height:'50px',
-    overflow:'hidden'
+    border: '1px solid #555',
+
+    width: '5vh',
+    height:'5vh',
+    display: 'block',
   }
 }));
 
@@ -53,12 +58,13 @@ const NetworkComponent = ({graph, viewState, viewCallback,filterIndex}) => {
   
 
   if(graph){
+    console.log(graph)
     for (const link in graph.links){
-      graph.links[link]['config']=  {curve: d3.curveBasis, style: 'stroke: black;fill: none; stroke-width: 1.5px;'};
+      graph.links[link]['config']=  {curve: d3.curveBasis,arrowheadStyle: "fill: #009374;",   labelStyle: "font-family: roboto", style: 'font-family: roboto;color: #009374;stroke: #009374;fill: none; stroke-width: 1.5px;'};
     }
     for (const node in graph.nodes){
       graph.nodes[node]['labelType']= 'html';
-      graph.nodes[node]['config']= {style: 'fill: #afa'};
+      graph.nodes[node]['config']= {style: 'fill: #CCEAE3'};
       const nodeId = graph.nodes[node]['id'];
       console.log(graph.properties[nodeId])
           var imgs = document.createElement("div");
@@ -216,13 +222,15 @@ for (var img in filterData2.images) {
     <Card>
       <CardContent className={classes.root}>
         <Box display="flex"  flexDirection="column" position="relative">
-        <Box flexGrow={1}>Selected Filter: {filterIndex}</Box>
+          <Box flexGrow={1}>
+        <Typography gutterBottom  >Selected Filter: {filterIndex}</Typography>
+        </Box>
                <Button 
                startIcon={<ArrowBackIosIcon />} 
                onClick={() => changeView('DEFAULTVIEW')}
               
             variant="contained"
-          className={classes.fulltext}
+          className={classes.buttonback}
           > Return back </Button></Box>{
             graph?<DagreGraph
             nodes={graph.nodes}

@@ -74,7 +74,7 @@ const setWatershed = bool => {
   if (bool === true ) {
     const watershed = queueries.getWatershed(index, method, experiment, imgSize);
     Promise.resolve(watershed).then(results => {
-      console.log(results.masks.length);
+     
       var img1 = new Image();
       img1.onload = function() {
         for (let i = 1; i < results.masks.length; i++) {
@@ -290,12 +290,40 @@ for (let i = 1; i < imgArray.length; i++) {
     };
     fetchSettings();
   }, []);
-
   React.useEffect(() => {
     if (singleLayer && cnnLayers && experiment) {
       setCnn(cnnLayers[experiment][singleLayer]);
     }
   }, [singleLayer, cnnLayers, experiment, setCnn]);
+
+  React.useEffect(() => {
+    if (viewType==='IMAGEVIEW') {
+      setImgSize(helper.defineImgs());
+
+    }
+  }, [viewType]);
+
+  React.useEffect(() => {
+    if (imgSize && viewType==='IMAGEVIEW') {
+      const image = queueries.getImg(index, experiment, imgSize);
+        const heatmap = queueries.getHeatmap(index, experiment, method, imgSize);
+
+        const contents = [image, heatmap];
+        const resizeImgs= async () => {
+        const data = await Promise.all(contents);
+        changeViewType(prevView);
+       
+ 
+        if(data){
+          console.log(data)
+          setImage(data[0]);
+          setHeatmap(data[1]);
+        }
+      };
+      resizeImgs();
+
+    }
+  }, [imgSize, viewType]);
 
   React.useEffect(() => {
     if (methods && models) {
@@ -319,9 +347,21 @@ for (let i = 1; i < imgArray.length; i++) {
         );
         const data = await Promise.resolve(filters);
         changeViewType(prevView);
-        if(data){
+        if(Object.keys(data).length !== 0){
           setGraphData(data);
         }
+        else{
+          setPrevView(viewType);
+          const timer = window.setInterval(() => {
+            console.log('1 second has passed');
+          }, 1000);
+          return () => { // Return callback to run on unmount.
+            changeViewType('DEFAULTVIEW');
+            window.clearInterval(timer);
+          };
+        }
+        
+        
        
       };
 
@@ -330,14 +370,7 @@ for (let i = 1; i < imgArray.length; i++) {
   }, [filterIndex]);
 
 
-  React.useEffect(() => {
-    function handleResize() {
-    const imageSize = helper.defineFilterImageSize(filterAmount);
-    
-    setFilterActivationsSize(imageSize*3)
-}
-    window.addEventListener('resize', handleResize)
-});
+
 
 
 
@@ -350,7 +383,7 @@ for (let i = 1; i < imgArray.length; i++) {
       method &&
       order &&
       filterAmount &&
-      modus === 0
+      modus === 0 
     ) {
       const fetchImages = async () => {
         changeViewType('LOADINGVIEW');
@@ -376,6 +409,7 @@ for (let i = 1; i < imgArray.length; i++) {
        
  
         if(data){
+          console.log(data)
           setImage(data[0]);
           setHeatmap(data[1]);
           setFilterData(data[2]);
@@ -383,7 +417,7 @@ for (let i = 1; i < imgArray.length; i++) {
       };
       fetchImages();
     }
-  }, [index, method, singleLayer, order, filterAmount, modus, imgSize]);
+  }, [index, method, singleLayer, order, filterAmount, modus]);
 
   const loadingGrid = (
     <Grid container spacing={3}>
@@ -454,6 +488,72 @@ for (let i = 1; i < imgArray.length; i++) {
     </Grid>
   );
 
+  const errorGrid = (
+    <Grid container spacing={3}>
+      <Grid
+        container
+        spacing={3}
+        direction="row"
+        justify="center"
+        alignItems="stretch"
+        style={{
+          paddingTop: '50vh',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(255, 255, 255, 0.7)',
+          zIndex: 1
+        }}
+      >
+      </Grid>
+      <Grid item  xl={2} lg={3}   md={4} xs={4}>
+        <ImagesComponent
+          expansionCallback={viewState}
+          indexCallback={indexState}
+          viewCallback={viewState}
+          viewState={viewType}
+          image={image}
+          heatmap={heatmap}
+          parentLACallback={localAnalysis}
+          index={index}
+          parentToggleCallback={setWatershed}
+        />
+      </Grid>
+      <Grid item xl={10} lg={9}  md={8} xs={8}>
+        <FilterComponent
+          filterAmount={filterAmount}
+          parentCallback={viewState}
+          filterHeatmapCallback={getFilterHeatmap}
+          orderCallback={selectedOrder}
+          viewState={viewType}
+          selectedLayer={singleLayer}
+          selectedExperiment={experiment}
+          selectedMethod={method}
+          layers={layer}
+          order={order}
+          methods={methods}
+          models={models}
+          experimentsCallbackParent={selectedExperiment}
+          methodsCallbackParent={selectedMethod}
+          layerCallbackParent={selectedLayer}
+          filters={filterData}
+          filterImgSize={filterImgSize}
+          indexCallback={currentFilterIndex}
+        />
+        <BottomComponent
+          modus={modus}
+          isCnnLayer={isCnn}
+          filterAmount={filterAmount}
+          isCnnCallback={isCnnCallback}
+          bottomCallback={filterAmountCallback}
+          selectedButtonCallback={buttonClickedCallback}
+        />
+      </Grid>
+    </Grid>
+  );
+
   const imageGrid = (
     <Grid container spacing={3}>
       <Grid item lg={12} md={12} xl={12} xs={12}>
@@ -467,14 +567,6 @@ for (let i = 1; i < imgArray.length; i++) {
           parentLACallback={localAnalysis}
           index={index}
           parentToggleCallback={setWatershed}
-        />
-        <BottomComponent
-          modus={modus}
-          isCnnLayer={isCnn}
-          isCnnCallback={isCnnCallback}
-          filterAmount={filterAmount}
-          bottomCallback={filterAmountCallback}
-          selectedButtonCallback={buttonClickedCallback}
         />
       </Grid>
     </Grid>
@@ -565,6 +657,8 @@ for (let i = 1; i < imgArray.length; i++) {
               return filterGrid;
             case 'LOADINGVIEW':
               return loadingGrid;
+            case 'ERRORVIEW':
+              return errorGrid;
             default:
               return defaultGrid;
           }

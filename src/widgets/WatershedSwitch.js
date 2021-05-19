@@ -1,7 +1,7 @@
 import React from 'react';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import { makeStyles } from '@material-ui/core';
+import { makeStyles, withStyles } from '@material-ui/core';
 import Switch from '@material-ui/core/Switch';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
@@ -10,10 +10,29 @@ import theme from 'src/styles';
 const useStyles = makeStyles(() => ({
   root: {
     textAlign: 'center',
-    marginTop: theme.spacing(1),
+    justifyContent: 'center',
+
+  },
+  switch:{
+    textAlign: 'center',
     justifyContent: 'center'
   }
 }));
+
+const WSwitch = withStyles({
+  switchBase: {
+    color: '#66BFAC',
+    '&$checked': {
+      color:'#009374',
+      backgroundColor: '#66BFAC',
+    },
+    '&$checked + $track': {
+      backgroundColor: '#66BFAC',
+    },
+  },
+  checked: {},
+  track: {},
+})(Switch);
 
 const WatershedSwitch = ({ isToggledCallback }) => {
   const classes = useStyles();
@@ -57,11 +76,11 @@ const WatershedSwitch = ({ isToggledCallback }) => {
           component="div"
           container
           spacing={1}
-          className={clsx(classes.root)}
+          className={clsx(classes.switch)}
         >
           <Grid item>Off</Grid>
           <Grid item>
-            <Switch checked={useWatershed} onChange={toggleButton} />
+            <WSwitch checked={useWatershed} onChange={toggleButton} />
           </Grid>
           <Grid item>On</Grid>
         </Grid>

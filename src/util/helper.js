@@ -34,6 +34,7 @@ if (box[0] !== undefined) {
 var computedStyle = getComputedStyle(box[0]);
 let imgWidth = box[0].clientWidth;   // width with padding
 imgWidth -= parseFloat(computedStyle.paddingLeft) + parseFloat(computedStyle.paddingRight);
+
 return imgWidth;
 }
   };

@@ -7,7 +7,11 @@ import { FormControl, InputLabel, Select, makeStyles } from '@material-ui/core';
 const useStyles = makeStyles(() => ({
   root: {
     width: '20%',
-    marginRight: '5%'
+    marginRight: '5%',
+    backgroundColor:'#66BFAC'
+  },
+  text:{
+    color: 'white',
   }
 }));
 const Selection = ({ select, parentCallback, params, selectedParam }) => {
@@ -35,8 +39,9 @@ const Selection = ({ select, parentCallback, params, selectedParam }) => {
 
   return (
     <FormControl spacing={1} variant="filled" className={classes.root}>
-      <InputLabel htmlFor="selection">{select}:</InputLabel>
+      <InputLabel className={classes.text} htmlFor="selection">{select}:</InputLabel>
       <Select
+      className={classes.text}
         native
         value={parameter}
         onChange={handleChange}

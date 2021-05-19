@@ -7,10 +7,22 @@ import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 
 const useStyles = makeStyles(() => ({
-  root: {
+  root:{
+    paddingTop:'2vh'
+  },
+  checked:{
     width: '100%',
     justifyContent: 'center',
-    textAlign: 'center'
+    textAlign: 'center',
+    color: 'white',
+    background: '#009374!important'
+  },
+  default: {
+    width: '100%',
+    color: 'white',
+    justifyContent: 'center',
+    textAlign: 'center',
+    background: '#66BFAC!important'
   }
 }));
 
@@ -23,14 +35,13 @@ const ExpansionButton = ({ expansionCallback, viewState }) => {
   }, [view, expansionCallback]);
 
   return (
-    <div>
+    <div className={classes.root}>
       {
         ['LOADINGVIEW', 'DEFAULTVIEW'].includes(view)
         ? (
         <Button
-          className={classes.root}
+          className={classes.default}
           variant="contained"
-          color="default"
           onClick={() => changeView('IMAGEVIEW')}
           endIcon={<ArrowForwardIosIcon style={{ fontSize: 10 }} />}
         >
@@ -38,9 +49,8 @@ const ExpansionButton = ({ expansionCallback, viewState }) => {
         </Button>
       ) : (
         <Button
-          className={classes.root}
+          className={classes.default}
           variant="contained"
-          color="default"
           onClick={() => changeView('DEFAULTVIEW')}
           startIcon={<ArrowBackIosIcon style={{ fontSize: 10 }} />}
         >

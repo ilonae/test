@@ -33,8 +33,8 @@ const SortingButton = ({ parentCallback, parentOrder }) => {
   return (
     <Button
       variant="contained"
-      color="default"
-      style={{ width: '20%', wordWrap: 'break-word', whiteSpace: 'normal' }}
+   
+      style={{    color:"white",width: '20%', wordWrap: 'break-word', whiteSpace: 'normal' ,backgroundColor:'#66BFAC'}}
       onClick={handleChange}
       ref={inputEl}
       value={order}

@@ -27,7 +27,7 @@ const useStyles =makeStyles(() =>({
   gridTemplate: 'repeat(3, 1fr) / repeat(3, 1fr)'
   },
   positive: {
-    backgroundColor: 'rgba(255, 0, 0, 0.2)',
+    backgroundColor: '#CCEAE3',
     display: 'flex',
     flexWrap: 'wrap', /* Optional. only if you want the items to wrap */
     justifyContent: 'center',/* For horizontal alignment */
@@ -41,7 +41,7 @@ const useStyles =makeStyles(() =>({
   minWidth: '0'
   },
   negative: {
-    backgroundColor: 'rgba(0, 0, 255, 0.2)',
+    backgroundColor: '#E30613',
     display: 'flex',
     flexWrap: 'wrap', /* Optional. only if you want the items to wrap */
     justifyContent: 'center',/* For horizontal alignment */
@@ -75,18 +75,6 @@ const FilterBox = ({
   };
 
 
-  React.useEffect(() => {
-    function handleResize() {
-      const fWidth = getComputedStyle(document.getElementsByName('filter')[0])
-    .getPropertyValue("width")
-    .trim(); // the result have a leading whitespace.
-    setFilterWidth(
-     fWidth
-    );
-}
-    window.addEventListener('resize', handleResize)
-});
-
 React.useLayoutEffect(() => {
   const fWidth = getComputedStyle(document.getElementsByName('filter')[0])
     .getPropertyValue("width")
@@ -114,7 +102,6 @@ React.useLayoutEffect(() => {
       setImages(filterImages);
     };
    if(images && filterImgSize){
-    console.log(filterImgSize)
     makeImages();
    }
 
@@ -136,12 +123,13 @@ React.useLayoutEffect(() => {
       <div className={relevance >= 0 ? classes.positive : classes.negative} style={{height:filterWidth}} name={'filter'}>
        
         <div className={classes.typography}>
-          <Typography>
+          
+          <Typography variant="body1" gutterBottom>
             Filter: 
             {filterIndex}
           </Typography>
 
-          <Typography>
+          <Typography variant="body1" gutterBottom>
             Contribution:
             {relevance}
           </Typography>

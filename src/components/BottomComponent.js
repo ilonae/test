@@ -1,5 +1,5 @@
 import React from 'react';
-import { makeStyles, Card, Grid } from '@material-ui/core';
+import { makeStyles, Card, Grid ,Typography} from '@material-ui/core';
 import clsx from 'clsx';
 
 import PropTypes from 'prop-types';
@@ -9,7 +9,7 @@ import FilterSlider from '../widgets/FilterSlider';
 const useStyles = makeStyles({
   root: {
 
-    height: '10vh',
+    height: '6vh',
     marginTop: '2vh',
     position: 'relative',
     justifyContent: 'center',
@@ -43,7 +43,7 @@ const BottomComponent = ({
     <Card className={clsx(classes.root)}>
       <Grid container spacing={8}>
         <Grid item xs={4}>
-        Placeholder
+        <Typography gutterBottom>Placeholder</Typography>
         </Grid>
         <Grid item xs={4}>
         
