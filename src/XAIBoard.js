@@ -3,7 +3,7 @@ import React from 'react';
 
 import { makeStyles } from '@material-ui/core';
 
-import { Container, Grid, CircularProgress} from '@material-ui/core';
+import { Container, Grid, CircularProgress, Typography} from '@material-ui/core';
 
 import FilterComponent from './components/FilterComponent';
 import ImagesComponent from './components/ImagesComponent';
@@ -18,10 +18,14 @@ const useStyles = makeStyles(theme => ({
   root: {
     height: '100%'
   },
+  errorText:{
+    fontStyle:'bold',
+  },
 loading: {
 display: 'table-cell',
         textAlign: 'center',
-        verticalAlign: 'middle'
+        verticalAlign: 'middle',
+        marginTop: '-10vh'
 }}));
 
 const XAIBoard = () => {
@@ -347,18 +351,16 @@ for (let i = 1; i < imgArray.length; i++) {
         );
         const data = await Promise.resolve(filters);
         changeViewType(prevView);
-        if(Object.keys(data).length !== 0){
-          setGraphData(data);
+        if(Object.keys(data).length === 0){
+          setPrevView(viewType);
+          changeViewType('ERRORVIEW');
+          setTimeout(() => {
+  changeViewType('DEFAULTVIEW');
+}, 5000);
+
         }
         else{
-          setPrevView(viewType);
-          const timer = window.setInterval(() => {
-            console.log('1 second has passed');
-          }, 1000);
-          return () => { // Return callback to run on unmount.
-            changeViewType('DEFAULTVIEW');
-            window.clearInterval(timer);
-          };
+          setGraphData(data);
         }
         
         
@@ -507,6 +509,9 @@ for (let i = 1; i < imgArray.length; i++) {
           zIndex: 1
         }}
       >
+        <div className={classes.loading}>
+        <Typography gutterBottom variant="h2"className={classes.errorText}>No Graph available!</Typography>
+        </div>
       </Grid>
       <Grid item  xl={2} lg={3}   md={4} xs={4}>
         <ImagesComponent

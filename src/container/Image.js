@@ -109,7 +109,7 @@ const Image = ({ viewType, content, getLocalAnalysisCallback, title }) => {
   return (
     <div
       className={
-        ['LOADINGVIEW', 'DEFAULTVIEW'].includes(viewType)
+        ['LOADINGVIEW', 'DEFAULTVIEW', 'ERRORVIEW'].includes(viewType)
           ? classes.root
           : classes.side
       }

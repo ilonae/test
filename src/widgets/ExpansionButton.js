@@ -37,7 +37,7 @@ const ExpansionButton = ({ expansionCallback, viewState }) => {
   return (
     <div className={classes.root}>
       {
-        ['LOADINGVIEW', 'DEFAULTVIEW'].includes(view)
+        ['LOADINGVIEW', 'DEFAULTVIEW', 'ERRORVIEW'].includes(view)
         ? (
         <Button
           className={classes.default}

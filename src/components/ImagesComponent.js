@@ -87,7 +87,7 @@ const ImagesComponent = ({
     <Grid container spacing={5} className={classes.centering} >
         <Grid item
           className={
-            ['LOADINGVIEW', 'DEFAULTVIEW'].includes(viewState)
+            ['LOADINGVIEW', 'DEFAULTVIEW', 'ERRORVIEW'].includes(viewState)
               ? classes.images
               : classes.expanded
           }
