@@ -31,7 +31,7 @@ const getLocalAnalysis = async (
       image_index: index,
       method: method,
       mask_id: -1,
-      size:imageSize
+      size: imageSize
     })
   }).then(async response => {
     const json = await response.json();
@@ -88,7 +88,7 @@ const getAttributionGraph = async (imageIndex, experiment, method, size, layer, 
       layer,
       filter_index: filterIndex,
       size,
-      view_prev:1
+      view_prev: 1
     })
   }).then(async response => {
     const json = await response.json();
@@ -183,26 +183,28 @@ const getWatershed = async (imageIndex, method, experiment, size) => {
   });
 };
 
-/* const getSingleHeatmap = React.useCallback(async () => {
-  await fetch('/api/get_heatmap_filter', {
+const getSingleHeatmap = async (experiment, index, method, filterIndex, layer) => {
+  return await fetch('/api/heatmap_single_filter', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
+      image_index: index,
       experiment: experiment,
+      size: 20,
       image_index: index,
       method: method,
-      filter_index: 1
+      layer: layer,
+      filter_index: filterIndex,
+
     })
-  }).then(response => {
-    if (response.ok) {
-      response.json().then(json => {
-        console.log(json);
-      });
-    }
+  }).then(async response => {
+    const json = await response.json();
+    const obj = JSON.parse(json);
+    return obj;
   });
-}, [index, method, experiment]); */
+};
 
 const queries = {
   getLocalAnalysis,
@@ -211,7 +213,8 @@ const queries = {
   getSettings,
   getFilter,
   getWatershed,
-  getAttributionGraph
+  getAttributionGraph,
+  getSingleHeatmap
 };
 
-export default  queries;
+export default queries;

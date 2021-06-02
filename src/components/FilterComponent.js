@@ -18,13 +18,14 @@ const useStyles = makeStyles(() => ({
     flexDirection: 'row',
     justifyContent: 'center',
     marginTop: '1em',
-    
+
   },
 
   grid: { width: '100%' },
-  centering: {paddingLeft: '3vh',
-  paddingBottom: '5vh',
-    justifyContent : 'center'
+  centering: {
+    paddingLeft: '3vh',
+    paddingBottom: '5vh',
+    justifyContent: 'center'
   }
 }));
 
@@ -45,7 +46,7 @@ const FilterComponent = ({
   layerCallbackParent,
   filters,
   filterImgSize,
-  indexCallback
+  indexCallback,
 }) => {
   const [filterBoxes, setFilterBoxes] = React.useState([]);
   const [filterIndex, setFilterIndex] = React.useState(0);
@@ -55,7 +56,7 @@ const FilterComponent = ({
     experimentsCallbackParent(value);
   };
 
-  const indexing = value => {
+  const filterGraphCallback = value => {
     setFilterIndex(value)
   };
 
@@ -73,33 +74,31 @@ const FilterComponent = ({
 
 
   React.useEffect(() => {
-    if( filterIndex){
-    parentCallback('FILTERVIEW');
-    indexCallback(filterIndex);
-   
+    if (filterIndex) {
+      parentCallback('FILTERVIEW');
+      indexCallback(filterIndex);
+
     }
-  }, [parentCallback,filterIndex]);
+  }, [parentCallback, filterIndex]);
 
   React.useEffect(() => {
-    const callback = () => {
-      filterHeatmapCallback();
-    };
+
     if (filters) {
 
       const filterIndices = filters.filter_indices;
       const filterBox = [];
       for (let i = 0; i < filterIndices.length; i++) {
-        const currIndex= filterIndices[i];
+        const currIndex = filterIndices[i];
         filterBox.push(
           <Filter
             filterAmount={filterIndices.length}
             images={filters.images[currIndex]}
             filterIndex={currIndex}
-            parentCallback={callback}
+            filterHeatmapCallback={filterHeatmapCallback}
             key={`filter_index_${i}`}
             relevance={filters.relevance[i]}
             filterImgSize={filterImgSize}
-            filterIndexCallback={indexing}
+            filterGraphCallback={filterGraphCallback}
           />
         );
       }
@@ -111,7 +110,7 @@ const FilterComponent = ({
       <Grid className={classes.grid} container spacing={5}>
         <Grid item className={classes.innergrid} xs={12}>
           <Selection
-          
+
             select={'Experiment'}
             selectedParam={selectedExperiment}
             parentCallback={experimentsCallback}

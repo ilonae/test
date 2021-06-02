@@ -43,7 +43,7 @@ app.post('/api/global_analysis', (req, res) => {
     });
 });
 
-app.post('/api/get_heatmap_filter', (req, res) => {
+app.post('/api/heatmap_single_filter', (req, res) => {
   const optionsFilter = {
     method: req.method,
     uri: 'http://titan:5050/heatmap_single_filter',

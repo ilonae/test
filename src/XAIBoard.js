@@ -3,7 +3,7 @@ import React from 'react';
 
 import { makeStyles } from '@material-ui/core';
 
-import { Container, Grid, CircularProgress, Typography} from '@material-ui/core';
+import { Container, Grid, CircularProgress, Typography } from '@material-ui/core';
 
 import FilterComponent from './components/FilterComponent';
 import ImagesComponent from './components/ImagesComponent';
@@ -18,15 +18,16 @@ const useStyles = makeStyles(theme => ({
   root: {
     height: '100%'
   },
-  errorText:{
-    fontStyle:'bold',
+  errorText: {
+    fontStyle: 'bold',
   },
-loading: {
-display: 'table-cell',
-        textAlign: 'center',
-        verticalAlign: 'middle',
-        marginTop: '-10vh'
-}}));
+  loading: {
+    display: 'table-cell',
+    textAlign: 'center',
+    verticalAlign: 'middle',
+    marginTop: '-10vh'
+  }
+}));
 
 const XAIBoard = () => {
 
@@ -63,117 +64,117 @@ const XAIBoard = () => {
   const [graphData, setGraphData] = React.useState();
   const [prevView, setPrevView] = React.useState('');
 
-let element = document.getElementsByClassName('ReactCrop__image')[1];
+  let element = document.getElementsByClassName('ReactCrop__image')[1];
 
 
-const setWatershed = bool => {
-  
-  if(element){
-    let width = element.clientWidth;
-    let height = element.clientHeight;
+  const setWatershed = bool => {
+
+    if (element) {
+      let width = element.clientWidth;
+      let height = element.clientHeight;
       var canvas = document.createElement('canvas');
       canvas.height = height; //get original canvas height
       canvas.width = width; // get original canvas width
       var context = canvas.getContext('2d');
-  if (bool === true ) {
-    const watershed = queueries.getWatershed(index, method, experiment, imgSize);
-    Promise.resolve(watershed).then(results => {
-     
-      var img1 = new Image();
-      img1.onload = function() {
-        for (let i = 1; i < results.masks.length; i++) {
-          var img2 = new Image();
-          img2.src = 'data:image/png;base64,' + results.masks[i];
-          img2.onload = function() {
-            context.globalAlpha = 1.0;
-            context.drawImage(img1, 0, 0);
-            /*               var imgd = context.getImageData(0, 0, 135, 135),
-              pix = imgd.data,
-              newColor = { r: 0, g: 0, b: 0, a: 0 };
+      if (bool === true) {
+        const watershed = queueries.getWatershed(index, method, experiment, imgSize);
+        Promise.resolve(watershed).then(results => {
 
-            for (var i = 0, n = pix.length; i < n; i += 4) {
-              var r = pix[i],
-                g = pix[i + 1],
-                b = pix[i + 2];
+          var img1 = new Image();
+          img1.onload = function () {
+            for (let i = 1; i < results.masks.length; i++) {
+              var img2 = new Image();
+              img2.src = 'data:image/png;base64,' + results.masks[i];
+              img2.onload = function () {
+                context.globalAlpha = 1.0;
+                context.drawImage(img1, 0, 0);
+                /*               var imgd = context.getImageData(0, 0, 135, 135),
+                  pix = imgd.data,
+                  newColor = { r: 0, g: 0, b: 0, a: 0 };
+    
+                for (var i = 0, n = pix.length; i < n; i += 4) {
+                  var r = pix[i],
+                    g = pix[i + 1],
+                    b = pix[i + 2];
+    
+                  if (r == 0 && g == 0 && b == 0) {
+                    // Change the white to the new color.
+                    pix[i] = newColor.r;
+                    pix[i + 1] = newColor.g;
+                    pix[i + 2] = newColor.b;
+                    pix[i + 3] = newColor.a;
+    
+    }
+    }
+    
+    context.putImageData(imgd, 0, 0); */
+                context.globalAlpha = 1 / results.masks.length; //Remove if pngs have alpha
+                context.drawImage(img2, 0, 0);
+                /*               var imgd = context.getImageData(0, 0, 135, 135),
+                  pix = imgd.data,
+                  newColor = { r: 0, g: 0, b: 0, a: 0 };
+                
+                for (var i = 0, n = pix.length; i < n; i += 4) {
+                  var r = pix[i],
+                    g = pix[i + 1],
+                    b = pix[i + 2];
+                
+                  if (r == 0 && g == 0 && b == 0) {
+                    // Change the white to the new color.
+                    pix[i] = newColor.r;
+                    pix[i + 1] = newColor.g;
+                    pix[i + 2] = newColor.b;
+                    pix[i + 3] = newColor.a;
+                  }
+                }
+                
+                context.putImageData(imgd, 0, 0); */
+              };
+            }
+          };
 
-              if (r == 0 && g == 0 && b == 0) {
-                // Change the white to the new color.
-                pix[i] = newColor.r;
-                pix[i + 1] = newColor.g;
-                pix[i + 2] = newColor.b;
-                pix[i + 3] = newColor.a;
+          img1.src = 'data:image/png;base64,' + results.masks[0];
+          canvas.setAttribute("id", "canvas");
+          element.parentNode.appendChild(canvas)
+          element.parentNode.removeChild(element);
 
-}
-}
-
-context.putImageData(imgd, 0, 0); */
-context.globalAlpha = 1 / results.masks.length; //Remove if pngs have alpha
-context.drawImage(img2, 0, 0);
-/*               var imgd = context.getImageData(0, 0, 135, 135),
-  pix = imgd.data,
-  newColor = { r: 0, g: 0, b: 0, a: 0 };
-
-for (var i = 0, n = pix.length; i < n; i += 4) {
-  var r = pix[i],
-    g = pix[i + 1],
-    b = pix[i + 2];
-
-  if (r == 0 && g == 0 && b == 0) {
-    // Change the white to the new color.
-    pix[i] = newColor.r;
-    pix[i + 1] = newColor.g;
-    pix[i + 2] = newColor.b;
-    pix[i + 3] = newColor.a;
-  }
-}
-
-context.putImageData(imgd, 0, 0); */
-};
-}
-};
-
-img1.src = 'data:image/png;base64,' + results.masks[0];
-canvas.setAttribute("id", "canvas");
-element.parentNode.appendChild(canvas)
-element.parentNode.removeChild(element);
-
-/* for (let i = 0; i < results.masks.length; i++) {
-  const currImg = loadImage(
-    'data:image/png;base64,' + results.masks[i]
-  );
-  imgArray.push(currImg);
-}
-context.globalAlpha = 1;
-const firstImg = imgArray[0];
-firstImg.onload = context.drawImage(firstImg, 0, 0);
-
-context.globalAlpha = 1 / results.masks.length;
-for (let i = 1; i < imgArray.length; i++) {
-  let currImg = imgArray[i];
-  currImg.onload = context.drawImage(currImg, 0, 0);
-} */
-});
-} else {
-  const canvas = document.getElementById('canvas');
-  if(canvas){
-    canvas.parentNode.appendChild(element)
-  canvas.parentNode.removeChild(canvas);
-  }
-}
-}
-};
+          /* for (let i = 0; i < results.masks.length; i++) {
+            const currImg = loadImage(
+              'data:image/png;base64,' + results.masks[i]
+            );
+            imgArray.push(currImg);
+          }
+          context.globalAlpha = 1;
+          const firstImg = imgArray[0];
+          firstImg.onload = context.drawImage(firstImg, 0, 0);
+          
+          context.globalAlpha = 1 / results.masks.length;
+          for (let i = 1; i < imgArray.length; i++) {
+            let currImg = imgArray[i];
+            currImg.onload = context.drawImage(currImg, 0, 0);
+          } */
+        });
+      } else {
+        const canvas = document.getElementById('canvas');
+        if (canvas) {
+          canvas.parentNode.appendChild(element)
+          canvas.parentNode.removeChild(canvas);
+        }
+      }
+    }
+  };
 
 
 
   const localAnalysis = async (x, y, width, height, maskId = -1) => {
-    const normedValues = helper.normLocalSelection(x,y,width,height, imgSize);
+    const normedValues = helper.normLocalSelection(x, y, width, height, imgSize);
     /* console.log(filterImgSize)
     console.log(normedValues.newX, normedValues.newY, normedValues.newWidth, normedValues.newHeight);
       */ changeViewType('LOADINGVIEW');
     const filters = queueries.getLocalAnalysis(
-      normedValues.newX, 
+      normedValues.newX,
       normedValues.newY,
-      normedValues.newWidth, 
+      normedValues.newWidth,
       normedValues.newHeight,
       order,
       singleLayer,
@@ -187,14 +188,20 @@ for (let i = 1; i < imgArray.length; i++) {
 
     const data = await Promise.resolve(filters);
     changeViewType(prevView);
-    if(data){
-      setFilterData(data);     
+    if (data) {
+      setFilterData(data);
     }
   };
 
-  const getFilterHeatmap = () => {
-    console.log('test');
-  };
+  const getFilterHeatmap = (value) => {
+    changeFilterIndex(value);
+    const filterHeatmap = queueries.getSingleHeatmap(experiment, index, method, value, singleLayer);
+    Promise.resolve(filterHeatmap).then(results => {
+      setHeatmap('data:image/png;base64,' + results.image)
+    })
+  }
+
+
 
   const currentFilterIndex = value => {
     changeFilterIndex(value);
@@ -270,17 +277,17 @@ for (let i = 1; i < imgArray.length; i++) {
         const data = await Promise.resolve(filters);
         changeViewType(prevView);
 
-        if(data){
+        if (data) {
           setFilterData(data);
         }
-       
+
       };
 
       fetchActivations();
-      
-  
+
+
     }
-  }, [queryActivations, filterAmount, index, method, order, singleLayer,filterImgSize]);
+  }, [queryActivations, filterAmount, index, method, order, singleLayer, filterImgSize]);
 
   React.useEffect(() => {
     const fetchSettings = async () => {
@@ -301,24 +308,24 @@ for (let i = 1; i < imgArray.length; i++) {
   }, [singleLayer, cnnLayers, experiment, setCnn]);
 
   React.useEffect(() => {
-    if (viewType==='IMAGEVIEW') {
+    if (viewType === 'IMAGEVIEW') {
       setImgSize(helper.defineImgs());
 
     }
   }, [viewType]);
 
   React.useEffect(() => {
-    if (imgSize && viewType==='IMAGEVIEW') {
+    if (imgSize && viewType === 'IMAGEVIEW') {
       const image = queueries.getImg(index, experiment, imgSize);
-        const heatmap = queueries.getHeatmap(index, experiment, method, imgSize);
+      const heatmap = queueries.getHeatmap(index, experiment, method, imgSize);
 
-        const contents = [image, heatmap];
-        const resizeImgs= async () => {
+      const contents = [image, heatmap];
+      const resizeImgs = async () => {
         const data = await Promise.all(contents);
         changeViewType(prevView);
-       
- 
-        if(data){
+
+
+        if (data) {
           console.log(data)
           setImage(data[0]);
           setHeatmap(data[1]);
@@ -338,33 +345,33 @@ for (let i = 1; i < imgArray.length; i++) {
 
   React.useEffect(() => {
     if (viewType === "FILTERVIEW" && filterIndex) {
-      const fetchGraph= async () => {
+      const fetchGraph = async () => {
         changeViewType('LOADINGVIEW');
-       
+
         const filters = queueries.getAttributionGraph(
           index,
           experiment,
-          method, 
+          method,
           filterImgSize,
           singleLayer,
           filterIndex
         );
         const data = await Promise.resolve(filters);
         changeViewType(prevView);
-        if(Object.keys(data).length === 0){
+        if (Object.keys(data).length === 0) {
           setPrevView(viewType);
           changeViewType('ERRORVIEW');
           setTimeout(() => {
-  changeViewType('DEFAULTVIEW');
-}, 5000);
+            changeViewType('DEFAULTVIEW');
+          }, 5000);
 
         }
-        else{
+        else {
           setGraphData(data);
         }
-        
-        
-       
+
+
+
       };
 
       fetchGraph();
@@ -385,7 +392,7 @@ for (let i = 1; i < imgArray.length; i++) {
       method &&
       order &&
       filterAmount &&
-      modus === 0 
+      modus === 0
     ) {
       const fetchImages = async () => {
         changeViewType('LOADINGVIEW');
@@ -395,7 +402,7 @@ for (let i = 1; i < imgArray.length; i++) {
         const heatmap = queueries.getHeatmap(index, experiment, method, imgSize);
         const imageSize = helper.defineFilterImageSize(filterAmount);
         setFilterImgSize(imageSize)
-        setFilterActivationsSize(imageSize*3)
+        setFilterActivationsSize(imageSize * 3)
         const filters = queueries.getFilter(
           singleLayer,
           filterAmount,
@@ -408,9 +415,9 @@ for (let i = 1; i < imgArray.length; i++) {
         const contents = [image, heatmap, filters];
         const data = await Promise.all(contents);
         changeViewType(prevView);
-       
- 
-        if(data){
+
+
+        if (data) {
           console.log(data)
           setImage(data[0]);
           setHeatmap(data[1]);
@@ -440,11 +447,11 @@ for (let i = 1; i < imgArray.length; i++) {
           zIndex: 1
         }}
       ><div className={classes.loading}>
-        <CircularProgress size='10vh' />
-        <TextFader/>
+          <CircularProgress size='10vh' />
+          <TextFader />
         </div>
       </Grid>
-      <Grid item  xl={2} lg={3}   md={4} xs={4}>
+      <Grid item xl={2} lg={3} md={4} xs={4}>
         <ImagesComponent
           expansionCallback={viewState}
           indexCallback={indexState}
@@ -457,7 +464,7 @@ for (let i = 1; i < imgArray.length; i++) {
           parentToggleCallback={setWatershed}
         />
       </Grid>
-      <Grid item xl={10} lg={9}  md={8} xs={8}>
+      <Grid item xl={10} lg={9} md={8} xs={8}>
         <FilterComponent
           filterAmount={filterAmount}
           parentCallback={viewState}
@@ -510,10 +517,10 @@ for (let i = 1; i < imgArray.length; i++) {
         }}
       >
         <div className={classes.loading}>
-        <Typography gutterBottom variant="h2"className={classes.errorText}>No Graph available!</Typography>
+          <Typography gutterBottom variant="h2" className={classes.errorText}>No Graph available!</Typography>
         </div>
       </Grid>
-      <Grid item  xl={2} lg={3}   md={4} xs={4}>
+      <Grid item xl={2} lg={3} md={4} xs={4}>
         <ImagesComponent
           expansionCallback={viewState}
           indexCallback={indexState}
@@ -526,7 +533,7 @@ for (let i = 1; i < imgArray.length; i++) {
           parentToggleCallback={setWatershed}
         />
       </Grid>
-      <Grid item xl={10} lg={9}  md={8} xs={8}>
+      <Grid item xl={10} lg={9} md={8} xs={8}>
         <FilterComponent
           filterAmount={filterAmount}
           parentCallback={viewState}
@@ -579,7 +586,7 @@ for (let i = 1; i < imgArray.length; i++) {
 
   const defaultGrid = (
     <Grid container spacing={3}>
-      <Grid item  xl={2} lg={3}   md={4} xs={4} >
+      <Grid item xl={2} lg={3} md={4} xs={4} >
         <ImagesComponent
           expansionCallback={viewState}
           indexCallback={indexState}
@@ -592,8 +599,8 @@ for (let i = 1; i < imgArray.length; i++) {
           parentToggleCallback={setWatershed}
         />
       </Grid>
-     
-      <Grid item xl={10} lg={9}  md={8} xs={8}>
+
+      <Grid item xl={10} lg={9} md={8} xs={8}>
         <FilterComponent
           filterAmount={filterAmount}
           parentCallback={viewState}
@@ -630,13 +637,13 @@ for (let i = 1; i < imgArray.length; i++) {
     <Grid container spacing={3}>
       <Grid item lg={12} md={12} xl={12} xs={12}>
         <NetworkComponent
-        viewState={viewType}
-        viewCallback={viewState}
-        graph={graphData} 
-        filterIndex={filterIndex}/>
-        
-         </Grid>
-         <Grid item lg={12} md={12} xl={12} xs={12}>
+          viewState={viewType}
+          viewCallback={viewState}
+          graph={graphData}
+          filterIndex={filterIndex} />
+
+      </Grid>
+      <Grid item lg={12} md={12} xl={12} xs={12}>
         <BottomComponent
           modus={modus}
           isCnnLayer={isCnn}
@@ -645,14 +652,14 @@ for (let i = 1; i < imgArray.length; i++) {
           bottomCallback={filterAmountCallback}
           selectedButtonCallback={buttonClickedCallback}
         />
-       </Grid>
+      </Grid>
     </Grid>
   );
 
   return (
     <div>
       <Container maxWidth="xl">
-        {(function() {
+        {(function () {
           switch (viewType) {
             case 'IMAGEVIEW':
               return imageGrid;
