@@ -113,7 +113,7 @@ const NetworkComponent = ({ graph, viewState, viewCallback, filterIndex }) => {
 
       {
         isShown ?
-          (content.appendChild(info)
+          (content.appendChild(info) && content.removeChild(imgs)
           ) : content.appendChild(imgs);
       }
 
