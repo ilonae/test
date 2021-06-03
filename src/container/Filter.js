@@ -26,6 +26,11 @@ const useStyles = makeStyles(() => ({
     display: 'grid',
     gridTemplate: 'repeat(3, 1fr) / repeat(3, 1fr)'
   },
+  singleActivation: {
+    height: '80%',
+    width: '80%',
+    display: 'block'
+  },
   positive: {
     backgroundColor: '#CCEAE3',
     display: 'flex',
@@ -130,7 +135,7 @@ const FilterBox = ({
                {relevance}
       </Typography>
     </div>
-    <div className={classes.height}  >
+    <div className={images.length > 1 ? classes.height : classes.singleActivation}  >
 
       {imgState}
 
@@ -142,7 +147,7 @@ const FilterBox = ({
         <Button
           onClick={() => filterHeatmapCallback(filterIndex)}
         >
-          Show Heatmap
+          Show Activation
             </Button>
         <Button onClick={() => filterGraphCallback(filterIndex)}
 

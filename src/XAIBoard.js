@@ -235,6 +235,7 @@ const XAIBoard = () => {
 
   const filterAmountCallback = value => {
     changeFilterAmount(value);
+    console.log(value)
   };
 
   const buttonClickedCallback = value => {
@@ -259,7 +260,7 @@ const XAIBoard = () => {
 
   React.useEffect(() => {
     if (queryActivations === 1) {
-      setFilterImgSize(filterActivationsSize)
+      setFilterImgSize(filterActivationsSize * 3)
       const fetchActivations = async () => {
         changeViewType('LOADINGVIEW');
         console.log(singleLayer)

@@ -38,19 +38,18 @@ const useStyles = makeStyles(() => ({
     gridTemplate: 'repeat(3, 1fr) / repeat(3, 1fr)',
     height: '20vh',
     width: '20vh',
-    "&:hover": {
-      display: 'none'
-    },
+    cursor: 'pointer'
   },
   infocontainer: {
     display: 'grid',
     alignItems: 'center',
     justifyItems: 'center',
     textAlign: 'center',
-    height: '20vh',
-    width: '20vh',
+    height: '15vh',
+    width: '15vh',
     whiteSpace: 'pre-line',
-    fontSize: '0.8em'
+    fontSize: '0.8em',
+    cursor: 'pointer'
   },
   hide: {
     display: 'none'
@@ -75,7 +74,24 @@ const NetworkComponent = ({ graph, viewState, viewCallback, filterIndex }) => {
   const classes = useStyles();
   const [view, changeView] = React.useState(viewState);
 
-  const [isShown, setShown] = React.useState(false);
+  const [showInfo, setInfoView] = React.useState(false);
+
+  function changeLayout(element) {
+
+    setInfoView(!showInfo)
+    {
+      showInfo ? element.original.label.children[0].className = classes.hide : element.original.label.children[0].className = classes.imagecontainer
+    };
+    {
+      showInfo ? element.original.label.children[1].className = classes.infocontainer : element.original.label.children[1].className = classes.hide
+    };
+  }
+
+  function displayConnectionInfo(element) {
+    console.log(element.d3source)
+    console.log(element.source.label.children[1].innerHTML)
+    console.log(element.target.label.children[1].innerHTML)
+  }
 
   var scale = function (db) {
     return (db / 100) * 7;
@@ -84,13 +100,12 @@ const NetworkComponent = ({ graph, viewState, viewCallback, filterIndex }) => {
   if (graph) {
     for (const link in graph.links) {
       const linkThickness = scale(graph.links[link]['label']);
-      graph.links[link]['config'] = { curve: d3.curveBasis, arrowheadStyle: "fill: #009374;", labelStyle: "font-family: roboto", style: 'font-family: roboto;color: #009374;stroke: #009374;fill: none; stroke-width: ' + linkThickness + 'px;' };
-
-      graph.links[link].onmouseover = function () { console.log('test') };
+      graph.links[link]['class'] = 'contrib_id_' + link
+      graph.links[link]['config'] = { curve: d3.curveBasis, arrowheadStyle: "fill: #009374;", labelStyle: "font-family: roboto", style: 'font-family: roboto;color: #009374;stroke: #009374;fill: none; stroke-width: ' + linkThickness + 'px;cursor:pointer' };
     }
     for (const node in graph.nodes) {
       graph.nodes[node]['labelType'] = 'html';
-      graph.nodes[node]['config'] = { style: 'fill: #CCEAE3' };
+      graph.nodes[node]['config'] = { style: 'fill: #CCEAE3; cursor:pointer' };
       const nodeId = graph.nodes[node]['id'];
       graph.nodes[node].class = 'filterCard'
 
@@ -108,162 +123,25 @@ const NetworkComponent = ({ graph, viewState, viewCallback, filterIndex }) => {
       content.appendChild(imgs);
 
       var info = document.createElement("div");
-      info.setAttribute('class', classes.infocontainer);
+      info.setAttribute('class', classes.hide);
       info.innerHTML = ('Layer: ' + graph.properties[nodeId]['layer'] + ' \n Filter index: ' + graph.properties[nodeId]['filter_index']);
+      content.appendChild(info);
 
-      {
-        isShown ?
-          (content.appendChild(info) && content.removeChild(imgs)
-          ) : content.appendChild(imgs);
-      }
 
 
 
 
       graph.nodes[node]['label'] = content;
-      graph.nodes[node]['label'].onmouseover = function () { setShown(true); };
-      graph.nodes[node]['label'].onmouseout = function () { setShown(false) };
+      //graph.nodes[node]['label'].onmouseover = function () { setShown(true); };
+      //graph.nodes[node]['label'].onmouseout = function () { setShown(false) };
 
     };
-
-
-
-    //console.log(graph)
+    console.log(graph)
   }
-
 
   React.useEffect(() => {
     viewCallback(view);
   }, [view, viewCallback]);
-
-
-  function handleClick(event, node) {
-    console.log(node);
-  }
-
-  function onRightClick(event, nodeKey) {
-    event.preventDefault();
-    alert(`Right clicked ${nodeKey}`);
-  }
-
-  const filterData = {
-    filter_indices: 'j',
-    images: ["iVBORw0KGgoAAAANSUhEUgAAAIoAAACKCAAAAABQ7I24AAAA0klEQVR4nO3bsQkCURRFQZUtzC4syNqMrEQbEE20gQMPROQHc+LL2+Hnu3/txi7j4jgfeYyLw3zkX6FUKBVKhVKhVCgVSoVSoVQoFUqFUqFUKBVKhVItRNmu8+Y0Lm7zkee4WOhVUCqUCqVCqVAqlAqlQqlQKpQKpUKpUCqUCqVCqbbzvLn/5EPjYqFXQalQKpQKpUKpUCqUCqVCqVAqlAqlQqlQKpQKpVqIsv/Jlfc88d/hd6FUKBVKhVKhVCgVSoVSoVQoFUqFUqFUKBVKtRDlAxjkCni5+EynAAAAAElFTkSuQmCC", "iVBORw0KGgoAAAANSUhEUgAAAIoAAACKCAAAAABQ7I24AAAA0UlEQVR4nO3bsY1CQRAFQT7CAREQMREQ6ZAP9vmQQElzxhprdNtPq9L4e3xPC/qbJ9dxcV4AWVQUFUVFUVFUFBVFRVFRVBQVRUVRUVQUFUVFUVHURpTjOW9e4+I9P/IYFxtdJYqKoqKoKCqKiqKiqCgqioqioqgoKoqKoqKoKOpY8spnntzHxUZXiaKiqCgqioqioqgoKoqKoqKoKCqKiqKiqCgqitqIclnyyj/+Hd7GxUZXiaKiqCgqioqioqgoKoqKoqKoKCqKiqKiqCgqivoBO+0G+7kGjc4AAAAASUVORK5CYII=", "iVBORw0KGgoAAAANSUhEUgAAAIoAAACKCAAAAABQ7I24AAAAzUlEQVR4nO3YsQmCMRhFUX9xBFdwAcd1RWux1AUufBZBUpxTP5JLyhzP0+g6T2bvcXFecc0aUoqUIqVIKVKKlCKlSClSipQipUgpUoqUIqVIKRulHJ95cx8Xj/mQ27jY6FWkFClFSpFSpBQpRUqRUqQUKUVKkVKkFClFSpFSjiWn/PB19RoXG72KlCKlSClSipQipUgpUoqUIqVIKVKKlCKlSClSykYpl39dNP+RbfQqUoqUIqVIKVKKlCKlSClSipQipUgpUoqUIqVIKV+qAwft1K7Q/QAAAABJRU5ErkJggg=="],
-    relevance: '40'
-  }
-
-  const filterData2 = {
-    filter_indices: 'i',
-    images: ["iVBORw0KGgoAAAANSUhEUgAAAIoAAACKCAAAAABQ7I24AAAA0klEQVR4nO3bsQkCURRFQZUtzC4syNqMrEQbEE20gQMPROQHc+LL2+Hnu3/txi7j4jgfeYyLw3zkX6FUKBVKhVKhVCgVSoVSoVQoFUqFUqFUKBVKhVItRNmu8+Y0Lm7zkee4WOhVUCqUCqVCqVAqlAqlQqlQKpQKpUKpUCqUCqVCqbbzvLn/5EPjYqFXQalQKpQKpUKpUCqUCqVCqVAqlAqlQqlQKpQKpVqIsv/Jlfc88d/hd6FUKBVKhVKhVCgVSoVSoVQoFUqFUqFUKBVKtRDlAxjkCni5+EynAAAAAElFTkSuQmCC", "iVBORw0KGgoAAAANSUhEUgAAAIoAAACKCAAAAABQ7I24AAAA0UlEQVR4nO3bsY1CQRAFQT7CAREQMREQ6ZAP9vmQQElzxhprdNtPq9L4e3xPC/qbJ9dxcV4AWVQUFUVFUVFUFBVFRVFRVBQVRUVRUVQUFUVFUVHURpTjOW9e4+I9P/IYFxtdJYqKoqKoKCqKiqKiqCgqioqioqgoKoqKoqKoKOpY8spnntzHxUZXiaKiqCgqioqioqgoKoqKoqKoKCqKiqKiqCgqitqIclnyyj/+Hd7GxUZXiaKiqCgqioqioqgoKoqKoqKoKCqKiqKiqCgqivoBO+0G+7kGjc4AAAAASUVORK5CYII=", "iVBORw0KGgoAAAANSUhEUgAAAIoAAACKCAAAAABQ7I24AAAAzUlEQVR4nO3YsQmCMRhFUX9xBFdwAcd1RWux1AUufBZBUpxTP5JLyhzP0+g6T2bvcXFecc0aUoqUIqVIKVKKlCKlSClSipQipUgpUoqUIqVIKRulHJ95cx8Xj/mQ27jY6FWkFClFSpFSpBQpRUqRUqQUKUVKkVKkFClFSpFSjiWn/PB19RoXG72KlCKlSClSipQipUgpUoqUIqVIKVKKlCKlSClSykYpl39dNP+RbfQqUoqUIqVIKVKKlCKlSClSipQipUgpUoqUIqVIKV+qAwft1K7Q/QAAAABJRU5ErkJggg=="],
-    relevance: '20'
-  }
-
-  var node = document.createElement(filterData.filter_indices);
-  node.innerHTML = filterData.relevance;
-  for (var img in filterData.images) {
-    var image = document.createElement('img');
-    image.src = 'data:image/png;base64,' + filterData.images[img];
-    node.appendChild(image)
-
-  }
-
-  var node2 = document.createElement(filterData2.filter_indices);
-  node2.innerHTML = filterData2.relevance;
-  for (var img in filterData2.images) {
-    var image = document.createElement('img');
-    image.src = 'data:image/png;base64,' + filterData2.images[img];
-    node2.appendChild(image)
-
-  }
-
-  let data = {
-    nodes: [
-      {
-        id: 50,
-        label: node2,
-        labelType: "html",
-        config: {
-          style: 'fill: #afa'
-        }
-      },
-      {
-        id: 1,
-        label: 'B',
-        labelType: 'string',
-        config: {
-          style: 'fill: #afa'
-        }
-      },
-      {
-        id: 2,
-        label: node,
-        labelType: "html",
-        config: {
-          style: 'fill: #afa'
-        }
-      },
-      {
-        id: 3,
-        label: node2,
-        labelType: "html",
-        config: {
-          style: 'fill: #afa'
-        }
-      }
-    ],
-    links: [
-      {
-        source: 50,
-        target: 1,
-        label: 'to',
-        config: {
-          curve: d3.curveBasis,
-          style: 'stroke: black;fill: none; stroke-width: 1.5px;'
-        },
-
-      },
-      {
-        source: 1,
-        target: 2,
-        label: 'to',
-        config: {
-          curve: d3.curveBasis,
-          style: 'stroke: black;fill: none; stroke-width: 1.5px;'
-        },
-
-      },
-      {
-        source: 50,
-        target: 2,
-        label: 'to',
-        config: {
-          curve: d3.curveBasis,
-          style: 'stroke: black; fill:none; stroke-width: 1.5px;'
-        },
-
-      },
-      {
-        source: 50,
-        target: 3,
-        label: 'to',
-        config: {
-          curve: d3.curveBasis,
-          style: 'stroke: black; fill:none; stroke-width: 1.5px;'
-        },
-
-      },
-      {
-        source: 2,
-        target: 3,
-        label: 'to',
-        config: {
-          curve: d3.curveBasis,
-          style: 'stroke: black; fill:none; stroke-width: 1.5px;'
-        },
-
-      }
-    ]
-  }
 
   return (
     <Card>
@@ -289,19 +167,15 @@ const NetworkComponent = ({ graph, viewState, viewCallback, filterIndex }) => {
             fitBoundaries
             config={{
 
-              nodesep: 500,
+              nodesep: 200,
               edgesep: 100
             }
             }
 
             zoomable
-            onNodeClick={e => console.log(e)}
-            onRelationshipClick={e => console.log(e)}
+            onNodeClick={e => changeLayout(e)}
+            onRelationshipClick={e => displayConnectionInfo(e)}
           /> : null}
-
-
-        {/*  <RD3Component data={d3} /> */}
-
 
       </CardContent>
     </Card>

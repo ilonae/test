@@ -2,16 +2,24 @@ import React from 'react';
 
 import PropTypes from 'prop-types';
 
-import { FormControl, InputLabel, Select, makeStyles } from '@material-ui/core';
+import { FormControl, InputLabel, Select, makeStyles, MenuItem } from '@material-ui/core';
 
 const useStyles = makeStyles(() => ({
   root: {
     width: '20%',
     marginRight: '5%',
-    backgroundColor:'#66BFAC'
+    backgroundColor: '#66BFAC'
   },
-  text:{
+  label: {
+    color: 'white'
+  },
+  text: {
     color: 'white',
+
+  },
+  selected: {
+    color: 'black',
+
   }
 }));
 const Selection = ({ select, parentCallback, params, selectedParam }) => {
@@ -39,9 +47,9 @@ const Selection = ({ select, parentCallback, params, selectedParam }) => {
 
   return (
     <FormControl spacing={1} variant="filled" className={classes.root}>
-      <InputLabel className={classes.text} htmlFor="selection">{select}:</InputLabel>
+      <InputLabel className={classes.label} htmlFor="selection">{select}:</InputLabel>
       <Select
-      className={classes.text}
+        className={classes.text}
         native
         value={parameter}
         onChange={handleChange}
@@ -50,7 +58,7 @@ const Selection = ({ select, parentCallback, params, selectedParam }) => {
         }}
       >
         {parameters.map(i => (
-          <option key={i} value={i}>
+          <option key={i} value={i} className={classes.selected}>
             {i}
           </option>
         ))}
