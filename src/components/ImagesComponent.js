@@ -6,16 +6,18 @@ import WatershedButton from '../widgets/WatershedSwitch';
 import ExpansionButton from '../widgets/ExpansionButton';
 const useStyles = makeStyles(theme => ({
   images: {
-    position: 'relative',
+    maxHeight: '70%',
+    display: 'inherit',
+    flexDirection: 'row'
+
+  },
+  tools: { padding: '5%' },
+  root: {
+    textAlign: 'center',
+    height: '92vh',
+    padding: '3vh',
     display: 'flex',
     flexDirection: 'column',
-    height: 'auto',
-  },
-  root:{
-    height:'92vh',
-    padding:'3vh',
-    paddingLeft:'6vh',
-    paddingRight:'6vh'
   },
   expanded: {
     height: '70vh',
@@ -24,11 +26,13 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     flexDirection: 'row'
   },
-  centering:{
-    justifyContent:'center'
+  centering: {
+    justifyContent: 'center',
+    height: 'inherit'
   },
-  textfield: { width: '95%',
-height:'5vh' }
+  textfield: {
+    width: '95%',
+  }
 }));
 
 const ImagesComponent = ({
@@ -84,8 +88,8 @@ const ImagesComponent = ({
 
   return (
     <Card className={classes.root} name={'imgCard'} >
-    <Grid container spacing={5} className={classes.centering} >
-        <Grid item
+      <Grid container className={classes.centering} >
+        <Grid container lg={12} md={12} xl={12} xs={12}
           className={
             ['LOADINGVIEW', 'DEFAULTVIEW', 'ERRORVIEW'].includes(viewState)
               ? classes.images
@@ -107,30 +111,32 @@ const ImagesComponent = ({
           />
         </Grid>
 
-        <Grid item lg={12} md={12} xl={12} xs={12} >
-        <WatershedButton isToggledCallback={toggleCallback} />{' '}
-        <div>
+        <Grid container lg={12} md={12} xl={12} xs={12} className={classes.tools}>
+          <Grid item lg={6} md={6} xl={6} xs={12} className={classes.tools}>
+            <WatershedButton isToggledCallback={toggleCallback} />{' '}
+          </Grid>
+          <Grid item lg={6} md={6} xl={6} xs={12} className={classes.tools}>
+            <Typography gutterBottom>Image Index:</Typography>
+            <input
+              type="number"
+              name="index"
+              label="Selected index"
+              onKeyDown={handleEnter}
+              onChange={handleIndexChange}
+              className={classes.textfield}
+              value={index}
+            />
+          </Grid>
+          <Grid item lg={12} md={12} xl={12} xs={12} className={classes.tools}>
+            <ExpansionButton
+              expansionCallback={expansionCallback}
+              viewState={isExpanded}
 
-
-        <Typography gutterBottom>Image Index:</Typography>
-          <input
-            type="number"
-            name="index"
-            label="Selected index"
-            onKeyDown={handleEnter}
-            onChange={handleIndexChange}
-            className={classes.textfield}
-            value={index}
-          />
-        </div>
-        <ExpansionButton
-          expansionCallback={expansionCallback}
-          viewState={isExpanded}
-          
-        />
+            />
+          </Grid>
         </Grid>
-  
-    </Grid>
+
+      </Grid>
     </Card>
   );
 };

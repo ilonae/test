@@ -7,11 +7,16 @@ import SortingButton from '../widgets/SortingButton';
 
 import Selection from '../widgets/Selection';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   root: {
-    height: '84vh',
+    height: '74vh',
     position: 'relative',
     overflow: 'auto'
+  },
+  [theme.breakpoints.up('md')]: {
+    root: {
+      height: '84vh'
+    },
   },
   innergrid: {
     display: 'flex',

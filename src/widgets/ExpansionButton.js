@@ -7,10 +7,10 @@ import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 
 const useStyles = makeStyles(() => ({
-  root:{
-    paddingTop:'2vh'
+  root: {
+    paddingTop: '2vh'
   },
-  checked:{
+  checked: {
     width: '100%',
     justifyContent: 'center',
     textAlign: 'center',
@@ -38,25 +38,25 @@ const ExpansionButton = ({ expansionCallback, viewState }) => {
     <div className={classes.root}>
       {
         ['LOADINGVIEW', 'DEFAULTVIEW', 'ERRORVIEW'].includes(view)
-        ? (
-        <Button
-          className={classes.default}
-          variant="contained"
-          onClick={() => changeView('IMAGEVIEW')}
-          endIcon={<ArrowForwardIosIcon style={{ fontSize: 10 }} />}
-        >
-          <Typography noWrap>Expand view</Typography>
-        </Button>
-      ) : (
-        <Button
-          className={classes.default}
-          variant="contained"
-          onClick={() => changeView('DEFAULTVIEW')}
-          startIcon={<ArrowBackIosIcon style={{ fontSize: 10 }} />}
-        >
-          <Typography noWrap>Return</Typography>
-        </Button>
-      )}
+          ? (
+            <Button
+              className={classes.default}
+              variant="contained"
+              onClick={() => changeView('IMAGEVIEW')}
+              endIcon={<ArrowForwardIosIcon style={{ fontSize: 10 }} />}
+            >
+              <Typography noWrap>Expand view</Typography>
+            </Button>
+          ) : (
+            <Button
+              className={classes.default}
+              variant="contained"
+              onClick={() => changeView('DEFAULTVIEW')}
+              startIcon={<ArrowBackIosIcon style={{ fontSize: 10 }} />}
+            >
+              <Typography noWrap>Return</Typography>
+            </Button>
+          )}
     </div>
   );
 };

@@ -3,6 +3,7 @@
     "baseUrl": "."
   },
   "include": [
-    "src"
-, "server.js"  ]
+    "src",
+    "server.js"
+  ]
 }

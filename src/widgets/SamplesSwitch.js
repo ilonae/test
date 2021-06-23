@@ -1,6 +1,6 @@
 import React from 'react';
 import clsx from 'clsx';
-import { makeStyles } from '@material-ui/core';
+import { makeStyles, Typography } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
 
 import Button from '@material-ui/core/Button';
@@ -27,13 +27,17 @@ const useStyles = makeStyles(() => ({
       color: '#fff'
     }
   },
-  checked:{
+  checked: {
     color: 'white',
     background: '#009374!important'
   },
   default: {
     color: 'white',
     background: '#66BFAC!important'
+  },
+  btnGroup: {
+    width: '90%',
+    boxShadow: 'none'
   }
 }));
 
@@ -68,33 +72,38 @@ const SamplesSwitch = ({
   };
 
   return (
-    <Grid component="div" container spacing={1} className={clsx(classes.root)}>
-        <ButtonGroup className="mb-2" variant="contained" >
-          {isCnnLayer === 1 ? (
-            <Button
-            className={selectedBtn === 1 ?  classes.checked: classes.default }
+    <Grid container className={clsx(classes.root)}>
+      <ButtonGroup variant="contained" className={classes.btnGroup} >
+        {isCnnLayer === 1 ? (
+          <Button
+            className={selectedBtn === 1 ? classes.checked : classes.default}
             onClick={() => {
-                toggleButton(1);
-                selectionCallback();
-              }}
-            >
+              toggleButton(1);
+              selectionCallback();
+            }}
+          ><Typography noWrap>
               Activations
-            </Button>
-          ) : (
-            null
-          )}
-          <Button
-            className={selectedBtn === 2 ? classes.checked: classes.default}
-            onClick={() => toggleButton(2)}
-          >
+            </Typography>
+
+          </Button>
+        ) : (
+          null
+        )}
+        <Button
+          className={selectedBtn === 2 ? classes.checked : classes.default}
+          onClick={() => toggleButton(2)}
+        ><Typography noWrap>
             Real Samples
-          </Button>
-          <Button
-            className={selectedBtn === 3 ?  classes.checked: classes.default}
-            onClick={() => toggleButton(3)}
-          >
+          </Typography>
+        </Button>
+        <Button
+          className={selectedBtn === 3 ? classes.checked : classes.default}
+          onClick={() => toggleButton(3)}
+        >
+          <Typography noWrap>
             Synthetic Samples
-          </Button>
+          </Typography>
+        </Button>
       </ButtonGroup>
     </Grid>
   );

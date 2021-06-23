@@ -1,23 +1,27 @@
 import React from 'react';
-import { makeStyles, Card, Grid ,Typography} from '@material-ui/core';
+import { makeStyles, Card, Grid, Typography } from '@material-ui/core';
 import clsx from 'clsx';
 
 import PropTypes from 'prop-types';
 import SamplesSwitch from '../widgets/SamplesSwitch';
 import FilterSlider from '../widgets/FilterSlider';
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   root: {
-
-    height: '6vh',
+    height: '16vh',
     marginTop: '2vh',
     position: 'relative',
     justifyContent: 'center',
     display: 'flex',
     alignItems: 'center',
     padding: '3vh'
-  }
-});
+  },
+  [theme.breakpoints.up('md')]: {
+    root: {
+      height: '6vh'
+    },
+  },
+}));
 
 const BottomComponent = ({
   modus,
@@ -41,18 +45,18 @@ const BottomComponent = ({
 
   return (
     <Card className={clsx(classes.root)}>
-      <Grid container spacing={8}>
-        <Grid item xs={4}>
-        <Typography gutterBottom>Placeholder</Typography>
+      <Grid container >
+        <Grid item md={3} xs={6}>
+          <Typography gutterBottom>Placeholder</Typography>
         </Grid>
-        <Grid item xs={4}>
-        
+        <Grid item md={3} xs={6}>
+
           <FilterSlider
             filtersCallback={filterAmountCallback}
             selectedAmount={filterAmount}
           />
         </Grid>
-        <Grid item xs={4}>
+        <Grid item md={6} xs={12}>
           <SamplesSwitch
             modus={modus}
             isCnnLayer={isCnnLayer}

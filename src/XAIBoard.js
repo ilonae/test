@@ -425,6 +425,7 @@ const XAIBoard = () => {
           setFilterData(data[2]);
         }
       };
+      console.log(filterAmount)
       fetchImages();
     }
   }, [index, method, singleLayer, order, filterAmount, modus]);

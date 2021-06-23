@@ -3,18 +3,23 @@ import PropTypes from 'prop-types';
 import ReactCrop from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 
-import { makeStyles } from '@material-ui/core';
+import { makeStyles, Grid } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
   root: {
-    marginTop: theme.spacing(3)
+    height: '50%'
   },
   side: {
     width: 'auto',
-    height:'50vh'
+    height: '50vh'
   },
   crop: {
-    display: 'block'
+    height: '100%',
+    width: 'auto',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+
   }
 }));
 
@@ -80,7 +85,7 @@ const Image = ({ viewType, content, getLocalAnalysisCallback, title }) => {
             if (x !== '') return true;
           }
           const filtered = res.filter(isempty);
-          filtered.forEach(function(e, i, a) {
+          filtered.forEach(function (e, i, a) {
             a[i] = '\x89PNG' + a[i];
           });
 
@@ -107,7 +112,7 @@ const Image = ({ viewType, content, getLocalAnalysisCallback, title }) => {
   };
 
   return (
-    <div
+    <Grid item lg={12} md={12} xl={12} xs={12}
       className={
         ['LOADINGVIEW', 'DEFAULTVIEW', 'ERRORVIEW'].includes(viewType)
           ? classes.root
@@ -116,11 +121,11 @@ const Image = ({ viewType, content, getLocalAnalysisCallback, title }) => {
     >
       <ReactCrop
         className={classes.crop}
-        
+
         imageStyle={{
           imageRendering: 'crisp-edges',
           height: '100%',
-          width: '100%'
+          width: 'auto'
         }}
         src={content}
         crop={crop}
@@ -128,8 +133,8 @@ const Image = ({ viewType, content, getLocalAnalysisCallback, title }) => {
         onComplete={onCropComplete}
         onChange={onCropChange}
       />
-      
-    </div>
+
+    </Grid>
   );
 };
 Image.propTypes = {

@@ -1,13 +1,18 @@
 import React from 'react';
 import { Slider, Typography } from '@material-ui/core';
-
+import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
+import AddCircleIcon from '@material-ui/icons/AddCircle';
 import { makeStyles, withStyles } from '@material-ui/core';
 import PropTypes from 'prop-types';
 
 const useStyles = makeStyles(() => ({
   root: {
-    textAlign: 'center',
-    justifyContent: 'center'
+    display: 'flex',
+    paddingLeft: '20%',
+    paddingRight: '20%',
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'space-between'
   },
   switchToggle: {
     float: 'left',
@@ -23,13 +28,17 @@ const useStyles = makeStyles(() => ({
       color: '#fff'
     }
   },
-  checked:{
+  checked: {
     color: 'white',
     background: '#009374!important'
   },
   default: {
     background: '#66BFAC!important'
+  },
+  button: {
+    color: '#66BFAC !important'
   }
+
 }));
 
 const FSlider = withStyles({
@@ -70,17 +79,34 @@ const FilterSlider = ({ filtersCallback, selectedAmount }) => {
   const handleChange = (event, newValue) => {
     filtersCallback(newValue);
   };
+  const reduceFilters = () => {
+    changeAmount(amount - 2);
+  };
+
+  const addFilters = () => {
+    changeAmount(amount + 2);
+
+  };
 
   React.useEffect(() => {
     if (selectedAmount) {
-      changeAmount(selectedAmount);
+      filtersCallback(amount);
     }
   }, [selectedAmount]);
 
+  React.useEffect(() => {
+    if (amount) {
+      filtersCallback(amount);
+    }
+  }, [amount]);
+
   return (
-    <div>
-      <Typography gutterBottom>Filter amount:</Typography>
-      <FSlider
+    <div className={classes.root}>
+      <RemoveCircleIcon className={classes.button} fontSize="large" onClick={reduceFilters} />
+
+      <Typography >Filter amount</Typography>
+      <AddCircleIcon className={classes.button} fontSize="large" onClick={addFilters} />
+      {/*     <FSlider
         value={amount}
         onChangeCommitted={handleChange}
         step={2}
@@ -88,7 +114,7 @@ const FilterSlider = ({ filtersCallback, selectedAmount }) => {
         min={2}
         max={12}
         valueLabelDisplay="auto"
-      />
+      /> */}
     </div>
   );
 };

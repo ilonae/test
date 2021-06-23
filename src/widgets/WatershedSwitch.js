@@ -13,7 +13,12 @@ const useStyles = makeStyles(() => ({
     justifyContent: 'center',
 
   },
-  switch:{
+  font: {
+    display: 'inherit',
+    alignItems: 'center'
+
+  },
+  switch: {
     textAlign: 'center',
     justifyContent: 'center'
   }
@@ -23,7 +28,7 @@ const WSwitch = withStyles({
   switchBase: {
     color: '#66BFAC',
     '&$checked': {
-      color:'#009374',
+      color: '#009374',
       backgroundColor: '#66BFAC',
     },
     '&$checked + $track': {
@@ -78,11 +83,11 @@ const WatershedSwitch = ({ isToggledCallback }) => {
           spacing={1}
           className={clsx(classes.switch)}
         >
-          <Grid item>Off</Grid>
+          <Grid item className={classes.font}>Off</Grid>
           <Grid item>
             <WSwitch checked={useWatershed} onChange={toggleButton} />
           </Grid>
-          <Grid item>On</Grid>
+          <Grid item className={classes.font}>On</Grid>
         </Grid>
       </Typography>
     </div>

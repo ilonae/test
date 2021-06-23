@@ -1,13 +1,42 @@
 const express = require('express');
-const bodyParser = require('body-parser');
 const request = require('request-promise');
+const session = require("express-session");
+const MongoStore = require("connect-mongo");
+const mongoose = require("mongoose");
+
+const passport = require("./src/server/passport/setup");
+const auth = require("./src/server/routes/auth");
 
 const app = express();
 const port = process.env.PORT || 5000;
+const MONGO_URI = "mongodb://127.0.0.1:27017/tutorial_social_login";
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
 
+mongoose
+  .connect(MONGO_URI, { useNewUrlParser: true })
+  .then(console.log(`MongoDB connected ${MONGO_URI}`))
+  .catch(err => console.log(err));
+
+// Bodyparser middleware, extended false does not allow nested payloads
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
+// Express Session
+app.use(
+  session({
+    secret: "very secret this is",
+    resave: false,
+    saveUninitialized: true,
+    store: MongoStore.create({ mongoUrl: MONGO_URI }),
+  })
+);
+
+// Passport middleware
+app.use(passport.initialize());
+app.use(passport.session());
+
+
+app.use("/", auth);
 app.post('/api/png_array', (req, res) => {
   const optionsFilter = {
     method: req.method,
