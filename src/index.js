@@ -8,6 +8,7 @@ import {
     useParams
 } from "react-router-dom";
 
+import Auth from './Auth';
 import LandingPage from './LandingPage';
 import Dashboard from './XAIBoard';
 ReactDOM.render(<Router>

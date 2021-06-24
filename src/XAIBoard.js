@@ -1,5 +1,7 @@
 import 'react-perfect-scrollbar/dist/css/styles.css';
 import React from 'react';
+import queryString from 'query-string'
+import { useLocation, useHistory } from 'react-router-dom'
 
 import { makeStyles } from '@material-ui/core';
 
@@ -30,6 +32,10 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const XAIBoard = () => {
+
+
+
+  const history = useHistory();
 
   const classes = useStyles();
   const [viewType, changeViewType] = React.useState('DEFAULTVIEW');
@@ -317,6 +323,10 @@ const XAIBoard = () => {
 
   React.useEffect(() => {
     if (imgSize && viewType === 'IMAGEVIEW') {
+      let currentUrlParams = new URLSearchParams(window.location.search)
+      console.log(currentUrlParams) // "?filter=top&origin=im"
+      currentUrlParams.set('view', viewType);
+      history.push(window.location.pathname + "?" + currentUrlParams.toString());
       const image = queueries.getImg(index, experiment, imgSize);
       const heatmap = queueries.getHeatmap(index, experiment, method, imgSize);
 
@@ -341,11 +351,24 @@ const XAIBoard = () => {
     if (methods && models) {
       changeMethod(methods[0]);
       changeExperiment(models[0]);
+      history.push(`/dashboard?experiment=${models[0]}&method=${methods[0]}`);
+
     }
   }, [methods, models]);
 
+
+  const { search } = useLocation()
+  console.log(search) // "?filter=top&origin=im"
+  const values = queryString.parse(search)
+  console.log(values.filter) // "top"
+  console.log(values.origin) // "im"
+
   React.useEffect(() => {
     if (viewType === "FILTERVIEW" && filterIndex) {
+      let currentUrlParams = new URLSearchParams(window.location.search)
+      console.log(currentUrlParams) // "?filter=top&origin=im"
+      currentUrlParams.set('view', viewType);
+      history.push(window.location.pathname + "?" + currentUrlParams.toString());
       const fetchGraph = async () => {
         changeViewType('LOADINGVIEW');
 
@@ -395,6 +418,16 @@ const XAIBoard = () => {
       filterAmount &&
       modus === 0
     ) {
+      let currentUrlParams = new URLSearchParams(window.location.search)
+      console.log(currentUrlParams) // "?filter=top&origin=im"
+      currentUrlParams.set('selectedlayer', singleLayer);
+      currentUrlParams.set('method', method);
+      currentUrlParams.set('experiment', experiment);
+      currentUrlParams.set('index', index);
+      currentUrlParams.set('order', order);
+      currentUrlParams.set('view', viewType);
+      history.push(window.location.pathname + "?" + currentUrlParams.toString());
+
       const fetchImages = async () => {
         changeViewType('LOADINGVIEW');
         changeModus(0);
