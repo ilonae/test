@@ -44,6 +44,7 @@ const WatershedSwitch = ({ isToggledCallback }) => {
   const [useWatershed, setWatershed] = React.useState(false);
 
   const toggleButton = async () => {
+    console.log('toggle')
     setWatershed(prev => !prev);
   };
   React.useEffect(() => {

@@ -1,18 +1,18 @@
 const express = require('express');
 const request = require('request-promise');
+const jwt = require('jsonwebtoken')
+const cookieParser = require('cookie-parser');
 
-const jsonwebtoken = require("jsonwebtoken");
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
 const mongoose = require("mongoose");
-
 const passport = require("./src/server/passport/setup");
-const auth = require("./src/server/routes/auth");
+var bodyParser = require('body-parser');
 
 const app = express();
 const port = process.env.PORT || 5000;
 const MONGO_URI = "mongodb://127.0.0.1:27017/tutorial_social_login";
-
+const cors = require('cors')
 
 mongoose
   .connect(MONGO_URI, { useNewUrlParser: true })
@@ -22,6 +22,7 @@ mongoose
 // Bodyparser middleware, extended false does not allow nested payloads
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
 
 // Express Session
 app.use(
@@ -33,25 +34,60 @@ app.use(
   })
 );
 
+
 // Passport middleware
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cookieParser());
 
 
-app.use("/", auth);
+let status;
 
-app.use(function (req, res, next) {
-  if (req.headers && req.headers.authorization && req.headers.authorization.split(' ')[0] === 'JWT') {
-    jsonwebtoken.verify(req.headers.authorization.split(' ')[1], 'RESTFULAPIs', function (err, decode) {
-      if (err) req.user = undefined;
-      req.user = decode;
+const authenticateJWT = (req, res, next) => {
+  const token = req.cookies.jwt;
+  if (token) {
+    jwt.verify(token, process.env.JWT, [algorithm = "HS256"], (err, user) => {
+      if (err) {
+        console.log(err)
+        return res.sendStatus(403);
+      }
+      status = 202;
       next();
     });
   } else {
-    req.user = undefined;
-    next();
+    res.sendStatus(401);
   }
+}
+
+const login = (req, res, next) => {
+  const token = req.body.token;
+  if (token) {
+    jwt.verify(token, process.env.JWT, [algorithm = "HS256"], (err, user) => {
+      if (err) {
+        console.log(err)
+        return res.sendStatus(403);
+      }
+      return res
+        .cookie("jwt", token, {
+          httpOnly: true,
+        })
+        .status(200)
+        .json({ message: "Logged in successfully" });
+    });
+  } else {
+    res.sendStatus(401);
+  }
+}
+
+app.get('/verify', authenticateJWT, (req, res) => {
+  res.sendStatus(status)
 });
+
+app.post('/', login);
+
+app.get('/dashboard', authenticateJWT);
+
 
 app.post('/api/png_array', (req, res) => {
   const optionsFilter = {
@@ -211,5 +247,6 @@ app.post('/api/get_heatmap', async (req, res) => {
       console.log(err);
     });
 });
+
 
 app.listen(port, () => console.log(`Listening on port ${port}`));

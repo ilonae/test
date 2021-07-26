@@ -28,6 +28,7 @@ const SignUpLoginForm = () => {
     const [email, setEmail] = React.useState("");
     const [error, setError] = React.useState("");
     const [password, setPassword] = React.useState("");
+    const [token, setToken] = React.useState("");
 
     const classes = useStyles();
 
@@ -36,10 +37,11 @@ const SignUpLoginForm = () => {
 
         const userData = {
             email,
-            password
+            password,
+            token
         };
         axios
-            .post("/register_login", userData)
+            .post("/", userData)
             .then(res => {
                 window.location = "/dashboard"
             })
@@ -63,6 +65,16 @@ const SignUpLoginForm = () => {
                 <FormControl>
                     <TextField type='password' helperText={error} label="Password" error={error.length === 0 ? false : true} onChange={e => {
                         setPassword(e.target.value);
+                    }} InputProps={{
+                        endAdornment: (
+                            <InputAdornment position="end">
+                            </InputAdornment>
+                        ),
+                    }} />
+                </FormControl>
+                <FormControl>
+                    <TextField type='password' helperText={error} label="Token" error={error.length === 0 ? false : true} onChange={e => {
+                        setToken(e.target.value);
                     }} InputProps={{
                         endAdornment: (
                             <InputAdornment position="end">

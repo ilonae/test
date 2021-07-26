@@ -80,7 +80,7 @@ const FilterComponent = ({
 
   React.useEffect(() => {
     if (filterIndex) {
-      parentCallback('FILTERVIEW');
+      parentCallback('GRAPHVIEW');
       indexCallback(filterIndex);
 
     }

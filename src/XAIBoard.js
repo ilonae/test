@@ -32,49 +32,169 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const XAIBoard = () => {
-
-
-
-  const history = useHistory();
-
   const classes = useStyles();
   const [viewType, changeViewType] = React.useState('DEFAULTVIEW');
+  const [isWatershed, changeWatershed] = React.useState(false);
   const [filterAmount, changeFilterAmount] = React.useState(6);
   const [imgSize, setImgSize] = React.useState(28);
   const [filterImgSize, setFilterImgSize] = React.useState(28);
-
   const [filterActivationsSize, setFilterActivationsSize] = React.useState(28);
+  const [order, setOrder] = React.useState('max');
 
   const [modus, changeModus] = React.useState(0);
   const [index, changeIndex] = React.useState(0);
-
   const [filterIndex, changeFilterIndex] = React.useState(0);
-  const [experiment, changeExperiment] = React.useState('');
-  const [method, changeMethod] = React.useState('');
-  const [layer, changeLayer] = React.useState([]);
+  const [queryActivations, setActivations] = React.useState(0);
 
   const [experimentLayers, setExperimentsLayers] = React.useState();
+  const [experiments, setExperiments] = React.useState();
+  const [experiment, changeExperiment] = React.useState('');
+
   const [methods, setMethods] = React.useState();
-  const [models, setExperiments] = React.useState();
+  const [method, changeMethod] = React.useState('');
+
+  const [layer, changeLayer] = React.useState([]);
+  const [singleLayer, setSingleLayer] = React.useState('');
 
   const [cnnLayers, setCnnLayers] = React.useState();
-  const [queryActivations, setActivations] = React.useState(0);
   const [isCnn, setCnn] = React.useState(0);
 
-  const [singleLayer, setSingleLayer] = React.useState('');
   const [image, setImage] = React.useState('');
   const [heatmap, setHeatmap] = React.useState('');
-  const [order, setOrder] = React.useState('max');
 
   const [filterData, setFilterData] = React.useState();
   const [graphData, setGraphData] = React.useState();
   const [prevView, setPrevView] = React.useState('');
+  const [prevParams, setPrevParams] = React.useState({});
 
   let element = document.getElementsByClassName('ReactCrop__image')[1];
+  const history = useHistory();
+
+  React.useEffect(() => {
+    let values = queryString.parse(window.location.search)
+    const fetchSettings = async () => {
+      await queueries.getSettings().then(data => {
+        setExperimentsLayers(data.layers);
+        setExperiments(data.experiments);
+        changeExperiment(data.experiments[0]);
+        setMethods(data.methods);
+        changeMethod(data.methods[0])
+        changeLayer(data.layers[data.experiments[0]]);
+        setSingleLayer(data.layers[data.experiments[0]][0]);
+        setCnnLayers(data.cnnLayers);
+        setCnn(Object.values(data.cnnLayers[data.experiments[0]])[0]);
+        if (Object.keys(values).length == 0) {
+          history.push(`/dashboard?experiment=${data.experiments[0]}&method=${data.methods[0]}&index=${index}&order=${order}&view=${viewType}&selectedLayer=${data.layers[data.experiments[0]][0]}&watershed=${isWatershed}`);
+        }
+      });
+      setImgSize(helper.defineImgs());
+    };
+    if (Object.keys(values).length == 0) {
+      fetchSettings();
+    }
+  }, []);
+
+
+  React.useEffect(() => {
+    let values = queryString.parse(window.location.search)
+    setPrevParams(values);
+    const fetchSettings = async (experiment, layer) => {
+      await queueries.getSettings().then(data => {
+        setExperimentsLayers(data.layers);
+        setExperiments(data.experiments);
+        setMethods(data.methods);
+        const index = data.layers[experiment].indexOf(layer);
+        changeLayer(data.layers[experiment]);
+        setCnnLayers(data.cnnLayers);
+        setCnn(Object.values(data.cnnLayers[experiment])[index]);
+      });
+    };
+    if (Object.keys(values).length !== 0 && prevParams !== values) {
+      fetchSettings(values.experiment, values.selectedLayer);
+      changeExperiment(values.experiment);
+      changeMethod(values.method);
+      changeIndex(values.index);
+      setOrder(values.order);
+      changeViewType(values.view);
+      setSingleLayer(values.selectedLayer);
+      setWatershed(values.isWatershed);
+      setImgSize(helper.defineImgs());
+    }
+  }, [window.location.search]);
+
+  React.useEffect(() => {
+    const fetchActivations = async () => {
+      changeViewType('LOADINGVIEW')
+      setTimeout(() => {
+        changeViewType('DEFAULTVIEW');
+      }, 5000);
+      const filters = queueries.getFilter(
+        singleLayer,
+        filterAmount,
+        order,
+        experiment,
+        index,
+        method, 200, 0
+      );
+      const data = await Promise.resolve(filters);
+      changeViewType(prevView);
+      if (data) {
+        setFilterData(data);
+        console.log(data)
+        console.log('filter set')
+      }
+    }
+    if (singleLayer && experiment && method && index && filterAmount) {
+      fetchActivations()
+    }
+  }, [singleLayer, experiment, method, index, order, filterAmount]);
+
+
+  React.useEffect(() => {
+    if (
+      experiment &&
+      imgSize != 28 &&
+      singleLayer &&
+      method &&
+      order &&
+      filterAmount &&
+      modus === 0
+    ) {
+      const fetchImages = async () => {
+        changeViewType('LOADINGVIEW');
+        changeModus(0);
+        setActivations(0);
+        const image = queueries.getImg(index, experiment, imgSize);
+        const heatmap = queueries.getHeatmap(index, experiment, method, imgSize);
+        const imageSize = helper.defineFilterImageSize(filterAmount);
+        setFilterImgSize(imageSize)
+        setFilterActivationsSize(imageSize * 3)
+        const filters = queueries.getFilter(
+          singleLayer,
+          filterAmount,
+          order,
+          experiment,
+          index,
+          method,
+          imageSize
+        );
+        const contents = [image, heatmap, filters];
+        const data = await Promise.all(contents);
+        changeViewType(prevView);
+        if (data) {
+          console.log('fetching imgs')
+          setImage(data[0]);
+          setHeatmap(data[1]);
+          setFilterData(data[2]);
+        }
+      };
+      fetchImages();
+    }
+  }, [index, experiment, method, imgSize]);
 
 
   const setWatershed = bool => {
-
+    changeWatershed(bool);
     if (element) {
       let width = element.clientWidth;
       let height = element.clientHeight;
@@ -170,8 +290,6 @@ const XAIBoard = () => {
     }
   };
 
-
-
   const localAnalysis = async (x, y, width, height, maskId = -1) => {
     const normedValues = helper.normLocalSelection(x, y, width, height, imgSize);
     /* console.log(filterImgSize)
@@ -207,8 +325,6 @@ const XAIBoard = () => {
     })
   }
 
-
-
   const currentFilterIndex = value => {
     changeFilterIndex(value);
 
@@ -228,6 +344,8 @@ const XAIBoard = () => {
 
   const selectedExperiment = value => {
     changeExperiment(value);
+    changeLayer(experimentLayers[value])
+    setSingleLayer(experimentLayers[value][0])
   };
 
   const selectedMethod = value => {
@@ -253,16 +371,9 @@ const XAIBoard = () => {
     console.log(value);
     setActivations(value);
   };
-  React.useEffect(() => {
-    if (experiment) {
-      setPrevView(viewType);
-      changeViewType('LOADINGVIEW');
-      console.log(experimentLayers[experiment]);
-      changeLayer(experimentLayers[experiment]);
-      setSingleLayer(experimentLayers[experiment][0]);
-      setCnn(Object.values(cnnLayers[experiment])[0]);
-    }
-  }, [experimentLayers, experiment, cnnLayers]);
+
+
+
 
   React.useEffect(() => {
     if (queryActivations === 1) {
@@ -296,18 +407,7 @@ const XAIBoard = () => {
     }
   }, [queryActivations, filterAmount, index, method, order, singleLayer, filterImgSize]);
 
-  React.useEffect(() => {
-    const fetchSettings = async () => {
-      await queueries.getSettings().then(data => {
-        setExperimentsLayers(data.layers);
-        setMethods(data.methods);
-        setExperiments(data.experiments);
-        setCnnLayers(data.cnnLayers);
-      });
-      setImgSize(helper.defineImgs());
-    };
-    fetchSettings();
-  }, []);
+
   React.useEffect(() => {
     if (singleLayer && cnnLayers && experiment) {
       setCnn(cnnLayers[experiment][singleLayer]);
@@ -321,50 +421,16 @@ const XAIBoard = () => {
     }
   }, [viewType]);
 
-  React.useEffect(() => {
-    if (imgSize && viewType === 'IMAGEVIEW') {
-      let currentUrlParams = new URLSearchParams(window.location.search)
-      console.log(currentUrlParams) // "?filter=top&origin=im"
-      currentUrlParams.set('view', viewType);
-      history.push(window.location.pathname + "?" + currentUrlParams.toString());
-      const image = queueries.getImg(index, experiment, imgSize);
-      const heatmap = queueries.getHeatmap(index, experiment, method, imgSize);
-
-      const contents = [image, heatmap];
-      const resizeImgs = async () => {
-        const data = await Promise.all(contents);
-        changeViewType(prevView);
 
 
-        if (data) {
-          console.log(data)
-          setImage(data[0]);
-          setHeatmap(data[1]);
-        }
-      };
-      resizeImgs();
 
-    }
-  }, [imgSize, viewType]);
+
+
+
+
 
   React.useEffect(() => {
-    if (methods && models) {
-      changeMethod(methods[0]);
-      changeExperiment(models[0]);
-      history.push(`/dashboard?experiment=${models[0]}&method=${methods[0]}`);
-
-    }
-  }, [methods, models]);
-
-
-  const { search } = useLocation()
-  console.log(search) // "?filter=top&origin=im"
-  const values = queryString.parse(search)
-  console.log(values.filter) // "top"
-  console.log(values.origin) // "im"
-
-  React.useEffect(() => {
-    if (viewType === "FILTERVIEW" && filterIndex) {
+    if (viewType === "GRAPHVIEW" && filterIndex) {
       let currentUrlParams = new URLSearchParams(window.location.search)
       console.log(currentUrlParams) // "?filter=top&origin=im"
       currentUrlParams.set('view', viewType);
@@ -388,80 +454,16 @@ const XAIBoard = () => {
           setTimeout(() => {
             changeViewType('DEFAULTVIEW');
           }, 5000);
-
         }
         else {
           setGraphData(data);
         }
 
-
-
       };
-
       fetchGraph();
     }
   }, [filterIndex]);
 
-
-
-
-
-
-
-  React.useEffect(() => {
-    if (
-      experiment &&
-      imgSize &&
-      singleLayer &&
-      method &&
-      order &&
-      filterAmount &&
-      modus === 0
-    ) {
-      let currentUrlParams = new URLSearchParams(window.location.search)
-      console.log(currentUrlParams) // "?filter=top&origin=im"
-      currentUrlParams.set('selectedlayer', singleLayer);
-      currentUrlParams.set('method', method);
-      currentUrlParams.set('experiment', experiment);
-      currentUrlParams.set('index', index);
-      currentUrlParams.set('order', order);
-      currentUrlParams.set('view', viewType);
-      history.push(window.location.pathname + "?" + currentUrlParams.toString());
-
-      const fetchImages = async () => {
-        changeViewType('LOADINGVIEW');
-        changeModus(0);
-        setActivations(0);
-        const image = queueries.getImg(index, experiment, imgSize);
-        const heatmap = queueries.getHeatmap(index, experiment, method, imgSize);
-        const imageSize = helper.defineFilterImageSize(filterAmount);
-        setFilterImgSize(imageSize)
-        setFilterActivationsSize(imageSize * 3)
-        const filters = queueries.getFilter(
-          singleLayer,
-          filterAmount,
-          order,
-          experiment,
-          index,
-          method,
-          imageSize
-        );
-        const contents = [image, heatmap, filters];
-        const data = await Promise.all(contents);
-        changeViewType(prevView);
-
-
-        if (data) {
-          console.log(data)
-          setImage(data[0]);
-          setHeatmap(data[1]);
-          setFilterData(data[2]);
-        }
-      };
-      console.log(filterAmount)
-      fetchImages();
-    }
-  }, [index, method, singleLayer, order, filterAmount, modus]);
 
   const loadingGrid = (
     <Grid container spacing={3}>
@@ -512,7 +514,7 @@ const XAIBoard = () => {
           layers={layer}
           order={order}
           methods={methods}
-          models={models}
+          models={experiments}
           experimentsCallbackParent={selectedExperiment}
           methodsCallbackParent={selectedMethod}
           layerCallbackParent={selectedLayer}
@@ -581,7 +583,7 @@ const XAIBoard = () => {
           layers={layer}
           order={order}
           methods={methods}
-          models={models}
+          models={experiments}
           experimentsCallbackParent={selectedExperiment}
           methodsCallbackParent={selectedMethod}
           layerCallbackParent={selectedLayer}
@@ -648,7 +650,7 @@ const XAIBoard = () => {
           layers={layer}
           order={order}
           methods={methods}
-          models={models}
+          models={experiments}
           experimentsCallbackParent={selectedExperiment}
           methodsCallbackParent={selectedMethod}
           layerCallbackParent={selectedLayer}
@@ -668,7 +670,7 @@ const XAIBoard = () => {
     </Grid>
   );
 
-  const filterGrid = (
+  const graphGrid = (
     <Grid container spacing={3}>
       <Grid item lg={12} md={12} xl={12} xs={12}>
         <NetworkComponent
@@ -700,8 +702,8 @@ const XAIBoard = () => {
               return imageGrid;
             case 'DEFAULTVIEW':
               return defaultGrid;
-            case 'FILTERVIEW':
-              return filterGrid;
+            case 'GRAPHVIEW':
+              return graphGrid;
             case 'LOADINGVIEW':
               return loadingGrid;
             case 'ERRORVIEW':

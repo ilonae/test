@@ -97,7 +97,7 @@ const SamplesSwitch = ({
           </Typography>
         </Button>
         <Button
-          className={selectedBtn === 3 ? classes.checked : classes.default}
+          disabled
           onClick={() => toggleButton(3)}
         >
           <Typography noWrap>

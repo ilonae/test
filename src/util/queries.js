@@ -1,3 +1,7 @@
+var headers = new Headers();
+headers.append('Content-Type', 'application/json');
+headers.append('Accept', 'application/json');
+
 const getLocalAnalysis = async (
   x,
   y,
@@ -53,6 +57,18 @@ const getImg = async (index, experiment, size) => {
     const img = `data:image/png;base64,${obj.image}`;
     return img;
   });
+};
+
+const checkJWT = async () => {
+  return await fetch('/verify', {
+    method: 'GET',
+    mode: 'same-origin',
+    redirect: 'follow',
+    credentials: 'include', // Don't forget to specify this if you need cookies
+  }).then(async response => {
+    console.log(response)
+    return response.status
+  })
 };
 
 const getHeatmap = async (index, experiment, method, size) => {
@@ -214,7 +230,8 @@ const queries = {
   getFilter,
   getWatershed,
   getAttributionGraph,
-  getSingleHeatmap
+  getSingleHeatmap,
+  checkJWT
 };
 
 export default queries;

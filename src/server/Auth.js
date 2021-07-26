@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
-import getJwt from './getJwt';
+import queueries from '../util/queries';
+
+let jwt;
 
 class Auth extends Component {
     constructor(props) {
@@ -8,13 +10,15 @@ class Auth extends Component {
 
         this.state = {
             Authenticated: false,
+
         };
+
     }
 
-    componentDidMount() {
+    async componentDidMount() {
+        let status = await queueries.checkJWT();
         const { history } = this.props;
-        const jwt = getJwt();
-        if (!jwt) {
+        if (status != 202) {
             history.push('/');
         } else {
             this.setState({ Authenticated: true });

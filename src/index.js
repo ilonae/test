@@ -4,16 +4,15 @@ import {
     BrowserRouter as Router,
     Switch,
     Route,
-    Link,
-    useParams
+
 } from "react-router-dom";
 
-import Auth from './Auth';
+import Auth from './server/Auth';
 import LandingPage from './LandingPage';
 import Dashboard from './XAIBoard';
 ReactDOM.render(<Router>
     <Switch>
         <Route exact path='/' component={LandingPage} />
-        <Route path='/dashboard' component={Dashboard} />
+        <Route path='/dashboard' render={props => <Auth><Dashboard {...props} /></Auth>} />
     </Switch>
 </Router>, document.getElementById('root'));
