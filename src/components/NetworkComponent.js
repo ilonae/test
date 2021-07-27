@@ -107,7 +107,7 @@ const NetworkComponent = ({ graph, viewState, viewCallback, filterIndex }) => {
       graph.nodes[node]['labelType'] = 'html';
       graph.nodes[node]['config'] = { style: 'fill: #CCEAE3; cursor:pointer' };
       const nodeId = graph.nodes[node]['id'];
-      graph.nodes[node].class = 'filterCard'
+      graph.nodes[node].class = ''
 
       var content = document.createElement("div");
       var imgs = document.createElement("div");

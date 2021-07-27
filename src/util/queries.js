@@ -113,6 +113,27 @@ const getAttributionGraph = async (imageIndex, experiment, method, size, layer, 
   });
 };
 
+const getStatistics = async (imageIndex, experiment, layer, filterIndex, sorting) => {
+  return await fetch('/api/statistics', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      layer,
+      experiment,
+      filter_index: filterIndex,
+      sorting,
+      image_index: imageIndex,
+      sample_indices: "0:9"
+    })
+  }).then(async response => {
+    const json = await response.json();
+    const obj = JSON.parse(json);
+    return (obj);
+  });
+};
+
 const getSettings = async () => {
   return await fetch('/api/get_XAI_available', {
     method: 'POST',
@@ -199,7 +220,7 @@ const getWatershed = async (imageIndex, method, experiment, size) => {
   });
 };
 
-const getSingleHeatmap = async (experiment, index, method, filterIndex, layer) => {
+const getSingleHeatmap = async (experiment, index, method, filterIndex, layer, imageSize) => {
   return await fetch('/api/heatmap_single_filter', {
     method: 'POST',
     headers: {
@@ -208,7 +229,7 @@ const getSingleHeatmap = async (experiment, index, method, filterIndex, layer) =
     body: JSON.stringify({
       image_index: index,
       experiment: experiment,
-      size: 20,
+      size: imageSize,
       image_index: index,
       method: method,
       layer: layer,
@@ -230,6 +251,7 @@ const queries = {
   getFilter,
   getWatershed,
   getAttributionGraph,
+  getStatistics,
   getSingleHeatmap,
   checkJWT
 };

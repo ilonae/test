@@ -70,7 +70,8 @@ const FilterBox = ({
   filterIndex,
   images,
   filterImgSize,
-  filterGraphCallback
+  filterGraphCallback,
+  filterStatisticsCallback
 }) => {
   const classes = useStyles(filterImgSize);
   const [imgState, setImages] = React.useState([]);
@@ -127,12 +128,12 @@ const FilterBox = ({
 
       <Typography variant="body1" gutterBottom>
         Filter:
-               {filterIndex}
+        {filterIndex}
       </Typography>
 
       <Typography variant="body1" gutterBottom>
         Contribution:
-               {relevance}
+        {relevance}
       </Typography>
     </div>
     <div className={images.length > 1 ? classes.height : classes.singleActivation}  >
@@ -142,18 +143,24 @@ const FilterBox = ({
     </div> </div>;
   const flippedFilter = <div className={relevance >= 0 ? classes.positive : classes.negative} style={{ height: filterWidth }} name={'filter'}>
     <div className={classes.typography}>
-      <ButtonGroup className="mb-2" variant="contained" >
+      <ButtonGroup className="mb-2" variant="contained" orientation='vertical' >
 
         <Button
           onClick={() => filterHeatmapCallback(filterIndex)}
         >
           Show Activation
-            </Button>
+        </Button>
         <Button onClick={() => filterGraphCallback(filterIndex)}
 
         >
           Show Graph
-    </Button>
+        </Button>
+
+        <Button onClick={() => filterStatisticsCallback(filterIndex)}
+
+        >
+          Show Statistics
+        </Button>
 
 
       </ButtonGroup>

@@ -160,6 +160,24 @@ app.post('/api/attribution_graph', (req, res) => {
     });
 });
 
+app.post('/api/statistics', (req, res) => {
+  const options = {
+    method: req.method,
+    uri: 'http://titan:5050/get_filter_statistics',
+    body: JSON.stringify(req.body),
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  };
+  request(options)
+    .then(response => {
+      res.status(200).json(response);
+    })
+    .catch(err => {
+      console.log(err);
+    });
+});
+
 app.post('/api/get_image', (req, res) => {
   const options = {
     method: req.method,

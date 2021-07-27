@@ -54,7 +54,6 @@ const FilterComponent = ({
   indexCallback,
 }) => {
   const [filterBoxes, setFilterBoxes] = React.useState([]);
-  const [filterIndex, setFilterIndex] = React.useState(0);
   const classes = useStyles();
 
   const experimentsCallback = value => {
@@ -62,7 +61,12 @@ const FilterComponent = ({
   };
 
   const filterGraphCallback = value => {
-    setFilterIndex(value)
+    parentCallback('GRAPHVIEW');
+    indexCallback(value);
+  };
+  const filterStatisticsCallback = value => {
+    parentCallback('STATISTICSVIEW');
+    indexCallback(value);
   };
 
   const methodsCallback = value => {
@@ -76,15 +80,6 @@ const FilterComponent = ({
   const sortingCallback = value => {
     orderCallback(value);
   };
-
-
-  React.useEffect(() => {
-    if (filterIndex) {
-      parentCallback('GRAPHVIEW');
-      indexCallback(filterIndex);
-
-    }
-  }, [parentCallback, filterIndex]);
 
   React.useEffect(() => {
 
@@ -104,6 +99,7 @@ const FilterComponent = ({
             relevance={filters.relevance[i]}
             filterImgSize={filterImgSize}
             filterGraphCallback={filterGraphCallback}
+            filterStatisticsCallback={filterStatisticsCallback}
           />
         );
       }
