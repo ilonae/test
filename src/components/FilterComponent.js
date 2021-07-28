@@ -39,6 +39,7 @@ const FilterComponent = ({
   selectedExperiment,
   selectedMethod,
   parentCallback,
+  filterActivationCallback,
   filterHeatmapCallback,
   orderCallback,
   order,
@@ -94,6 +95,7 @@ const FilterComponent = ({
             filterAmount={filterIndices.length}
             images={filters.images[currIndex]}
             filterIndex={currIndex}
+            filterActivationCallback={filterActivationCallback}
             filterHeatmapCallback={filterHeatmapCallback}
             key={`filter_index_${i}`}
             relevance={filters.relevance[i]}
@@ -105,7 +107,7 @@ const FilterComponent = ({
       }
       setFilterBoxes(filterBox);
     }
-  }, [filters, viewState, filterHeatmapCallback]);
+  }, [filters, viewState, filterActivationCallback]);
   return (
     <Card className={clsx(classes.root)} name={'filterCard'}>
       <Grid className={classes.grid} container spacing={5}>

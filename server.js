@@ -80,6 +80,8 @@ const login = (req, res, next) => {
   }
 }
 
+
+
 app.get('/verify', authenticateJWT, (req, res) => {
   res.sendStatus(status)
 });

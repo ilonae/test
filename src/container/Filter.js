@@ -65,6 +65,7 @@ const useStyles = makeStyles(() => ({
 const FilterBox = ({
   filterAmount,
   name: reference,
+  filterActivationCallback,
   filterHeatmapCallback,
   relevance,
   filterIndex,
@@ -146,9 +147,14 @@ const FilterBox = ({
       <ButtonGroup className="mb-2" variant="contained" orientation='vertical' >
 
         <Button
-          onClick={() => filterHeatmapCallback(filterIndex)}
+          onClick={() => filterActivationCallback(filterIndex)}
         >
           Show Activation
+        </Button>
+        <Button
+          onClick={() => filterHeatmapCallback(filterIndex)}
+        >
+          Show Partial Heatmap
         </Button>
         <Button onClick={() => filterGraphCallback(filterIndex)}
 

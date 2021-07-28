@@ -147,11 +147,13 @@ const getSettings = async () => {
     const methods = obj.methods;
     const layers = obj.layers;
     const cnnLayers = obj.cnn_layers;
+    const synthetics = obj.synthetic;
     const values = {
       experiments,
       methods,
       layers,
-      cnnLayers
+      cnnLayers,
+      synthetics
     };
     return values;
   });
@@ -165,8 +167,21 @@ const getFilter = async (
   index,
   method,
   size,
-  isCnn = undefined
+  isCnn = undefined,
+  isSynth = undefined
 ) => {
+  const synthQuery = JSON.stringify({
+    layer: layer,
+    filter_indices: `${0}:${filterAmount}`,
+    sorting: order,
+    sample_indices: '0:9',
+    experiment: experiment,
+    image_index: index,
+    method: method,
+    size,
+    synthetic: isSynth
+  });
+
   const cnnQuery = JSON.stringify({
     layer: layer,
     filter_indices: `${0}:${filterAmount}`,
@@ -193,7 +208,7 @@ const getFilter = async (
     headers: {
       'Content-Type': 'application/json'
     },
-    body: isCnn !== undefined ? cnnQuery : defQuery
+    body: isCnn !== undefined ? cnnQuery : isSynth !== undefined ? synthQuery : defQuery
   }).then(async response => {
     const json = await response.json();
     const obj = JSON.parse(json);
@@ -234,6 +249,30 @@ const getSingleHeatmap = async (experiment, index, method, filterIndex, layer, i
       method: method,
       layer: layer,
       filter_index: filterIndex,
+      weight_activations: 0
+
+    })
+  }).then(async response => {
+    const json = await response.json();
+    const obj = JSON.parse(json);
+    return obj;
+  });
+};
+
+const getSingleActivation = async (experiment, index, method, filterIndex, layer, imageSize) => {
+  return await fetch('/api/heatmap_single_filter', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      image_index: index,
+      experiment: experiment,
+      size: imageSize,
+      image_index: index,
+      method: method,
+      layer: layer,
+      filter_index: filterIndex,
 
     })
   }).then(async response => {
@@ -252,6 +291,7 @@ const queries = {
   getWatershed,
   getAttributionGraph,
   getStatistics,
+  getSingleActivation,
   getSingleHeatmap,
   checkJWT
 };

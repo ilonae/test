@@ -27,8 +27,10 @@ const BottomComponent = ({
   modus,
   bottomCallback,
   filterAmount,
+  isSynthLayer,
   isCnnLayer,
   isCnnCallback,
+  isSynthCallback,
   selectedButtonCallback
 }) => {
   const classes = useStyles();
@@ -39,6 +41,10 @@ const BottomComponent = ({
   const activationsCallback = value => {
     isCnnCallback(value);
   };
+
+  const synthCallback = value => {
+    isSynthCallback(value)
+  }
   const buttonClickedCallback = value => {
     selectedButtonCallback(value);
   };
@@ -59,8 +65,10 @@ const BottomComponent = ({
         <Grid item md={6} xs={12}>
           <SamplesSwitch
             modus={modus}
+            isSynthLayer={isSynthLayer}
             isCnnLayer={isCnnLayer}
             activationsCallback={activationsCallback}
+            synthCallback={synthCallback}
             buttonClickedCallback={buttonClickedCallback}
           />
         </Grid>
@@ -70,6 +78,7 @@ const BottomComponent = ({
 };
 BottomComponent.propTypes = {
   modus: PropTypes.number,
+  isSynthLayer: PropTypes.number,
   isCnnLayer: PropTypes.number,
   bottomCallback: PropTypes.func,
   isCnnCallback: PropTypes.func,

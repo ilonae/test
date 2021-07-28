@@ -47,6 +47,7 @@ const XAIBoard = () => {
   const [index, changeIndex] = React.useState(0);
   const [filterIndex, changeFilterIndex] = React.useState(0);
   const [queryActivations, setActivations] = React.useState(0);
+  const [querySynths, setSynths] = React.useState(0);
 
   const [experimentLayers, setExperimentsLayers] = React.useState();
   const [experiments, setExperiments] = React.useState();
@@ -60,6 +61,9 @@ const XAIBoard = () => {
 
   const [cnnLayers, setCnnLayers] = React.useState();
   const [isCnn, setCnn] = React.useState(0);
+
+  const [synthLayer, setSynthLayers] = React.useState();
+  const [isSynth, setSynth] = React.useState(0);
 
   const [image, setImage] = React.useState('');
   const [heatmap, setHeatmap] = React.useState('');
@@ -80,6 +84,7 @@ const XAIBoard = () => {
     let values = queryString.parse(window.location.search)
     const fetchSettings = async () => {
       await queueries.getSettings().then(data => {
+        console.log(data)
         setExperimentsLayers(data.layers);
         setExperiments(data.experiments);
         changeExperiment(data.experiments[0]);
@@ -89,6 +94,8 @@ const XAIBoard = () => {
         setSingleLayer(data.layers[data.experiments[0]][0]);
         setCnnLayers(data.cnnLayers);
         setCnn(Object.values(data.cnnLayers[data.experiments[0]])[0]);
+        setSynthLayers(data.synthetics);
+        setSynth(Object.values(data.synthetics[data.experiments[0]]));
         if (Object.keys(values).length == 0) {
           history.push(`/dashboard?experiment=${data.experiments[0]}&method=${data.methods[0]}&index=${index}&order=${order}&view=${viewType}&selectedLayer=${data.layers[data.experiments[0]][0]}&watershed=${isWatershed}`);
         }
@@ -107,6 +114,7 @@ const XAIBoard = () => {
     setPrevParams(values);
     const fetchSettings = async (experiment, layer) => {
       await queueries.getSettings().then(data => {
+        console.log(data)
         setExperimentsLayers(data.layers);
         setExperiments(data.experiments);
         setMethods(data.methods);
@@ -114,6 +122,9 @@ const XAIBoard = () => {
         changeLayer(data.layers[experiment]);
         setCnnLayers(data.cnnLayers);
         setCnn(Object.values(data.cnnLayers[experiment])[index]);
+        setSynthLayers(data.synthetics);
+        setSynth(Object.values(data.synthetics[experiment]));
+
       });
     };
     if (Object.keys(values).length !== 0 && values.experiment && values.selectedLayer && prevParams !== values && isChangedFromState === false) {
@@ -418,30 +429,54 @@ const XAIBoard = () => {
 
   //hook to visualize activations of filter
   React.useEffect(() => {
+
+    setFilterImgSize(filterActivationsSize * 3)
+    const fetchActivations = async () => {
+      changeViewType('LOADINGVIEW');
+      console.log(singleLayer)
+      const filters = queueries.getFilter(
+        singleLayer,
+        filterAmount,
+        order,
+        experiment,
+        index,
+        method,
+        filterActivationsSize,
+        queryActivations
+      );
+      const data = await Promise.resolve(filters);
+      changeViewType(prevView);
+      if (data) {
+        console.log(data)
+        setFilterData(data);
+      }
+    };
+
+    const fetchSynths = async () => {
+      changeViewType('LOADINGVIEW');
+      const filters = queueries.getFilter(
+        singleLayer,
+        filterAmount,
+        order,
+        experiment,
+        index,
+        method,
+        filterActivationsSize,
+        undefined,
+        querySynths
+      );
+      const data = await Promise.resolve(filters);
+      changeViewType(prevView);
+      if (data) {
+        setFilterData(data);
+      }
+    };
     if (queryActivations === 1) {
-      setFilterImgSize(filterActivationsSize * 3)
-      const fetchActivations = async () => {
-        changeViewType('LOADINGVIEW');
-        console.log(singleLayer)
-        const filters = queueries.getFilter(
-          singleLayer,
-          filterAmount,
-          order,
-          experiment,
-          index,
-          method,
-          filterActivationsSize,
-          queryActivations
-        );
-        const data = await Promise.resolve(filters);
-        changeViewType(prevView);
-        if (data) {
-          setFilterData(data);
-        }
-      };
       fetchActivations();
+    } else if (querySynths === 1) {
+      fetchSynths();
     }
-  }, [queryActivations, filterAmount, index, method, order, singleLayer, filterImgSize]);
+  }, [queryActivations, querySynths, filterAmount, index, method, order, singleLayer, filterImgSize]);
 
 
   //visualizing heatmap according to selected filter
@@ -452,13 +487,22 @@ const XAIBoard = () => {
       setHeatmap('data:image/png;base64,' + results.image)
     })
   }
+  const getFilterActivation = (value) => {
+    changeFilterIndex(value);
+    const filterActivation = queueries.getSingleActivation(experiment, index, method, value, singleLayer, imgSize);
+    Promise.resolve(filterActivation).then(results => {
+      setHeatmap('data:image/png;base64,' + results.image)
+    })
+  }
 
   //hook to update bool isCnn according to user's selection
   React.useEffect(() => {
-    if (singleLayer && cnnLayers && experiment) {
+    if (singleLayer && cnnLayers && experiment && synthLayer) {
       setCnn(cnnLayers[experiment][singleLayer]);
+      const isSynth = synthLayer[experiment];
+      setSynth(isSynth);
     }
-  }, [singleLayer, cnnLayers, experiment, setCnn]);
+  }, [singleLayer, cnnLayers, synthLayer, experiment, setCnn]);
 
 
   //calback functions, called from child components
@@ -500,6 +544,11 @@ const XAIBoard = () => {
     console.log(value);
     setActivations(value);
   };
+  const isSynthCallback = value => {
+    console.log(value);
+    setSynths(value);
+  };
+
 
   //dependencies, updating query params
 
@@ -605,6 +654,7 @@ const XAIBoard = () => {
         <FilterComponent
           filterAmount={filterAmount}
           parentCallback={viewState}
+          filterActivationCallback={getFilterActivation}
           filterHeatmapCallback={getFilterHeatmap}
           orderCallback={selectedOrder}
           viewState={viewType}
@@ -624,9 +674,11 @@ const XAIBoard = () => {
         />
         <BottomComponent
           modus={modus}
+          isSynthLayer={isSynth}
           isCnnLayer={isCnn}
           filterAmount={filterAmount}
           isCnnCallback={isCnnCallback}
+          isSynthCallback={isSynthCallback}
           bottomCallback={filterAmountCallback}
           selectedButtonCallback={buttonClickedCallback}
         />
@@ -674,6 +726,7 @@ const XAIBoard = () => {
         <FilterComponent
           filterAmount={filterAmount}
           parentCallback={viewState}
+          filterActivationCallback={getFilterActivation}
           filterHeatmapCallback={getFilterHeatmap}
           orderCallback={selectedOrder}
           viewState={viewType}
@@ -693,9 +746,11 @@ const XAIBoard = () => {
         />
         <BottomComponent
           modus={modus}
+          isSynthLayer={isSynth}
           isCnnLayer={isCnn}
           filterAmount={filterAmount}
           isCnnCallback={isCnnCallback}
+          isSynthCallback={isSynthCallback}
           bottomCallback={filterAmountCallback}
           selectedButtonCallback={buttonClickedCallback}
         />
@@ -741,6 +796,7 @@ const XAIBoard = () => {
         <FilterComponent
           filterAmount={filterAmount}
           parentCallback={viewState}
+          filterActivationCallback={getFilterActivation}
           filterHeatmapCallback={getFilterHeatmap}
           orderCallback={selectedOrder}
           viewState={viewType}
@@ -760,9 +816,11 @@ const XAIBoard = () => {
         />
         <BottomComponent
           modus={modus}
+          isSynthLayer={isSynth}
           isCnnLayer={isCnn}
           filterAmount={filterAmount}
           isCnnCallback={isCnnCallback}
+          isSynthCallback={isSynthCallback}
           bottomCallback={filterAmountCallback}
           selectedButtonCallback={buttonClickedCallback}
         />
@@ -780,16 +838,6 @@ const XAIBoard = () => {
           filterIndex={filterIndex} />
 
       </Grid>
-      <Grid item lg={12} md={12} xl={12} xs={12}>
-        <BottomComponent
-          modus={modus}
-          isCnnLayer={isCnn}
-          filterAmount={filterAmount}
-          isCnnCallback={isCnnCallback}
-          bottomCallback={filterAmountCallback}
-          selectedButtonCallback={buttonClickedCallback}
-        />
-      </Grid>
     </Grid>
   );
 
@@ -802,16 +850,6 @@ const XAIBoard = () => {
           statistics={statisticsData}
           filterIndex={filterIndex} />
 
-      </Grid>
-      <Grid item lg={12} md={12} xl={12} xs={12}>
-        <BottomComponent
-          modus={modus}
-          isCnnLayer={isCnn}
-          filterAmount={filterAmount}
-          isCnnCallback={isCnnCallback}
-          bottomCallback={filterAmountCallback}
-          selectedButtonCallback={buttonClickedCallback}
-        />
       </Grid>
     </Grid>
   );

@@ -44,7 +44,9 @@ const useStyles = makeStyles(() => ({
 const SamplesSwitch = ({
   modus,
   isCnnLayer,
+  isSynthLayer,
   activationsCallback,
+  synthCallback,
   buttonClickedCallback
 }) => {
   const classes = useStyles();
@@ -57,9 +59,6 @@ const SamplesSwitch = ({
     }
   }, [modus]);
 
-  const selectionCallback = () => {
-    activationsCallback(isCnnLayer);
-  };
 
   const toggleButton = val => {
     if (selectedBtn === val) {
@@ -79,7 +78,7 @@ const SamplesSwitch = ({
             className={selectedBtn === 1 ? classes.checked : classes.default}
             onClick={() => {
               toggleButton(1);
-              selectionCallback();
+              activationsCallback(isCnnLayer);
             }}
           ><Typography noWrap>
               Activations
@@ -96,14 +95,22 @@ const SamplesSwitch = ({
             Real Samples
           </Typography>
         </Button>
-        <Button
-          disabled
-          onClick={() => toggleButton(3)}
-        >
-          <Typography noWrap>
-            Synthetic Samples
-          </Typography>
-        </Button>
+        {isSynthLayer === 1 ? (
+          <Button
+            className={selectedBtn === 1 ? classes.checked : classes.default}
+            onClick={() => {
+              toggleButton(3);
+              synthCallback(isCnnLayer);
+            }}
+          ><Typography noWrap>
+              Synthetic Samples
+            </Typography>
+
+          </Button>
+        ) : (
+          null
+        )}
+
       </ButtonGroup>
     </Grid>
   );
@@ -111,6 +118,7 @@ const SamplesSwitch = ({
 
 SamplesSwitch.propTypes = {
   modus: PropTypes.number,
+  isSynthLayer: PropTypes.number,
   activationsCallback: PropTypes.func,
   buttonClickedCallback: PropTypes.func
 };
