@@ -34,6 +34,7 @@ app.use(
   })
 );
 
+app.use(express.static('build'));
 
 // Passport middleware
 app.use(passport.initialize());

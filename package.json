@@ -9,7 +9,7 @@
     "start": " react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "client": "PORT=80 npm run start",
+    "client": "npm run start",
     "server": "nodemon server.js",
     "dev": "concurrently --kill-others-on-fail \"npm run server\" \"npm run client\""
   },
