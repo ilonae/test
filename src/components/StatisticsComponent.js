@@ -7,10 +7,14 @@ import Statistic from '../container/Statistic';
 
 const useStyles = makeStyles(() => ({
     root: {
-        height: '72vh',
-        position: 'relative',
-        overflow: 'scroll',
-        flexDirection: 'row'
+        textAlign: 'center',
+        height: '91vh',
+        padding: '3vh',
+        display: 'flex',
+        flexDirection: 'column',
+        width: "100%",
+        maxHeight: '91vh !important',
+        overflow: 'auto'
     },
     nodes: {
         fill: 'darkgray'
@@ -62,6 +66,9 @@ const useStyles = makeStyles(() => ({
         width: '5vh',
         height: '5vh',
         display: 'block',
+    },
+    statistics: {
+        padding: '3em'
     }
 }));
 
@@ -100,27 +107,23 @@ const StatisticsComponent = ({ statistics, viewState, viewCallback, filterIndex 
     }, [view, viewCallback]);
 
     return (
-        <Card>
-            <CardContent className={classes.root}>
-                <Box display="flex" flexDirection="column" position="relative">
-                    <Box flexGrow={1}>
-                        <Typography gutterBottom variant='h4' align='center' >Selected Filter: {filterIndex}</Typography>
-                    </Box>
-                    <Grid container>
-                        {statisticsBox}
+        <Card className={classes.root}>
+            <Box display="flex" flexDirection="column" width='100%' position="relative">
+                <Box flexGrow={1}>
+                    <Typography gutterBottom variant='h4' align='center' >Similarities with respect of relevance in other classes</Typography>
 
-                    </Grid>
+                    <Typography gutterBottom variant="h6" align='center' >Selected Filter: {filterIndex}</Typography>
                 </Box>
-
-                <Button
-                    startIcon={<ArrowBackIosIcon />}
-                    onClick={() => changeView('DEFAULTVIEW')}
-
-                    variant="contained"
-                    className={classes.buttonback}
-                > Return back </Button>
-
-            </CardContent>
+                <Grid container className={classes.statistics}>
+                    {statisticsBox}
+                </Grid>
+            </Box>
+            <Button
+                startIcon={<ArrowBackIosIcon />}
+                onClick={() => changeView('DASHBOARDVIEW')}
+                variant="contained"
+                className={classes.buttonback}
+            > Return back </Button>
         </Card>
     );
 };

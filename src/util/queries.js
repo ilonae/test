@@ -148,18 +148,35 @@ const getSettings = async () => {
     const layers = obj.layers;
     const cnnLayers = obj.cnn_layers;
     const synthetics = obj.synthetic;
+    const maxIndices = obj.max_index;
     const values = {
       experiments,
       methods,
       layers,
       cnnLayers,
-      synthetics
+      synthetics,
+      maxIndices
     };
     return values;
   });
 };
 
+const getLocalSegments = async () => {
+  return await fetch('/api/get_local_segments', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }).then(async response => {
+    const json = await response.json();
+    const obj = JSON.parse(json);
+
+    return obj;
+  });
+};
+
 const getFilter = async (
+  samples,
   layer,
   filterAmount,
   order,
@@ -168,13 +185,13 @@ const getFilter = async (
   method,
   size,
   isCnn = undefined,
-  isSynth = undefined
+  isSynth = undefined,
 ) => {
   const synthQuery = JSON.stringify({
     layer: layer,
     filter_indices: `${0}:${filterAmount}`,
     sorting: order,
-    sample_indices: '0:9',
+    sample_indices: `${0}:${samples}`,
     experiment: experiment,
     image_index: index,
     method: method,
@@ -186,7 +203,7 @@ const getFilter = async (
     layer: layer,
     filter_indices: `${0}:${filterAmount}`,
     sorting: order,
-    sample_indices: '0:9',
+    sample_indices: `${0}:${samples}`,
     experiment: experiment,
     image_index: index,
     method: method,
@@ -197,7 +214,7 @@ const getFilter = async (
     layer: layer,
     filter_indices: `${0}:${filterAmount}`,
     sorting: order,
-    sample_indices: '0:9',
+    sample_indices: `${0}:${samples}`,
     experiment: experiment,
     image_index: index,
     method: method,
@@ -273,6 +290,7 @@ const getSingleActivation = async (experiment, index, method, filterIndex, layer
       method: method,
       layer: layer,
       filter_index: filterIndex,
+      weight_activations: 1
 
     })
   }).then(async response => {
@@ -293,7 +311,8 @@ const queries = {
   getStatistics,
   getSingleActivation,
   getSingleHeatmap,
-  checkJWT
+  checkJWT,
+  getLocalSegments
 };
 
 export default queries;

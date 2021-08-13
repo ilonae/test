@@ -86,7 +86,13 @@ const SamplesSwitch = ({
 
           </Button>
         ) : (
-          null
+          <Button
+            disabled
+          ><Typography noWrap>
+              Activations
+            </Typography>
+
+          </Button>
         )}
         <Button
           className={selectedBtn === 2 ? classes.checked : classes.default}
@@ -108,7 +114,13 @@ const SamplesSwitch = ({
 
           </Button>
         ) : (
-          null
+          <Button
+            disabled
+          ><Typography noWrap>
+              Synthetic Samples
+            </Typography>
+
+          </Button>
         )}
 
       </ButtonGroup>

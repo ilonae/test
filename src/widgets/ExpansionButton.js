@@ -37,7 +37,7 @@ const ExpansionButton = ({ expansionCallback, viewState }) => {
   return (
     <div className={classes.root}>
       {
-        ['LOADINGVIEW', 'DEFAULTVIEW', 'ERRORVIEW'].includes(view)
+        ['LOADINGVIEW', 'DASHBOARDVIEW', 'ERRORVIEW'].includes(view)
           ? (
             <Button
               className={classes.default}
@@ -51,7 +51,7 @@ const ExpansionButton = ({ expansionCallback, viewState }) => {
             <Button
               className={classes.default}
               variant="contained"
-              onClick={() => changeView('DEFAULTVIEW')}
+              onClick={() => changeView('DASHBOARDVIEW')}
               startIcon={<ArrowBackIosIcon style={{ fontSize: 10 }} />}
             >
               <Typography noWrap>Return</Typography>

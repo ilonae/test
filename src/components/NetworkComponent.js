@@ -1,9 +1,11 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import Button from '@material-ui/core/Button';
 import DagreGraph from 'dagre-d3-react'
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import { makeStyles, Box, Card, CardContent, Typography } from '@material-ui/core';
+import Filter from '../container/Filter';
 import * as d3 from 'd3'
 
 
@@ -66,9 +68,14 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
+const Menu = props => <div>menu</div>;
+
+let content;
 
 
 const NetworkComponent = ({ graph, viewState, viewCallback, filterIndex }) => {
+
+  let dynamicContentWrapper;
 
 
   const classes = useStyles();
@@ -97,19 +104,22 @@ const NetworkComponent = ({ graph, viewState, viewCallback, filterIndex }) => {
     return (db / 100) * 7;
   }
 
-  if (graph) {
+
+
+  async function createGraph() {
     for (const link in graph.links) {
       const linkThickness = scale(graph.links[link]['label']);
       graph.links[link]['class'] = 'contrib_id_' + link
       graph.links[link]['config'] = { curve: d3.curveBasis, arrowheadStyle: "fill: #009374;", labelStyle: "font-family: roboto", style: 'font-family: roboto;color: #009374;stroke: #009374;fill: none; stroke-width: ' + linkThickness + 'px;cursor:pointer' };
     }
+    const filterBox = [];
     for (const node in graph.nodes) {
       graph.nodes[node]['labelType'] = 'html';
-      graph.nodes[node]['config'] = { style: 'fill: #CCEAE3; cursor:pointer' };
+      graph.nodes[node]['config'] = { style: 'fill: #CCEAE3; cursor:pointer, width:200px, height:200px' };
       const nodeId = graph.nodes[node]['id'];
       graph.nodes[node].class = ''
 
-      var content = document.createElement("div");
+      content = document.createElement("div");
       var imgs = document.createElement("div");
       imgs.setAttribute('class', classes.imagecontainer);
       //imgs.classList.add(classes.imagecontainer);
@@ -120,24 +130,71 @@ const NetworkComponent = ({ graph, viewState, viewCallback, filterIndex }) => {
         imgs.appendChild(image)
 
       }
-      content.appendChild(imgs);
+      //content.appendChild(imgs);
 
-      var info = document.createElement("div");
-      info.setAttribute('class', classes.hide);
-      info.innerHTML = ('Layer: ' + graph.properties[nodeId]['layer'] + ' \n Filter index: ' + graph.properties[nodeId]['filter_index']);
-      content.appendChild(info);
+      /*  const filter = <Filter
+         filterAmount={graph.nodes.length}
+         images={graph.properties[nodeId]['images']}
+         filterIndex={node}
+         filterActivationCallback={console.log('hi')}
+         filterHeatmapCallback={console.log('hi')}
+         key={`filter_index_${node}`}
+         relevance={1}
+         filterImgSize={20}
+         filterGraphCallback={console.log('hi')}
+         filterStatisticsCallback={console.log('hi')}
+       />;*/
 
 
+      const embed = document.createElement("div");
+      embed.className = "main-content-wrapper";
+      const inner = document.createElement("div");
+      inner.className = 'test';
+
+      //inner.append({ el => { dynamicContentWrapper = el }});
+
+
+
+
+
+
+      embed.appendChild(inner)
+
+      content.appendChild(embed)
 
 
 
       graph.nodes[node]['label'] = content;
-      //graph.nodes[node]['label'].onmouseover = function () { setShown(true); };
-      //graph.nodes[node]['label'].onmouseout = function () { setShown(false) };
+
+
+      //.nodes[node]['label'] = content;
+      //graph.nodes[node]['label'].onmouseover = function () {setShown(true); };
+      //graph.nodes[node]['label'].onmouseout = function () {setShown(false)};
 
     };
     console.log(graph)
+
   }
+  if (graph) {
+    createGraph();
+  }
+
+  React.useEffect(() => {
+
+    if (document.querySelector('.test')) {
+      console.log("dfd")
+      const htmlFromAjax = `
+      <div class='dynamic-content'>
+        <h4 class='content-header'>Dynamic content header</h4>
+        <div id='test-component'>This content is dynamically added.</div>
+      </div>`;
+      dynamicContentWrapper = document.createElement("div");
+      dynamicContentWrapper.innerHTML = htmlFromAjax;
+      ReactDOM.render(<Menu></Menu>, dynamicContentWrapper.querySelector('.test'));
+
+    }
+
+  });
 
   React.useEffect(() => {
     viewCallback(view);
@@ -149,10 +206,14 @@ const NetworkComponent = ({ graph, viewState, viewCallback, filterIndex }) => {
         <Box display="flex" flexDirection="column" position="relative">
           <Box flexGrow={1}>
             <Typography gutterBottom  >Selected Filter: {filterIndex}</Typography>
+            <div ref={el => (dynamicContentWrapper = el)}
+              className="dynamic-content-wrapper" />
+
+
           </Box>
           <Button
             startIcon={<ArrowBackIosIcon />}
-            onClick={() => changeView('DEFAULTVIEW')}
+            onClick={() => changeView('DASHBOARDVIEW')}
 
             variant="contained"
             className={classes.buttonback}
@@ -178,7 +239,7 @@ const NetworkComponent = ({ graph, viewState, viewCallback, filterIndex }) => {
           /> : null}
 
       </CardContent>
-    </Card>
+    </Card >
   );
 };
 

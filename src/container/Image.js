@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import ReactCrop from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 
-import { makeStyles, Grid } from '@material-ui/core';
+import { makeStyles, Grid, Typography } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -14,8 +14,10 @@ const useStyles = makeStyles(theme => ({
     height: '50vh'
   },
   crop: {
-    height: '100%',
-    width: 'auto',
+    height: '90%',
+    width: '90%',
+    marginLeft: "5%",
+    textAlign: "center",
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
@@ -114,11 +116,11 @@ const Image = ({ viewType, content, getLocalAnalysisCallback, title }) => {
   return (
     <Grid item lg={12} md={12} xl={12} xs={12}
       className={
-        ['LOADINGVIEW', 'DEFAULTVIEW', 'ERRORVIEW'].includes(viewType)
+        ['LOADINGVIEW', 'DASHBOARDVIEW', 'ERRORVIEW'].includes(viewType)
           ? classes.root
           : classes.side
       }
-    >
+    > <Typography gutterBottom>{title}</Typography>
       <ReactCrop
         className={classes.crop}
 

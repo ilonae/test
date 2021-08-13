@@ -1,20 +1,20 @@
 import React from 'react';
-import { makeStyles, Grid, Card, Typography } from '@material-ui/core';
+import { makeStyles, Grid, Card, Typography, TextField } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import Image from '../container/Image';
-import WatershedButton from '../widgets/WatershedSwitch';
-import ExpansionButton from '../widgets/ExpansionButton';
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles({
   images: {
-    maxHeight: '70%',
+    maxHeight: '90%',
     display: 'inherit',
     flexDirection: 'row'
 
   },
-  tools: { padding: '5%' },
+  tools: {
+    justifyContent: 'center'
+  },
   root: {
     textAlign: 'center',
-    height: '92vh',
+    height: '91vh',
     padding: '3vh',
     display: 'flex',
     flexDirection: 'column',
@@ -33,9 +33,10 @@ const useStyles = makeStyles(theme => ({
   textfield: {
     width: '95%',
   }
-}));
+});
 
 const ImagesComponent = ({
+  maxIndex,
   viewCallback,
   indexCallback,
   viewState,
@@ -50,17 +51,12 @@ const ImagesComponent = ({
 
   const [index, setIndex] = React.useState(0);
 
+  const min = 0;
+  const max = 10;
+
   function handleEnter(e) {
     if (e.key === 'Enter') {
       indexCallback(index);
-    }
-  }
-
-
-
-  function handleIndexChange(e) {
-    if (e.target.value !== '') {
-      setIndex(Number(e.target.value));
     }
   }
 
@@ -89,9 +85,32 @@ const ImagesComponent = ({
   return (
     <Card className={classes.root} name={'imgCard'} >
       <Grid container className={classes.centering} >
+        <Grid container lg={12} md={12} xl={12} xs={12} className={classes.tools} >
+          {/* <Grid item lg={6} md={6} xl={6} xs={12} className={classes.tools}>
+            <WatershedButton isToggledCallback={toggleCallback} />{' '}
+          </Grid> */}
+          <Grid item lg={6} md={6} xl={6} xs={12} >
+            <Typography gutterBottom>Image Index:</Typography>
+
+            <TextField
+              type="number"
+              inputProps={{ min, max }}
+              value={index}
+              onChange={(e) => {
+                var value = parseInt(e.target.value);
+
+                if (value > maxIndex) value = maxIndex;
+                if (value < 0) value = 0;
+
+                setIndex(value);
+              }}
+              onKeyDown={handleEnter}
+            />
+          </Grid>
+        </Grid>
         <Grid container lg={12} md={12} xl={12} xs={12}
           className={
-            ['LOADINGVIEW', 'DEFAULTVIEW', 'ERRORVIEW'].includes(viewState)
+            ['LOADINGVIEW', 'DASHBOARDVIEW', 'ERRORVIEW'].includes(viewState)
               ? classes.images
               : classes.expanded
           }
@@ -99,42 +118,19 @@ const ImagesComponent = ({
           <Image
             viewType={viewState}
             content={image}
-            title={'image'}
+            title={'Image'}
             getLocalAnalysisCallback={localAnalysisCallback}
           />
 
           <Image
             viewType={viewState}
             content={heatmap}
-            title={'heatmap'}
+            title={'Heatmap'}
             getLocalAnalysisCallback={localAnalysisCallback}
           />
         </Grid>
 
-        <Grid container lg={12} md={12} xl={12} xs={12} className={classes.tools}>
-          <Grid item lg={6} md={6} xl={6} xs={12} className={classes.tools}>
-            <WatershedButton isToggledCallback={toggleCallback} />{' '}
-          </Grid>
-          <Grid item lg={6} md={6} xl={6} xs={12} className={classes.tools}>
-            <Typography gutterBottom>Image Index:</Typography>
-            <input
-              type="number"
-              name="index"
-              label="Selected index"
-              onKeyDown={handleEnter}
-              onChange={handleIndexChange}
-              className={classes.textfield}
-              value={index}
-            />
-          </Grid>
-          <Grid item lg={12} md={12} xl={12} xs={12} className={classes.tools}>
-            <ExpansionButton
-              expansionCallback={expansionCallback}
-              viewState={isExpanded}
 
-            />
-          </Grid>
-        </Grid>
 
       </Grid>
     </Card>

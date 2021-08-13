@@ -17,7 +17,11 @@ const useStyles = makeStyles(() => ({
     }),
     typography: {
         wordWrap: 'break-word',
-        height: '10%'
+        height: '10%',
+        fontWeight: 'bold',
+
+        display: 'flex',
+        flexDirection: 'column',
     },
     centering: {
         textAlign: 'center',
@@ -39,6 +43,12 @@ const useStyles = makeStyles(() => ({
     box: {
         marginTop: '2em',
         textAlign: 'center',
+    },
+    flex: {
+        display: 'flex',
+        textAlign: 'center',
+        alignSelf: 'center',
+        justifySelf: 'center',
     }
 }));
 
@@ -81,14 +91,20 @@ const StatisticBox = ({
 
 
     const statistics = <div name={'statistic'} className={classes.box}>
-        <div className={classes.typography}>
+        <div className={classes.flex}>
 
-            <Typography variant="subtitle1" gutterBottom>
-                Class name:  {name}
+            <Typography variant="subtitle1" gutterBottom className={classes.typography}>
+                Class name:
+            </Typography>
+            <Typography variant="subtitle1" gutterBottom >
+                {name}
             </Typography>
 
+            <Typography variant="subtitle1" gutterBottom className={classes.typography} >
+                Relevance:
+            </Typography>
             <Typography variant="subtitle1" gutterBottom>
-                Relevance:  {relevance}
+                {relevance}
             </Typography>
         </div>
         <div className={classes.height}  >
