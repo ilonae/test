@@ -7,25 +7,20 @@ import { makeStyles, Grid, Typography } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
   root: {
-    height: '50%'
+    height: '100%'
   },
-  side: {
-    width: 'auto',
-    height: '50vh'
-  },
+
   crop: {
-    height: '90%',
-    width: '90%',
-    marginLeft: "5%",
+    height: 'auto',
+    width: '50%',
     textAlign: "center",
-    display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
 
   }
 }));
 
-const Image = ({ viewType, content, getLocalAnalysisCallback, title }) => {
+const Image = ({ content, getLocalAnalysisCallback, title }) => {
   const classes = useStyles();
 
   const [crop, setCrop] = React.useState({
@@ -115,11 +110,7 @@ const Image = ({ viewType, content, getLocalAnalysisCallback, title }) => {
 
   return (
     <Grid item lg={12} md={12} xl={12} xs={12}
-      className={
-        ['LOADINGVIEW', 'DASHBOARDVIEW', 'ERRORVIEW'].includes(viewType)
-          ? classes.root
-          : classes.side
-      }
+      className={classes.root}
     > <Typography gutterBottom>{title}</Typography>
       <ReactCrop
         className={classes.crop}
@@ -141,7 +132,6 @@ const Image = ({ viewType, content, getLocalAnalysisCallback, title }) => {
 };
 Image.propTypes = {
   isToggled: PropTypes.bool,
-  viewType: PropTypes.string,
   content: PropTypes.string,
   watershed: PropTypes.array,
   title: PropTypes.string,

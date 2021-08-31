@@ -2,7 +2,7 @@ import React from "react";
 import axios from "axios";
 
 
-import { FormControl, InputAdornment, Input, FormHelperText, Button, makeStyles, TextField } from '@material-ui/core';
+import { FormControl, InputAdornment, Button, makeStyles, TextField } from '@material-ui/core';
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -53,10 +53,10 @@ const SignUpLoginForm = () => {
 
     return (
         <div className={classes.root}>
-            <div>Sign up / Login:</div>
+
             <form onSubmit={onSubmit} className={classes.form}>
 
-                <FormControl>
+                {/*                 <FormControl>
                     <TextField id="my-input" helperText={error} label="Email" error={error.length === 0 ? false : true} onChange={e => {
                         setEmail(e.target.value);
                     }} />
@@ -71,7 +71,7 @@ const SignUpLoginForm = () => {
                             </InputAdornment>
                         ),
                     }} />
-                </FormControl>
+                </FormControl> */}
                 <FormControl>
                     <TextField type='password' helperText={error} label="Token" error={error.length === 0 ? false : true} onChange={e => {
                         setToken(e.target.value);

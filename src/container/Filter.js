@@ -4,10 +4,10 @@ import PropTypes from 'prop-types';
 import * as d3 from 'd3';
 
 import { Grid, Typography, makeStyles, Container, Button, ButtonGroup } from '@material-ui/core';
-import AddCircleOutlineOutlinedIcon from '@material-ui/icons/AddCircleOutlineOutlined';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import InputWidget from 'src/widgets/InputWidget';
 
 
 const useStyles = makeStyles(() => ({
@@ -72,6 +72,12 @@ const useStyles = makeStyles(() => ({
       visibility: 'visible',
     },
   },
+  hidden: {
+    visibility: 'hidden'
+  },
+  shown: {
+    visibility: 'visible'
+  },
   overlay: {
     visibility: 'hidden',
     position: 'absolute',
@@ -112,7 +118,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 const FilterBox = ({
-  filterAmount,
+  filterName,
   name: reference,
   filterActivationCallback,
   filterHeatmapCallback,
@@ -120,65 +126,67 @@ const FilterBox = ({
   filterIndex,
   images,
   filterImgSize,
-  filterGraphCallback,
-  filterStatisticsCallback,
-  filterSamplesCallback
+  filterInspectionCallback,
+  filterSamplesCallback,
+  nameCallback,
+  hasActivationStats, hasRelevanceStats,
+  currentTab
 }) => {
   const classes = useStyles(filterImgSize);
   const [imgState, setImages] = React.useState([]);
-  const [filterWidth, setFilterWidth] = React.useState(null);
-
   const [isHovered, setHovered] = React.useState(false);
-
   const inputRef = React.useRef();
 
-  function triggerTransitionPiping() {
-
-    d3.select(inputRef.current)
-
+  async function triggerTransitionPiping(viewtype) {
+    filterInspectionCallback(filterIndex, viewtype);
+    /* let svg = d3.select(inputRef.current);
+    svg.selectAll('rect')
       // First, make the bar wider
       .transition()
       .duration(2000)
-      .attr("width", "400")
+      .attr("width", "400"); */
 
-      // Second, higher
-      .transition()
-      .attr("height", "100")
+    const flavoursContainer = document.getElementById('root');
+    console.log(flavoursContainer);
+    const flavoursScrollWidth = flavoursContainer.scrollWidth;
 
-      // Change its color
-      .transition()
-      .style("fill", "red")
 
-      // And now very small
-      .transition()
-      .duration(200)
-      .attr("height", "10")
-      .attr("width", "10")
+    if (flavoursContainer.scrollLeft !== flavoursScrollWidth) {
+
+      document.getElementById('root').scrollTo({
+        left: flavoursScrollWidth,
+        behavior: 'smooth',
+      })
+    }
+
+
   }
 
 
+
   React.useEffect(() => {
-    console.log(inputRef);
-    let svg = d3.select(inputRef.current)
-      .append('svg')
-      .attr('width', 500)
-      .attr('height', 500);
-    let rect_width = 95;
-    svg.selectAll('rect')
-      .data([100, 200])
-      .enter()
-      .append('rect')
-      .attr('x', (d, i) => 5 + i * (rect_width + 5))
-      .attr('y', d => 500 - d)
-      .attr('width', rect_width)
-      .attr('height', d => d)
-      .attr('fill', 'teal');
-    const fWidth = getComputedStyle(document.getElementsByName('filter')[0])
-      .getPropertyValue("width")
-      .trim(); // the result have a leading whitespace.
-    setFilterWidth(
-      fWidth
-    );
+    /*  console.log(inputRef);
+     window.addEventListener('scroll', handleScroll, true);
+     let svg = d3.select(inputRef.current)
+       .append('svg')
+       .attr('width', 500)
+       .attr('height', 500)
+     let rect_width = 95;
+     svg.selectAll('rect')
+       .data([100, 200])
+       .enter()
+       .append('rect')
+       .attr('x', (d, i) => 5 + i * (rect_width + 5))
+       .attr('y', d => 500 - d)
+       .attr('width', rect_width)
+       .attr('height', d => d)
+       .attr('fill', 'teal'); */
+    /*  const fWidth = getComputedStyle(document.getElementsByName('filter')[0])
+       .getPropertyValue("width")
+       .trim(); // the result have a leading whitespace.
+     setFilterWidth(
+       fWidth
+     ); */
 
   }, []);
 
@@ -187,19 +195,30 @@ const FilterBox = ({
 
   React.useEffect(() => {
     const makeImages = async () => {
-      const filterImages = [];
-      for (let i = 0; i < images.length; i++) {
-        const img = `data:image/png;base64,${images[i]}`;
+
+      if (images instanceof Array) {
+        const filterImages = [];
+        for (let i = 0; i < images.length; i++) {
+          const img = `data:image/png;base64,${images[i]}`;
+          filterImages.push(
+            <Container xs={imageSize} className={classes.test} key={`${reference}_image_index${i}`}>
+              <img src={img} className={classes.image} name={'image'} alt="" />
+            </Container>
+          );
+        }
+        setImages(filterImages);
+      } else {
+        const filterImages = [];
+        const img = `data:image/png;base64,${images}`;
         filterImages.push(
-          <Container xs={imageSize} className={classes.test} key={`${reference}_image_index${i}`}>
+          <Container xs={imageSize} className={classes.test} key={`${reference}_image`}>
             <img src={img} className={classes.image} name={'image'} alt="" />
           </Container>
         );
+        setImages(filterImages);
       }
-      setImages(filterImages);
     };
     if (images && filterImgSize) {
-
       makeImages();
     }
 
@@ -208,16 +227,21 @@ const FilterBox = ({
   const defaultFilter =
     <div className={relevance >= 0 ? classes.positive : classes.negative} name={'filter'}>
       <div className={classes.row}>
-        <div ref={inputRef}>
+        <div >
         </div>
         <Typography variant="body1" gutterBottom fontWeight="300">
-          Relevance:  {relevance}
+          {(currentTab === 'relevance' ? ("Relevance") : ("Activation"))}
+          :  {relevance}
+
         </Typography>
         <Typography variant="body1" gutterBottom>
           Filter:  {filterIndex}
         </Typography>
+        {filterName ? <Typography variant="body1" gutterBottom>
+          Filter name:  {filterName}
+        </Typography> : null}
       </div>
-      <div className={classes.row}>
+      <div className={classes.row} ref={inputRef}>
         <div className={classes.images}  >
           {imgState}
         </div>
@@ -243,16 +267,20 @@ const FilterBox = ({
             </Button>
           </ButtonGroup>
 
-          <ButtonGroup className="mb-2" variant="contained" orientation='vertical' className={classes.buttonRight} >
-            <Button onClick={() => filterGraphCallback(filterIndex)}
-            >
-              Show Graph <ChevronRightIcon></ChevronRightIcon>
-            </Button>
-            <Button onClick={() => (triggerTransitionPiping(), filterStatisticsCallback(filterIndex))}
-            >
-              Show Statistics <ChevronRightIcon></ChevronRightIcon>
-            </Button>
-          </ButtonGroup>
+          <InputWidget filterNameCallback={nameCallback} value={1} id={'filter'}></InputWidget>
+          {((currentTab === 'activation' && hasActivationStats) || (currentTab === 'relevance' && hasRelevanceStats)) ?
+            <ButtonGroup className="mb-2" variant="contained" orientation='vertical' className={classes.buttonRight} >
+              <Button onClick={() => triggerTransitionPiping('GRAPHVIEW')}
+              >
+                Show Graph <ChevronRightIcon></ChevronRightIcon>
+              </Button>
+              <Button onClick={() => triggerTransitionPiping('STATISTICSVIEW')}
+              >
+                Show Statistics <ChevronRightIcon></ChevronRightIcon>
+              </Button>
+            </ButtonGroup>
+            : null
+          }
         </div>
         {/*         <div className={classes.add} onClick={() => filterSamplesCallback(filterIndex)}>
           <Typography variant="body1" gutterBottom className={classes.caption}>
@@ -276,9 +304,8 @@ FilterBox.propTypes = {
   name: PropTypes.string,
   parentCallback: PropTypes.func,
   viewState: PropTypes.string,
-  relevance: PropTypes.number,
+  relevance: PropTypes.string,
   filterIndex: PropTypes.number,
-  images: PropTypes.array,
   filterImgSize: PropTypes.number
 };
 

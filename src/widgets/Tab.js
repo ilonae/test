@@ -40,27 +40,25 @@ const useStyles = makeStyles(() => ({
 }));
 
 
-const TabContent = ({ index, value, parentCallback, layerFilters, filterImgSize,
+const TabContent = ({ index, value, viewTypeCallback, layerFilters, filterImgSize,
     indexCallback,
+    filterInspectionCallback,
     filterSamplesCallback, filterActivationCallback,
-    filterHeatmapCallback, }) => {
+    filterHeatmapCallback, nameCallback,
+    hasActivationStats, hasRelevanceStats, currentTab }) => {
 
     const classes = useStyles();
-    const [filters, setFilters] = React.useState([]);
+    const [filters, setFilters] = React.useState();
     const [filterBoxes, setFilterBoxes] = React.useState([]);
 
-    const filterGraphCallback = value => {
-        parentCallback('GRAPHVIEW');
-        indexCallback(value);
+    const filterGraphCallback = async value => {
+        await indexCallback(value, 'GRAPHVIEW');
     };
-    const filterStatisticsCallback = value => {
-        parentCallback('STATISTICSVIEW');
-        indexCallback(value);
+    const filterStatisticsCallback = async value => {
+        await indexCallback(value, 'STATISTICSVIEW');
     };
-
-    let currLayer;
     React.useEffect(() => {
-        if (layerFilters.length) {
+        if (layerFilters) {
             setFilters(layerFilters)
         }
     }, [layerFilters]);
@@ -68,28 +66,31 @@ const TabContent = ({ index, value, parentCallback, layerFilters, filterImgSize,
 
     React.useEffect(() => {
 
-        if (filters.length) {
-            console.log(value)
-            currLayer = filters[value];
+        if (filters) {
 
-            const filterIndices = currLayer.filter_indices;
+
+            const filterIndices = filters.filter_indices;
             const filterBox = [];
             for (let i = 0; i < filterIndices.length; i++) {
                 const currIndex = filterIndices[i];
-                console.log(currIndex)
+
                 filterBox.push(
                     <Filter
+                        filterName={filters.filter_names[i]}
                         filterAmount={filterIndices.length}
-                        images={currLayer.images[currIndex]}
+                        images={filters.images[currIndex]}
                         filterIndex={currIndex}
                         filterActivationCallback={filterActivationCallback}
                         filterHeatmapCallback={filterHeatmapCallback}
                         key={`filter_index_${i}`}
-                        relevance={currLayer.relevance[i]}
+                        relevance={filters.relevance[i]}
                         filterImgSize={filterImgSize}
-                        filterGraphCallback={filterGraphCallback}
-                        filterStatisticsCallback={filterStatisticsCallback}
+                        filterInspectionCallback={filterInspectionCallback}
                         filterSamplesCallback={filterSamplesCallback}
+                        nameCallback={nameCallback}
+                        currentTab={currentTab}
+                        hasRelevanceStats={hasRelevanceStats}
+                        hasActivationStats={hasActivationStats}
                     />
                 );
             }

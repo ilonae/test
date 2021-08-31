@@ -109,6 +109,24 @@ app.post('/api/png_array', (req, res) => {
     });
 });
 
+app.post('/api/edit_filter_name', (req, res) => {
+  const optionsFilter = {
+    method: req.method,
+    uri: 'http://titan:5050/edit_filter_name',
+    body: JSON.stringify(req.body),
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  };
+  request(optionsFilter)
+    .then(response => {
+      res.status(200).json(response);
+    })
+    .catch(err => {
+      console.log(err);
+    });
+});
+
 app.post('/api/global_analysis', (req, res) => {
   const optionsFilter = {
     method: req.method,
@@ -145,10 +163,10 @@ app.post('/api/heatmap_single_filter', (req, res) => {
     });
 });
 
-app.post('/api/attribution_graph', (req, res) => {
+app.post('/api/get_attribution_graph', (req, res) => {
   const options = {
     method: req.method,
-    uri: 'http://titan:5050/attribution_graph',
+    uri: 'http://titan:5050/get_attribution_graph',
     body: JSON.stringify(req.body),
     headers: {
       'Content-Type': 'application/json'
@@ -236,7 +254,8 @@ app.post('/api/get_XAI_available', (req, res) => {
 app.post('/api/get_local_segments', (req, res) => {
   const options = {
     method: req.method,
-    uri: 'http://titan:5050/get_XAI_available',
+    uri: 'http://titan:5050/get_local_segments',
+    body: JSON.stringify(req.body),
     headers: {
       'Content-Type': 'application/json'
     }

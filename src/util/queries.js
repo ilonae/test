@@ -5,6 +5,7 @@ headers.append('Accept', 'application/json');
 const getLocalAnalysis = async (
   x,
   y,
+  target,
   width,
   height,
   order,
@@ -14,7 +15,7 @@ const getLocalAnalysis = async (
   method,
   filterAmount,
   imageSize,
-  maskId
+  maskId = -1
 
 ) => {
   return await fetch('/api/local_analysis', {
@@ -27,6 +28,7 @@ const getLocalAnalysis = async (
       y,
       width,
       height,
+      target_class: target,
       layer: selectedLayer,
       filter_indices: `${0}:${filterAmount}`,
       sorting: order,
@@ -34,7 +36,7 @@ const getLocalAnalysis = async (
       experiment: experiment,
       image_index: index,
       method: method,
-      mask_id: -1,
+      mask_id: maskId,
       size: imageSize
     })
   }).then(async response => {
@@ -55,7 +57,8 @@ const getImg = async (index, experiment, size) => {
     const json = await response.json();
     const obj = JSON.parse(json);
     const img = `data:image/png;base64,${obj.image}`;
-    return img;
+    const target = obj.ground_truth;
+    return { img, target };
   });
 };
 
@@ -66,12 +69,12 @@ const checkJWT = async () => {
     redirect: 'follow',
     credentials: 'include', // Don't forget to specify this if you need cookies
   }).then(async response => {
-    console.log(response)
+    //console.log(response)
     return response.status
   })
 };
 
-const getHeatmap = async (index, experiment, method, size) => {
+const getHeatmap = async (index, experiment, method, size, target) => {
   return await fetch('/api/get_heatmap', {
     method: 'POST',
     headers: {
@@ -81,18 +84,28 @@ const getHeatmap = async (index, experiment, method, size) => {
       experiment,
       image_index: index,
       method,
-      size
+      size,
+      target_class: target
     })
   }).then(async response => {
     const json = await response.json();
     const obj = JSON.parse(json);
     const heatmap = `data:image/png;base64,${obj.image}`;
-    return heatmap;
+    const imgIndex = obj.image_index;
+    const classes = obj.pred_classes;
+    const confidences = obj.pred_confidences;
+    const values = {
+      heatmap,
+      imgIndex,
+      classes,
+      confidences
+    };
+    return values;
   });
 };
 
-const getAttributionGraph = async (imageIndex, experiment, method, size, layer, filterIndex) => {
-  return await fetch('/api/attribution_graph', {
+const getAttributionGraph = async (imageIndex, experiment, target, method, size, layer, filterIndex, mode) => {
+  return await fetch('/api/get_attribution_graph', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -100,20 +113,23 @@ const getAttributionGraph = async (imageIndex, experiment, method, size, layer, 
     body: JSON.stringify({
       experiment,
       image_index: imageIndex,
+      target_class: target,
       method,
       layer,
       filter_index: filterIndex,
       size,
-      view_prev: 1
+      view_prev: 1,
+      mode
     })
   }).then(async response => {
+    console.log(response)
     const json = await response.json();
     const obj = JSON.parse(json);
     return (obj);
   });
 };
 
-const getStatistics = async (imageIndex, experiment, layer, filterIndex, sorting) => {
+const getStatistics = async (imageIndex, experiment, layer, filterIndex, sorting, mode) => {
   return await fetch('/api/statistics', {
     method: 'POST',
     headers: {
@@ -125,7 +141,8 @@ const getStatistics = async (imageIndex, experiment, layer, filterIndex, sorting
       filter_index: filterIndex,
       sorting,
       image_index: imageIndex,
-      sample_indices: "0:9"
+      sample_indices: "0:9",
+      stats_mode: mode
     })
   }).then(async response => {
     const json = await response.json();
@@ -146,31 +163,38 @@ const getSettings = async () => {
     const experiments = obj.experiments;
     const methods = obj.methods;
     const layers = obj.layers;
-    const cnnLayers = obj.cnn_layers;
-    const synthetics = obj.synthetic;
+    const classIndices = obj.class_to_indices;
     const maxIndices = obj.max_index;
+    const layerModes = obj.layer_modes;
+
     const values = {
       experiments,
       methods,
       layers,
-      cnnLayers,
-      synthetics,
-      maxIndices
+      maxIndices,
+      classIndices,
+      layerModes
     };
     return values;
   });
 };
 
-const getLocalSegments = async () => {
+const getLocalSegments = async (index, experiment, size, method, target) => {
   return await fetch('/api/get_local_segments', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
-    }
+    },
+    body: JSON.stringify({
+      image_index: index,
+      experiment,
+      size,
+      method,
+      target_class: target
+    })
   }).then(async response => {
     const json = await response.json();
     const obj = JSON.parse(json);
-
     return obj;
   });
 };
@@ -178,59 +202,56 @@ const getLocalSegments = async () => {
 const getFilter = async (
   samples,
   layer,
+  target,
   filterAmount,
   order,
   experiment,
   index,
   method,
   size,
-  isCnn = undefined,
-  isSynth = undefined,
-) => {
-  const synthQuery = JSON.stringify({
-    layer: layer,
-    filter_indices: `${0}:${filterAmount}`,
-    sorting: order,
-    sample_indices: `${0}:${samples}`,
-    experiment: experiment,
-    image_index: index,
-    method: method,
-    size,
-    synthetic: isSynth
-  });
+  mode = undefined
 
-  const cnnQuery = JSON.stringify({
-    layer: layer,
-    filter_indices: `${0}:${filterAmount}`,
-    sorting: order,
-    sample_indices: `${0}:${samples}`,
-    experiment: experiment,
-    image_index: index,
-    method: method,
-    size,
-    cnn_activation: isCnn
-  });
+) => {
+
   const defQuery = JSON.stringify({
     layer: layer,
     filter_indices: `${0}:${filterAmount}`,
     sorting: order,
+    target_class: target,
     sample_indices: `${0}:${samples}`,
     experiment: experiment,
     image_index: index,
     method: method,
-    size
+    size,
+    mode
   });
   return await fetch('/api/global_analysis', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
-    body: isCnn !== undefined ? cnnQuery : isSynth !== undefined ? synthQuery : defQuery
+    body: defQuery
   }).then(async response => {
     const json = await response.json();
     const obj = JSON.parse(json);
+    console.log(obj)
     return obj;
   });
+};
+
+const setFilterName = async (experiment, layer, index, name) => {
+  return await fetch('/api/edit_filter_name', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      experiment,
+      layer,
+      filter_index: index,
+      concept_name: name
+    })
+  })
 };
 
 const getWatershed = async (imageIndex, method, experiment, size) => {
@@ -252,7 +273,7 @@ const getWatershed = async (imageIndex, method, experiment, size) => {
   });
 };
 
-const getSingleHeatmap = async (experiment, index, method, filterIndex, layer, imageSize) => {
+const getSingleHeatmap = async (experiment, index, target, method, filterIndex, layer, imageSize) => {
   return await fetch('/api/heatmap_single_filter', {
     method: 'POST',
     headers: {
@@ -261,6 +282,7 @@ const getSingleHeatmap = async (experiment, index, method, filterIndex, layer, i
     body: JSON.stringify({
       image_index: index,
       experiment: experiment,
+      target_class: target,
       size: imageSize,
       image_index: index,
       method: method,
@@ -276,7 +298,7 @@ const getSingleHeatmap = async (experiment, index, method, filterIndex, layer, i
   });
 };
 
-const getSingleActivation = async (experiment, index, method, filterIndex, layer, imageSize) => {
+const getSingleActivation = async (experiment, index, target, method, filterIndex, layer, imageSize) => {
   return await fetch('/api/heatmap_single_filter', {
     method: 'POST',
     headers: {
@@ -285,6 +307,7 @@ const getSingleActivation = async (experiment, index, method, filterIndex, layer
     body: JSON.stringify({
       image_index: index,
       experiment: experiment,
+      target_class: target,
       size: imageSize,
       image_index: index,
       method: method,
@@ -312,7 +335,8 @@ const queries = {
   getSingleActivation,
   getSingleHeatmap,
   checkJWT,
-  getLocalSegments
+  getLocalSegments,
+  setFilterName
 };
 
 export default queries;

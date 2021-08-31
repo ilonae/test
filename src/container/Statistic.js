@@ -45,14 +45,18 @@ const useStyles = makeStyles(() => ({
         textAlign: 'center',
     },
     flex: {
-        display: 'flex',
-        textAlign: 'center',
-        alignSelf: 'center',
-        justifySelf: 'center',
+        display: 'grid',
+        width: '80%',
+        margin: '0 auto',
+        gridTemplateColumns: '40fr 60fr',
+        gap: '10px',
+        padding: '2em',
+        paddingBottom: '0'
     }
 }));
 
 const StatisticBox = ({
+    statistic,
     name,
     relevance,
     images,
@@ -101,7 +105,7 @@ const StatisticBox = ({
             </Typography>
 
             <Typography variant="subtitle1" gutterBottom className={classes.typography} >
-                Relevance:
+                {statistic}:
             </Typography>
             <Typography variant="subtitle1" gutterBottom>
                 {relevance}
@@ -123,7 +127,6 @@ const StatisticBox = ({
 };
 StatisticBox.propTypes = {
     name: PropTypes.string,
-    relevance: PropTypes.number,
     images: PropTypes.array,
     amount: PropTypes.number
 };

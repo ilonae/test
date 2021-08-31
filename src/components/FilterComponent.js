@@ -2,9 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Card, makeStyles, Grid, Typography, Tab, Tabs, withStyles } from '@material-ui/core';
 
-import SortingButton from '../widgets/SortingButton';
+import SortingButton from '../widgets/SortingWidget';
 import TabContent from '../widgets/Tab';
-import Selection from '../widgets/Selection';
+import Selection from '../widgets/SelectionWidget';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -37,15 +37,15 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const FilterComponent = ({
-  selectedLayer,
+  target,
   selectedExperiment,
   selectedMethod,
-  parentCallback,
+  selectedLayer,
+  viewTypeCallback,
   filterActivationCallback,
   filterHeatmapCallback,
   orderCallback,
   order,
-  viewState,
   layers,
   methods,
   models,
@@ -55,14 +55,25 @@ const FilterComponent = ({
   filters,
   filterImgSize,
   indexCallback,
-  filterSamplesCallback
+  filterInspectionCallback,
+  filterSamplesCallback,
+  nameCallback,
+  isSynth,
+  isCnn,
+  isMaxActivation,
+  isMaxRelevanceTarget,
+  hasRelevanceStats,
+  hasActivationStats,
+  analysisCallback
 }) => {
   const [tabCaption, setTabCaption] = React.useState([]);
   const [value, setValue] = React.useState(0);
+  const [currentTab, setCurrentTab] = React.useState('');
 
   const handleChange = (_, newValue) => {
     setValue(newValue);
-    layerCallbackParent(tabCaption[newValue].props.label)
+    setCurrentTab(tabCaption[newValue].props.name)
+    analysisCallback(tabCaption[newValue].props.analysis)
     //layerCallbackParent(value);
   };
   const classes = useStyles();
@@ -109,32 +120,50 @@ const FilterComponent = ({
     selected: {},
   }))((props) => <Tab disableRipple {...props} />);
 
+  const sortingCallback = value => {
+    orderCallback(value);
+  };
+
+
   const experimentsCallback = value => {
     experimentsCallbackParent(value);
+  };
+  const layersCallback = value => {
+    layerCallbackParent(value);
   };
 
   const methodsCallback = value => {
     methodsCallbackParent(value);
   };
 
-  const sortingCallback = value => {
-    orderCallback(value);
-  };
-
-
-
-
+  React.useEffect(() => {
+    if (tabCaption.length) {
+      setCurrentTab(tabCaption[0].props.name)
+    }
+  }, [tabCaption]);
 
   React.useEffect(() => {
-    if (filters && filters.length) {
-      console.log(filters)
-      let tabPanelBox = [];
-      for (let layer in layers) {
-        tabPanelBox.push(<AntTab label={layers[layer]} />)
-      }
-      setTabCaption(tabPanelBox)
+
+    console.log(filters)
+    let tabPanelBox = [];
+    if (isMaxActivation === 1) {
+      tabPanelBox.push(<AntTab label={'Show max activations'} key={0} name={'activation'} analysis={'max_activation'} />)
     }
-  }, [filters, filterActivationCallback, value]);
+    if (isMaxRelevanceTarget === 1) {
+      tabPanelBox.push(<AntTab label={'Show max relevances'} key={1} name={'relevance'} analysis={'max_relevance_target'} />)
+    }
+    if (isSynth === 1) {
+      tabPanelBox.push(<AntTab label={'Show synthetic samples'} key={2} name={'synthetic'} analysis={'synthetic'} />)
+    }
+    if (isCnn === 1) {
+      tabPanelBox.push(<AntTab label={'Show CNN activations'} key={3} name={'cnn'} analysis={'cnn_activation'} />)
+    }
+    setTabCaption(tabPanelBox)
+
+  }, [isSynth,
+    isCnn,
+    isMaxActivation,
+    isMaxRelevanceTarget]);
   return (
     <Card className={classes.root} name={'filterCard'}>
       <Grid className={classes.grid} container spacing={5}>
@@ -144,6 +173,12 @@ const FilterComponent = ({
             selectedParam={selectedExperiment}
             parentCallback={experimentsCallback}
             params={models}
+          />
+          <Selection
+            select={'Layer'}
+            selectedParam={selectedLayer}
+            parentCallback={layersCallback}
+            params={layers}
           />
           <Selection
             select={'Method'}
@@ -157,17 +192,17 @@ const FilterComponent = ({
         <Grid item xs={12}>
 
           <Grid container spacing={5} className={classes.centering} >
-            <Typography gutterBottom  >Explanation ({selectedExperiment} Perception for predicted class ) </Typography>
+            <Typography gutterBottom  >Explanation ({selectedExperiment} Perception for predicted class {target} ) </Typography>
           </Grid>
           <div className={classes.tabs}>
 
             <AntTabs value={value} onChange={handleChange} indicatorColor="primary"
-              textColor="primary" variant='scrollable' centered>
+              textColor="primary" variant='scrollable' >
               {tabCaption}
             </AntTabs>
           </div>
           <Grid item xs={12}>
-            < TabContent indexCallback={indexCallback} parentCallback={parentCallback} filterSamplesCallback={filterSamplesCallback} filterHeatmapCallback={filterHeatmapCallback} filterActivationCallback={filterActivationCallback} value={value} filterImgSize={filterImgSize} layerFilters={filters} />
+            < TabContent nameCallback={nameCallback} filterInspectionCallback={(index, view) => filterInspectionCallback(index, view, currentTab)} currentTab={currentTab} hasRelevanceStats={hasRelevanceStats} hasActivationStats={hasActivationStats} indexCallback={value => indexCallback(value, currentTab)} viewTypeCallback={viewTypeCallback} filterSamplesCallback={filterSamplesCallback} filterHeatmapCallback={filterHeatmapCallback} filterActivationCallback={filterActivationCallback} value={value} filterImgSize={filterImgSize} layerFilters={filters} />
           </Grid>
 
         </Grid>
@@ -181,7 +216,7 @@ FilterComponent.propTypes = {
   selectedExperiment: PropTypes.string,
   selectedMethod: PropTypes.string,
   order: PropTypes.string,
-  parentCallback: PropTypes.func,
+  viewTypeCallback: PropTypes.func,
   experimentsCallbackParent: PropTypes.func,
   methodsCallbackParent: PropTypes.func,
   indexState: PropTypes.number,

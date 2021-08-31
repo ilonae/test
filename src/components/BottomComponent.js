@@ -4,7 +4,7 @@ import clsx from 'clsx';
 
 import PropTypes from 'prop-types';
 import SamplesSwitch from '../widgets/SamplesSwitch';
-import FilterSlider from '../widgets/FilterSlider';
+import FilterSlider from '../widgets/SliderWidget';
 
 const useStyles = makeStyles((theme) => ({
   root: {

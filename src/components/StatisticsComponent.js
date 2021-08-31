@@ -31,7 +31,8 @@ const useStyles = makeStyles(() => ({
         whiteSpace: 'nowrap',
         color: 'white',
         background: '#66BFAC!important',
-        marginTop: '2em'
+        marginTop: '2em',
+        width: '10%'
     },
     imagecontainer: {
         display: 'grid',
@@ -74,7 +75,7 @@ const useStyles = makeStyles(() => ({
 
 
 
-const StatisticsComponent = ({ statistics, viewState, viewCallback, filterIndex }) => {
+const StatisticsComponent = ({ statistics, statisticName, viewState, viewCallback, filterIndex }) => {
 
 
     const classes = useStyles();
@@ -89,6 +90,7 @@ const StatisticsComponent = ({ statistics, viewState, viewCallback, filterIndex 
             for (let i = 0; i < statistics.class_rel.length; i++) {
                 statisticsArr.push(
                     <Statistic
+                        statistic={statisticName}
                         name={statistics.class_name[i]}
                         relevance={statistics.class_rel[i]}
                         images={statistics.image[i]}
@@ -107,23 +109,27 @@ const StatisticsComponent = ({ statistics, viewState, viewCallback, filterIndex 
     }, [view, viewCallback]);
 
     return (
-        <Card className={classes.root}>
-            <Box display="flex" flexDirection="column" width='100%' position="relative">
-                <Box flexGrow={1}>
-                    <Typography gutterBottom variant='h4' align='center' >Similarities with respect of relevance in other classes</Typography>
-
-                    <Typography gutterBottom variant="h6" align='center' >Selected Filter: {filterIndex}</Typography>
-                </Box>
-                <Grid container className={classes.statistics}>
-                    {statisticsBox}
-                </Grid>
-            </Box>
+        <Card className={classes.root} id='statistics'>
             <Button
                 startIcon={<ArrowBackIosIcon />}
                 onClick={() => changeView('DASHBOARDVIEW')}
                 variant="contained"
                 className={classes.buttonback}
             > Return back </Button>
+            <Box display="flex" flexDirection="column" width='100%' position="relative">
+
+                <Box flexGrow={1}>
+
+                    <Typography gutterBottom variant='h4' align='center' >Similarities with respect of {statisticName} in other classes</Typography>
+
+                    <Typography gutterBottom variant="h6" align='center' >Selected Filter: {filterIndex}</Typography>
+                </Box>
+
+                <Grid container className={classes.statistics}>
+                    {statisticsBox}
+                </Grid>
+            </Box>
+
         </Card>
     );
 };
