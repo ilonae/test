@@ -10,7 +10,8 @@ import {
 import Auth from './server/Auth';
 import LandingPage from './LandingPage';
 import Dashboard from './XAIBoard';
-ReactDOM.render(<Router>
+const basename = process.env.REACT_APP_BASENAME || null;
+ReactDOM.render(<Router basename={basename}>
     <Switch>
         <Route exact path='/' component={LandingPage} />
         <Route path='/dashboard' render={props => <Auth><Dashboard {...props} /></Auth>} />

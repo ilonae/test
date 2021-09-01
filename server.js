@@ -13,11 +13,11 @@ const app = express();
 const port = process.env.PORT || 5000;
 const MONGO_URI = "mongodb://127.0.0.1:27017/tutorial_social_login";
 const cors = require('cors')
-
-mongoose
+app.use(cors());
+/* mongoose
   .connect(MONGO_URI, { useNewUrlParser: true })
   .then(console.log(`MongoDB connected ${MONGO_URI}`))
-  .catch(err => console.log(err));
+  .catch(err => console.log(err)); */
 
 // Bodyparser middleware, extended false does not allow nested payloads
 app.use(express.json());
@@ -30,15 +30,19 @@ app.use(
     secret: "very secret this is",
     resave: false,
     saveUninitialized: true,
-    store: MongoStore.create({ mongoUrl: MONGO_URI }),
   })
 );
 
-app.use(express.static('build'));
+const root = require('path').join(__dirname, 'build');
+app.use(express.static(root));
 
-// Passport middleware
-app.use(passport.initialize());
-app.use(passport.session());
+app.use('/*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
+
+//app.use(express.static('build'));
+
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
@@ -66,7 +70,7 @@ const login = (req, res, next) => {
   if (token) {
     jwt.verify(token, process.env.JWT, [algorithm = "HS256"], (err, user) => {
       if (err) {
-        console.log(err)
+        console.log("!" + err)
         return res.sendStatus(403);
       }
       return res

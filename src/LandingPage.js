@@ -36,8 +36,6 @@ const SignUpLoginForm = () => {
         e.preventDefault();
 
         const userData = {
-            email,
-            password,
             token
         };
         axios
