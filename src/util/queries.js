@@ -69,7 +69,7 @@ const checkJWT = async () => {
     redirect: 'follow',
     credentials: 'include', // Don't forget to specify this if you need cookies
   }).then(async response => {
-    //console.log(response)
+    console.log(response)
     return response.status
   })
 };

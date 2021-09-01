@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const request = require('request-promise');
 const jwt = require('jsonwebtoken')
 const cookieParser = require('cookie-parser');
@@ -36,9 +37,6 @@ app.use(
 const root = require('path').join(__dirname, 'build');
 app.use(express.static(root));
 
-app.use('/*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'build', 'index.html'));
-});
 
 //app.use(express.static('build'));
 
@@ -92,8 +90,6 @@ app.get('/verify', authenticateJWT, (req, res) => {
 });
 
 app.post('/', login);
-
-app.get('/dashboard', authenticateJWT);
 
 
 app.post('/api/png_array', (req, res) => {
@@ -308,6 +304,11 @@ app.post('/api/get_heatmap', async (req, res) => {
       console.log(err);
     });
 });
+
+app.use('/*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
+
 
 
 app.listen(port, () => console.log(`Listening on port ${port}`));
