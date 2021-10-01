@@ -158,7 +158,7 @@ const NetworkComponent = ({ graph, viewState, viewCallback, filterIndex }) => {
 
 
 
-      embed.appendChild(inner)
+      //embed.appendChild(inner)
 
       content.appendChild(embed)
 
@@ -176,6 +176,7 @@ const NetworkComponent = ({ graph, viewState, viewCallback, filterIndex }) => {
 
   }
   if (graph) {
+    console.log(graph)
     createGraph();
   }
 

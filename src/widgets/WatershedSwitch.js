@@ -43,10 +43,6 @@ const WatershedSwitch = ({ isToggledCallback }) => {
   const classes = useStyles();
   const [useWatershed, setWatershed] = React.useState(false);
 
-  const toggleButton = async () => {
-    console.log('toggle')
-    setWatershed(prev => !prev);
-  };
   React.useEffect(() => {
     isToggledCallback(useWatershed);
   }, [useWatershed, isToggledCallback]);
@@ -86,7 +82,7 @@ const WatershedSwitch = ({ isToggledCallback }) => {
         >
           <Grid item className={classes.font}>Off</Grid>
           <Grid item>
-            <WSwitch checked={useWatershed} onChange={toggleButton} />
+            <WSwitch checked={useWatershed} onChange={setWatershed(prev => !prev)} />
           </Grid>
           <Grid item className={classes.font}>On</Grid>
         </Grid>

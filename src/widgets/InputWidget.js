@@ -47,54 +47,70 @@ const useStyles = makeStyles(() => ({
 const min = 0;
 const max = 10;
 
-const InputWidget = ({ id, value, type, inputCallback, filterNameCallback, maxIndex, params }) => {
+const InputWidget = ({ id, value, type, input, inputCallback, filterNameCallback, maxIndex, params }) => {
     const [valueState, setValueState] = React.useState(value);
     const [filterName, setFilterName] = React.useState("");
     const classes = useStyles();
 
     return (
-        id == "index" ?
-            <TextField
-                type={type}
-                variant="outlined"
-                className={classes.root}
-                inputProps={{ min, max }}
-                value={valueState}
-                onChange={(e) => {
-                    var value = parseInt(e.target.value);
-                    if (value > maxIndex) value = maxIndex;
-                    if (value < 0) value = 0;
-                    setValueState(value);
-                }}
-                onKeyPress={(ev) => {
-                    if (ev.key === 'Enter') {
-                        inputCallback(valueState)
-                        ev.preventDefault();
-                    }
-                }}
-            /> : id == "name" ? <TextField
-                type={type}
-                label={"Search by class name or index"}
-                {...params}
-                variant="outlined"
-                onChange={(e) => {
-                    inputCallback(e);
-                }}
-            /> : <TextField
-                type={type}
-                className={classes.filter}
-                label={"Edit filter name"}
-                variant="outlined"
-                onChange={(e) => {
-                    setFilterName(e.target.value);
-                }}
-                onKeyPress={(ev) => {
-                    if (ev.key === 'Enter') {
-                        filterNameCallback(filterName)
-                        ev.preventDefault();
-                    }
-                }}
-            />
+        input === "sample" ? <TextField
+            type={type}
+            variant="outlined"
+            className={classes.root}
+            inputProps={{ min, max }}
+            value={valueState}
+            onChange={(e) => {
+                var value = parseInt(e.target.value);
+                if (value > maxIndex) value = maxIndex;
+                if (value < 0) value = 0;
+                setValueState(value);
+            }}
+            onKeyPress={(ev) => {
+                if (ev.key === 'Enter') {
+                    inputCallback(valueState)
+                    ev.preventDefault();
+                }
+            }}
+        /> :
+            id == "index" ?
+                <TextField
+                    type={type}
+                    variant="outlined"
+                    className={classes.root}
+                    inputProps={{ min, max }}
+                    value={valueState}
+                    onChange={(e) => {
+                        var value = parseInt(e.target.value);
+                        if (value > maxIndex) value = maxIndex;
+                        if (value < 0) value = 0;
+                        setValueState(value);
+                    }}
+                    onKeyPress={(ev) => {
+                        if (ev.key === 'Enter') {
+                            inputCallback(valueState)
+                            ev.preventDefault();
+                        }
+                    }}
+                /> : id == "name" ? <TextField
+                    type={type}
+                    label={"Search by class name or index"}
+                    {...params}
+                    variant="outlined"
+                /> : <TextField
+                    type={type}
+                    className={classes.filter}
+                    label={"Edit filter name"}
+                    variant="outlined"
+                    onChange={(e) => {
+                        setFilterName(e.target.value);
+                    }}
+                    onKeyPress={(ev) => {
+                        if (ev.key === 'Enter') {
+                            filterNameCallback(filterName)
+                            ev.preventDefault();
+                        }
+                    }}
+                />
     );
 };
 

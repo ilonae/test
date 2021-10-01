@@ -49,9 +49,9 @@ const FilterComponent = ({
   layers,
   methods,
   models,
-  experimentsCallbackParent,
-  methodsCallbackParent,
-  layerCallbackParent,
+  experimentsCallback,
+  methodsCallback,
+  layerCallback,
   filters,
   filterImgSize,
   indexCallback,
@@ -64,17 +64,27 @@ const FilterComponent = ({
   isMaxRelevanceTarget,
   hasRelevanceStats,
   hasActivationStats,
-  analysisCallback
+  analysisCallback,
+  compareCallback
 }) => {
   const [tabCaption, setTabCaption] = React.useState([]);
   const [value, setValue] = React.useState(0);
   const [currentTab, setCurrentTab] = React.useState('');
+  const [compare, setToCompare] = React.useState(false)
 
   const handleChange = (_, newValue) => {
     setValue(newValue);
-    setCurrentTab(tabCaption[newValue].props.name)
-    analysisCallback(tabCaption[newValue].props.analysis)
-    //layerCallbackParent(value);
+    if (tabCaption[newValue].props.analysis === 'comparison') {
+      setToCompare(!compare)
+      compareCallback(true)
+    }
+    else {
+      setToCompare(false)
+      setCurrentTab(tabCaption[newValue].props.name)
+      analysisCallback(tabCaption[newValue].props.analysis)
+      //layerCallbackParent(value);
+    }
+
   };
   const classes = useStyles();
 
@@ -120,21 +130,6 @@ const FilterComponent = ({
     selected: {},
   }))((props) => <Tab disableRipple {...props} />);
 
-  const sortingCallback = value => {
-    orderCallback(value);
-  };
-
-
-  const experimentsCallback = value => {
-    experimentsCallbackParent(value);
-  };
-  const layersCallback = value => {
-    layerCallbackParent(value);
-  };
-
-  const methodsCallback = value => {
-    methodsCallbackParent(value);
-  };
 
   React.useEffect(() => {
     if (tabCaption.length) {
@@ -151,13 +146,26 @@ const FilterComponent = ({
     }
     if (isMaxRelevanceTarget === 1) {
       tabPanelBox.push(<AntTab label={'Show max relevances'} key={1} name={'relevance'} analysis={'max_relevance_target'} />)
+    } else {
+      tabPanelBox.push(<AntTab label={'Show max relevances'} disabled={true} key={1} name={'relevance'} analysis={'max_relevance_target'} />)
+
     }
     if (isSynth === 1) {
       tabPanelBox.push(<AntTab label={'Show synthetic samples'} key={2} name={'synthetic'} analysis={'synthetic'} />)
     }
+    else {
+      tabPanelBox.push(<AntTab label={'Show synthetic samples'} disabled={true} key={2} name={'synthetic'} analysis={'synthetic'} />)
+
+    }
     if (isCnn === 1) {
       tabPanelBox.push(<AntTab label={'Show CNN activations'} key={3} name={'cnn'} analysis={'cnn_activation'} />)
     }
+    else {
+      tabPanelBox.push(<AntTab label={'Show CNN activations'} disabled={true} key={3} name={'cnn'} analysis={'cnn_activation'} />)
+
+    }
+    tabPanelBox.push(<AntTab label={'Compare activation and relevance'} key={4} name={'compare'} analysis={'comparison'} />)
+
     setTabCaption(tabPanelBox)
 
   }, [isSynth,
@@ -177,7 +185,7 @@ const FilterComponent = ({
           <Selection
             select={'Layer'}
             selectedParam={selectedLayer}
-            parentCallback={layersCallback}
+            parentCallback={layerCallback}
             params={layers}
           />
           <Selection
@@ -186,13 +194,13 @@ const FilterComponent = ({
             parentCallback={methodsCallback}
             params={methods}
           />
-          <SortingButton parentOrder={order} parentCallback={sortingCallback} />
+          <SortingButton parentOrder={order} parentCallback={orderCallback} />
 
         </Grid>
         <Grid item xs={12}>
 
           <Grid container spacing={5} className={classes.centering} >
-            <Typography gutterBottom  >Explanation ({selectedExperiment} Perception for predicted class {target} ) </Typography>
+            <Typography gutterBottom  >Explanation (Target class: {target} ) </Typography>
           </Grid>
           <div className={classes.tabs}>
 
@@ -201,9 +209,21 @@ const FilterComponent = ({
               {tabCaption}
             </AntTabs>
           </div>
-          <Grid item xs={12}>
-            < TabContent nameCallback={nameCallback} filterInspectionCallback={(index, view) => filterInspectionCallback(index, view, currentTab)} currentTab={currentTab} hasRelevanceStats={hasRelevanceStats} hasActivationStats={hasActivationStats} indexCallback={value => indexCallback(value, currentTab)} viewTypeCallback={viewTypeCallback} filterSamplesCallback={filterSamplesCallback} filterHeatmapCallback={filterHeatmapCallback} filterActivationCallback={filterActivationCallback} value={value} filterImgSize={filterImgSize} layerFilters={filters} />
-          </Grid>
+
+          {compare ?
+            (<Grid container>
+              <Grid item xs={6}>
+                < TabContent currentTab={currentTab} value={value} filterImgSize={filterImgSize} layerFilters={filters} />
+              </Grid>
+              <Grid item xs={6}>
+                < TabContent currentTab={currentTab} value={value} filterImgSize={filterImgSize} layerFilters={filters} />
+              </Grid>
+            </Grid>)
+            : (<Grid item xs={12}>
+              < TabContent nameCallback={nameCallback} filterInspectionCallback={(index, view) => filterInspectionCallback(index, view, currentTab)} currentTab={currentTab} hasRelevanceStats={hasRelevanceStats} hasActivationStats={hasActivationStats} indexCallback={value => indexCallback(value, currentTab)} viewTypeCallback={viewTypeCallback} filterSamplesCallback={filterSamplesCallback} filterHeatmapCallback={filterHeatmapCallback} filterActivationCallback={filterActivationCallback} value={value} filterImgSize={filterImgSize} layerFilters={filters} />
+            </Grid>)
+          }
+
 
         </Grid>
       </Grid>

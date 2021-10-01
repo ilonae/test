@@ -11,13 +11,7 @@ import InputWidget from 'src/widgets/InputWidget';
 
 
 const useStyles = makeStyles(() => ({
-  image: () => ({
-    border: '1px solid #555',
-    verticalAlign: 'middle',
-    width: '100%',
-    height: '100%',
-    display: 'block'
-  }),
+
   buttons: {
     display: 'flex',
     justifyContent: 'space-between',
@@ -38,7 +32,6 @@ const useStyles = makeStyles(() => ({
   row: {
     wordWrap: 'break-word',
     display: 'inline-flex',
-    gap: '2em',
     alignItems: "center",
   },
   centering: {
@@ -52,6 +45,12 @@ const useStyles = makeStyles(() => ({
     marginTop: '1em',
     gridTemplateColumns: 'repeat(9, 1fr)',
     gap: "1em"
+  },
+  image: {
+    border: '1px solid #555',
+    verticalAlign: 'middle',
+    width: '100%',
+    height: "auto"
   },
   singleActivation: {
     height: '80%',
@@ -91,11 +90,6 @@ const useStyles = makeStyles(() => ({
     transition: '.1s ease',
     backgroundColor: 'rgba(100, 100, 100, 0.7)',
   },
-  test: {
-    padding: ' 2px',
-    overflow: 'hidden',
-    minWidth: '0'
-  },
   negative: {
     position: 'relative',
     margin: 'auto',
@@ -130,7 +124,8 @@ const FilterBox = ({
   filterSamplesCallback,
   nameCallback,
   hasActivationStats, hasRelevanceStats,
-  currentTab
+  currentTab,
+  filterPosition
 }) => {
   const classes = useStyles(filterImgSize);
   const [imgState, setImages] = React.useState([]);
@@ -139,29 +134,39 @@ const FilterBox = ({
 
   async function triggerTransitionPiping(viewtype) {
     filterInspectionCallback(filterIndex, viewtype);
-    /* let svg = d3.select(inputRef.current);
-    svg.selectAll('rect')
-      // First, make the bar wider
-      .transition()
-      .duration(2000)
-      .attr("width", "400"); */
+  }
 
-    const flavoursContainer = document.getElementById('root');
-    console.log(flavoursContainer);
-    const flavoursScrollWidth = flavoursContainer.scrollWidth;
+  const plot = (svg) => {
+    var element = svg.node().parentNode.parentNode;
+    var position = element.getBoundingClientRect();
+    var x = position.left;
+    var y = position.top;
+    let width = element.clientWidth;
+    let height = element.clientHeight;
+    console.log(x, y)
+    let img = document.getElementsByClassName('ReactCrop__image')[1];
 
-
-    if (flavoursContainer.scrollLeft !== flavoursScrollWidth) {
-
-      document.getElementById('root').scrollTo({
-        left: flavoursScrollWidth,
-        behavior: 'smooth',
-      })
-    }
-
+    const defs = svg.append("defs");
+    const marker = defs.append("marker");
+    const g = svg.append("g");
+    const arrow = g.append("path")
 
   }
 
+  React.useEffect(() => {
+    const createBarPlot = () => {
+
+      var canvas = d3.select(inputRef.current)
+      var f = canvas.insert("svg", ":first-child")
+
+      plot(f);
+    }
+    if (filterPosition) {
+      console.log(filterPosition)
+      createBarPlot()
+
+    }
+  }, [filterPosition]);
 
 
   React.useEffect(() => {
@@ -201,9 +206,7 @@ const FilterBox = ({
         for (let i = 0; i < images.length; i++) {
           const img = `data:image/png;base64,${images[i]}`;
           filterImages.push(
-            <Container xs={imageSize} className={classes.test} key={`${reference}_image_index${i}`}>
-              <img src={img} className={classes.image} name={'image'} alt="" />
-            </Container>
+            <img src={img} className={classes.image} key={`${reference}_image_index${i}`} name={'image'} alt="" />
           );
         }
         setImages(filterImages);
@@ -211,9 +214,7 @@ const FilterBox = ({
         const filterImages = [];
         const img = `data:image/png;base64,${images}`;
         filterImages.push(
-          <Container xs={imageSize} className={classes.test} key={`${reference}_image`}>
-            <img src={img} className={classes.image} name={'image'} alt="" />
-          </Container>
+          <img src={img} className={classes.image} key={`${reference}_image`} name={'image'} alt="" />
         );
         setImages(filterImages);
       }
@@ -224,13 +225,13 @@ const FilterBox = ({
 
   }, [images, classes.image, reference, filterImgSize, imageSize]);
 
-  const defaultFilter =
+  const defaultFilter = <div className={classes.row, 'filters'} ref={inputRef}>
     <div className={relevance >= 0 ? classes.positive : classes.negative} name={'filter'}>
       <div className={classes.row}>
         <div >
         </div>
         <Typography variant="body1" gutterBottom fontWeight="300">
-          {(currentTab === 'relevance' ? ("Relevance") : ("Activation"))}
+          Relevance
           :  {relevance}
 
         </Typography>
@@ -241,13 +242,12 @@ const FilterBox = ({
           Filter name:  {filterName}
         </Typography> : null}
       </div>
-      <div className={classes.row} ref={inputRef}>
-        <div className={classes.images}  >
-          {imgState}
-        </div>
 
+      <div className={classes.images}  >
+        {imgState}
       </div>
-      <div className={classes.overlay}>
+
+      {hasActivationStats ? <div className={classes.overlay}>
         <div className={classes.buttons}>
           <ButtonGroup className="mb-2" variant="contained" orientation='vertical' className={classes.buttonLeft} >
             <Button
@@ -290,7 +290,11 @@ const FilterBox = ({
         </div> */}
 
       </div>
-    </div >;
+
+        : null
+      }
+    </div >
+  </div>;
 
 
   return (

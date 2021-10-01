@@ -1,7 +1,5 @@
 import React from "react";
-import axios from "axios";
-
-
+import socketIOClient from "socket.io-client";
 import { FormControl, InputAdornment, Button, makeStyles, TextField } from '@material-ui/core';
 
 const useStyles = makeStyles(() => ({
@@ -24,36 +22,36 @@ const useStyles = makeStyles(() => ({
     }
 }))
 
-const SignUpLoginForm = () => {
+const SignUpLoginForm = ({ socket }) => {
+
     const [email, setEmail] = React.useState("");
     const [error, setError] = React.useState("");
     const [password, setPassword] = React.useState("");
     const [token, setToken] = React.useState("");
-
     const classes = useStyles();
 
     const onSubmit = e => {
         e.preventDefault();
-
-        const userData = {
-            token
-        };
-        axios
-            .post("/", userData)
-            .then(res => {
+        socket
+            .on('authenticated', function () {
                 window.location = "/dashboard"
             })
-            .catch(err => {
-                console.log(err);
-                setError('Enter valid login data');
-            });
+            .emit('authenticate', { token });
+        /*         axios
+                    .post("/", userData)
+                    .then(res => {
+                        window.location = "/dashboard"
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        setError('Enter valid login data');
+                    }); */
     };
+
 
     return (
         <div className={classes.root}>
-
             <form onSubmit={onSubmit} className={classes.form}>
-
                 {/*                 <FormControl>
                     <TextField id="my-input" helperText={error} label="Email" error={error.length === 0 ? false : true} onChange={e => {
                         setEmail(e.target.value);
@@ -96,16 +94,12 @@ const SignUpLoginForm = () => {
     );
 };
 
-const SignupLoginModal = props => {
+const LandingPage = (props) => {
     return (
         <div show={props.show} onHide={() => props.setShow(false)}>
-
-
-            <SignUpLoginForm />
-
+            <SignUpLoginForm socket={props.socket} />
         </div>
-
     );
 };
 
-export default SignupLoginModal;
+export default LandingPage;

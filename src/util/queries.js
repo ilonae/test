@@ -1,3 +1,5 @@
+
+import socketIOClient from "socket.io-client";
 var headers = new Headers();
 headers.append('Content-Type', 'application/json');
 headers.append('Accept', 'application/json');
@@ -54,24 +56,36 @@ const getImg = async (index, experiment, size) => {
     },
     body: JSON.stringify({ image_index: index, experiment, size })
   }).then(async response => {
+
     const json = await response.json();
     const obj = JSON.parse(json);
+    console.log(obj);
     const img = `data:image/png;base64,${obj.image}`;
     const target = obj.ground_truth;
     return { img, target };
   });
 };
 
+
 const checkJWT = async () => {
-  return await fetch('/verify', {
-    method: 'GET',
-    mode: 'same-origin',
-    redirect: 'follow',
-    credentials: 'include', // Don't forget to specify this if you need cookies
-  }).then(async response => {
-    console.log(response)
-    return response.status
-  })
+  const { token } = sessionStorage;
+  const socket = socketIOClient('http://localhost:5000');
+
+  socket.on('connect', function () {
+    console.log("client")
+    socket
+
+      .emit('authenticate', { token }); //send the jwt
+  });
+  /*   return await fetch('/', {
+      method: 'GET',
+      mode: 'same-origin',
+      redirect: 'follow',
+      credentials: 'include', // Don't forget to specify this if you need cookies
+    }).then(async response => {
+      console.log(response)
+      return response.status
+    }) */
 };
 
 const getHeatmap = async (index, experiment, method, size, target) => {
@@ -85,7 +99,8 @@ const getHeatmap = async (index, experiment, method, size, target) => {
       image_index: index,
       method,
       size,
-      target_class: target
+      target_class: target,
+      N_pred: 0
     })
   }).then(async response => {
     const json = await response.json();

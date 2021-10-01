@@ -2,17 +2,13 @@ import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import queueries from '../util/queries';
 
-let jwt;
-
 class Auth extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
             Authenticated: false,
-
         };
-
     }
 
     async componentDidMount() {

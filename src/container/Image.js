@@ -20,7 +20,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const Image = ({ content, getLocalAnalysisCallback, title }) => {
+const Image = ({ id, content, getLocalAnalysisCallback, title }) => {
   const classes = useStyles();
 
   const [crop, setCrop] = React.useState({
@@ -111,8 +111,9 @@ const Image = ({ content, getLocalAnalysisCallback, title }) => {
   return (
     <Grid item lg={12} md={12} xl={12} xs={12}
       className={classes.root}
+      id={id}
     > <Typography gutterBottom>{title}</Typography>
-      <ReactCrop
+      < ReactCrop
         className={classes.crop}
 
         imageStyle={{

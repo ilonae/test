@@ -4,6 +4,7 @@
   },
   "include": [
     "src",
-    "server.js"
+    "server.js",
+    "route.js"
   ]
 }

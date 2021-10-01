@@ -65,10 +65,7 @@ const TabContent = ({ index, value, viewTypeCallback, layerFilters, filterImgSiz
 
 
     React.useEffect(() => {
-
-        if (filters) {
-
-
+        if (filters && Object.keys(filters.images).length !== 0) {
             const filterIndices = filters.filter_indices;
             const filterBox = [];
             for (let i = 0; i < filterIndices.length; i++) {
@@ -76,6 +73,7 @@ const TabContent = ({ index, value, viewTypeCallback, layerFilters, filterImgSiz
 
                 filterBox.push(
                     <Filter
+                        filterPosition={filters.position[currIndex]}
                         filterName={filters.filter_names[i]}
                         filterAmount={filterIndices.length}
                         images={filters.images[currIndex]}
@@ -100,7 +98,7 @@ const TabContent = ({ index, value, viewTypeCallback, layerFilters, filterImgSiz
 
     return (
 
-        <div className={classes.root}>
+        <div className={classes.root} >
             < Grid container spacing={5} className={classes.centering}>
                 {filterBoxes}
             </Grid>

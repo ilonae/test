@@ -72,10 +72,14 @@
     "react-scripts": "^4.0.0",
     "react-scroll": "^1.8.3",
     "react-scroll-to-component": "^1.0.2",
+    "react-simple-arrows": "^0.2.0",
     "react-tree-graph": "^6.0.0",
     "request-promise": "^4.2.6",
     "save": "^2.4.0",
-    "serve": "^11.3.2"
+    "serve": "^11.3.2",
+    "socket.io": "^4.2.0",
+    "socket.io-client": "^4.2.0",
+    "socketio-jwt": "^4.6.2"
   },
   "devDependencies": {
     "concurrently": "^4.0.1",

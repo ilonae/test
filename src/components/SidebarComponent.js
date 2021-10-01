@@ -6,6 +6,7 @@ import Image from '../container/Image';
 import InputWidget from 'src/widgets/InputWidget';
 import * as d3 from 'd3';
 import SearchIcon from '@material-ui/icons/Search';
+import { parseSvg } from 'd3-interpolate/src/transform/parse';
 const useStyles = makeStyles({
   images: {
     maxHeight: '90%',
@@ -21,7 +22,7 @@ const useStyles = makeStyles({
     height: '91vh',
     padding: '3vh',
     textAlign: 'center',
-    display: 'flex',
+    display: 'grid',
     flexDirection: 'column',
   },
   imgs: {
@@ -57,46 +58,52 @@ const SidebarComponent = ({
   classIndexCallback,
   image,
   heatmap,
-  parentLACallback,
+  localAnalysisCallback,
   index: parentIndex,
   classIndices,
   heatmapClasses,
   heatmapConfidences,
-  targetCallback
+  targetCallback,
+  processTargetCallback
+
 }) => {
   const classes = useStyles();
   const inputRef = React.useRef();
 
   const [index, setIndex] = React.useState(0);
+  const [isInitial, setInitial] = React.useState(true);
   const [barPlots, updateBarPlots] = React.useState();
   const [contentWidth, setContentWidth] = React.useState(null);
-  const [currentClassIndices, changeCurrentClassIndices] = React.useState(classIndices);
-
-  const inputCallback = value => {
-    console.log(value)
-    indexCallback(value);
-  };
+  const [currentClassIndices, changeCurrentClassIndices] = React.useState();
 
   const onInputChange = (event, value) => {
-    classIndexCallback(value)
+    if (value !== null && classIndices && isNumeric(value)) {
+      for (const [k, v] of Object.entries(classIndices)) {
+        let num = parseInt(value);
+        if (v.includes(num)) {
+          targetCallback(k);
+        }
+      }
+    }
+    //correct autocomplete target
+    if (value !== null && !isNumeric(value)) {
+      targetCallback(value)
+    }
+    else {
+      console.log(value)
+    }
   }
 
-  const localAnalysisCallback = (x, y, width, height) => {
-    parentLACallback(x, y, width, height);
-  };
+  function isNumeric(value) {
+    return /^\d+$/.test(value);
+  }
+
 
   React.useEffect(() => {
     if (Object.keys(classIndices).length > 0) {
       const classNames = Object.keys(classIndices);
-
-      /* Object.values(classIndices).forEach((entry) => {
-        console.log(entry);
-      }); */
-      //classEntries.map(k, v)
       changeCurrentClassIndices(classNames);
     }
-    console.log(classIndices)
-
   }, [classIndices]);
 
   const plot = (chart, width, height, data) => {
@@ -108,11 +115,9 @@ const SidebarComponent = ({
     });
 
     //if you want to just keep top three
-    sortedData = sortedData.filter(function (d, i) {
-      return i < 5;
-    });
 
     const index = d3.local();
+    const tickIndex = d3.local();
     const x = d3
       .scaleLinear()
       .domain([0, sortedBars])
@@ -154,6 +159,7 @@ const SidebarComponent = ({
       .attr('fill', 'rgba(102,191,172,1)')
     chart.selectAll("rect").attr("id", function (d, i) { return "bar_" + i; });
 
+
     chart
       .append('g')
       .attr('class', 'chartbarTextWrap')
@@ -174,28 +180,56 @@ const SidebarComponent = ({
         targetCallback(d.classname);
         let bar_index = index.get(this);
         let current_index = index.get(this);
+        console.log(bar_index)
         d3.select(inputRef.current).selectAll("rect")
           .transition()
           .duration(500)
           .attr("y", function (d, i) {
-            index.set(this, current_index + 1);
-            console.log(current_index)
-            return (y(i) + y(current_index))
+            if (i < current_index) {
+              return (y(i + 1))
+            }
+            else if (i > current_index) {
+              return (y(i))
+            }
+            else if (i === current_index) {
+              return y(0);
+            }
           })
         d3.select(inputRef.current).selectAll("text")
           .transition()
           .duration(500)
           .attr("y", function (d, i) {
-            return ((y(i) + y.bandwidth() / 2) + y(current_index))
+            if (i < current_index) {
+              return (y(i + 1) + y.bandwidth() / 2)
+            }
+            else if (i > current_index) {
+              return (y(i) + y.bandwidth() / 2)
+            }
+            else {
+              return (y(0) + y.bandwidth() / 2);
+            }
           })
-        d3.select(inputRef.current).selectAll("#bar_" + bar_index)
-          .transition()
-          .duration(500)
-          .attr('y', y(0));
-        d3.select(inputRef.current).selectAll("#chartText_" + bar_index)
-          .transition()
-          .duration(500)
-          .attr('y', y(0) + y.bandwidth() / 2);
+        d3.select(inputRef.current).selectAll('.tick')
+          .each(function (d, i) {
+            tickIndex.set(this, i);
+          })
+          .call(selection => selection
+            .selectAll('text')
+            .attr("dy", function (d, i) {
+              let current_index = tickIndex.get(this);
+
+              if (i === current_index) {
+                return y(0);
+              }
+
+              else if (i < current_index) {
+                return (y(i + 1))
+              }
+              else if (i > current_index) {
+                return (y(i))
+              }
+
+            }));
       })
     chart.selectAll("text").attr("id", function (d, i) { return "chartText_" + i; });
     chart.append('g').call(yAxis);
@@ -204,10 +238,10 @@ const SidebarComponent = ({
   React.useEffect(() => {
     const createBarPlot = () => {
       let object = [];
-      for (let className in heatmapClasses) {
+      for (let className in heatmapConfidences) {
         object.push({ "classname": heatmapClasses[className], "confidence": heatmapConfidences[className] })
       }
-      console.log(object)
+
       let iWidth = getComputedStyle(document.getElementsByName('inputsCard')[0])
         .getPropertyValue("width")
         .trim();
@@ -222,8 +256,8 @@ const SidebarComponent = ({
       plot(canvas, iWidth, iWidth, object);
     }
     if (heatmapClasses.length &&
-      heatmapConfidences.length) {
-      console.log(heatmapClasses)
+      heatmapConfidences.length && isInitial) {
+      setInitial(false);
       createBarPlot();
     }
   }, [heatmapClasses,
@@ -239,13 +273,18 @@ const SidebarComponent = ({
     <Card className={classes.root} name={'inputsCard'}>
       <Grid className={classes.imgs}  >
         <Grid container className={classes.tools} >
-          <Typography gutterBottom>True class: {target}</Typography>
+          <Typography gutterBottom>Target class: {target}</Typography>
         </Grid>
         <Grid container
           className={
             classes.images
           }
         >
+
+          <Typography gutterBottom>Analyze image by index: </Typography>
+          <InputWidget value={index} type="number" input={"sample"} id={'index'} inputCallback={indexCallback} maxIndex={maxIndex}></InputWidget>
+
+
           <Image
             content={image}
             title={'Image'}
@@ -262,16 +301,16 @@ const SidebarComponent = ({
 
       </Grid>
       <Grid className={classes.search}>
-        {currentClassIndices.length > 0 ? <Autocomplete
+        <Typography gutterBottom>Target: </Typography>
+        <Autocomplete
           id="combo-box-demo"
           freeSolo
-          options={currentClassIndices}
+          options={heatmapClasses}
           style={{ width: contentWidth, }}
           onChange={onInputChange}
           renderInput={(params) =>
-            <InputWidget value={index} params={params} id={'name'} type="text" inputCallback={inputCallback} />}
-        /> : <InputWidget value={index} type="number" id={'index'} inputCallback={inputCallback} maxIndex={maxIndex}></InputWidget>}
-
+            <InputWidget value={target} params={params} input={"target"} id={'name'} type="text" />}
+        />
         <div className={classes.svg} ref={inputRef} >
         </div>
       </Grid>
