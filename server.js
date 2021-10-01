@@ -1,6 +1,7 @@
 
 const express = require('express');
 const http = require("http");
+const path = require('path');
 const cookieParser = require('cookie-parser');
 const session = require("express-session");
 /* const MongoStore = require("connect-mongo");
@@ -26,13 +27,22 @@ const io = socketIo(httpServer, {
 const MONGO_URI = "mongodb://127.0.0.1:27017/tutorial_social_login"; */
 const cors = require('cors')
 app.use(cors());
+app.use(bodyParser.json());
+
+// add middlewares
+const root = require('path').join(__dirname, 'build');
+app.use(express.static(root));
+
+app.use('/*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
 /* mongoose
   .connect(MONGO_URI, { useNewUrlParser: true })
   .then(console.log(`MongoDB connected ${MONGO_URI}`))
   .catch(err => console.log(err)); */
 // Bodyparser middleware, extended false does not allow nested payloads
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+/* app.use(express.json());
+app.use(express.urlencoded({ extended: false })); */
 // Express Session
 app.use(
   session({
