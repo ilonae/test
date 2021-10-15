@@ -113,19 +113,14 @@ const Image = ({ id, content, getLocalAnalysisCallback, title }) => {
       className={classes.root}
       id={id}
     > <Typography gutterBottom>{title}</Typography>
-      < ReactCrop
+      < img
+        name={"img"}
         className={classes.crop}
-
-        imageStyle={{
-          imageRendering: 'crisp-edges',
-          height: '100%',
-          width: 'auto'
-        }}
         src={content}
-        crop={crop}
-        onImageLoaded={onImageLoaded}
-        onComplete={onCropComplete}
-        onChange={onCropChange}
+      /*  crop={crop}
+       onImageLoaded={onImageLoaded}
+       onComplete={onCropComplete}
+       onChange={onCropChange} */
       />
 
     </Grid>

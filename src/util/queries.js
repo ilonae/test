@@ -73,9 +73,7 @@ const checkJWT = async () => {
 
   socket.on('connect', function () {
     console.log("client")
-    socket
-
-      .emit('authenticate', { token }); //send the jwt
+    socket.emit('authenticate', { token }); //send the jwt
   });
   /*   return await fetch('/', {
       method: 'GET',

@@ -9,8 +9,9 @@ const useStyles = makeStyles(() => ({
         height: '91vh',
         padding: '3vh',
         position: 'relative',
-        overflow: 'auto',
+        overflow: 'scroll',
         width: "100%",
+        marginBottom: "10vh"
     },
 
     label: {
@@ -42,6 +43,8 @@ const useStyles = makeStyles(() => ({
 
 const TabContent = ({ index, value, viewTypeCallback, layerFilters, filterImgSize,
     indexCallback,
+    target,
+    placeholder,
     filterInspectionCallback,
     filterSamplesCallback, filterActivationCallback,
     filterHeatmapCallback, nameCallback,
@@ -66,6 +69,7 @@ const TabContent = ({ index, value, viewTypeCallback, layerFilters, filterImgSiz
 
     React.useEffect(() => {
         if (filters && Object.keys(filters.images).length !== 0) {
+            console.log(filters)
             const filterIndices = filters.filter_indices;
             const filterBox = [];
             for (let i = 0; i < filterIndices.length; i++) {
@@ -73,15 +77,22 @@ const TabContent = ({ index, value, viewTypeCallback, layerFilters, filterImgSiz
 
                 filterBox.push(
                     <Filter
+                        target={target}
+                        position={filters.position[currIndex]}
+                        partial={filters.partial[currIndex]}
+                        synthetic={filters.synthetic[currIndex]}
+                        activation={filters.activations[currIndex]}
+                        cnnActivation={filters.cnnActivations[currIndex]}
                         filterPosition={filters.position[currIndex]}
                         filterName={filters.filter_names[i]}
                         filterAmount={filterIndices.length}
                         images={filters.images[currIndex]}
+                        placeholder={placeholder}
                         filterIndex={currIndex}
                         filterActivationCallback={filterActivationCallback}
                         filterHeatmapCallback={filterHeatmapCallback}
                         key={`filter_index_${i}`}
-                        relevance={filters.relevance[i]}
+                        relevance={filters.relevance[currIndex]}
                         filterImgSize={filterImgSize}
                         filterInspectionCallback={filterInspectionCallback}
                         filterSamplesCallback={filterSamplesCallback}
@@ -98,7 +109,7 @@ const TabContent = ({ index, value, viewTypeCallback, layerFilters, filterImgSiz
 
     return (
 
-        <div className={classes.root} >
+        <div className={classes.root} id="scroll">
             < Grid container spacing={5} className={classes.centering}>
                 {filterBoxes}
             </Grid>

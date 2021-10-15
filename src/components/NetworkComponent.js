@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import ReactDOMServer from 'react-dom/server';
 import PropTypes from 'prop-types';
 import Button from '@material-ui/core/Button';
 import DagreGraph from 'dagre-d3-react'
@@ -14,7 +15,8 @@ const useStyles = makeStyles(() => ({
     height: '72vh',
     position: 'relative',
     display: 'flex',
-    flexDirection: 'row'
+    flexDirection: 'row',
+    width: "100%"
   },
   nodes: {
     fill: 'darkgray'
@@ -79,7 +81,7 @@ const NetworkComponent = ({ graph, viewState, viewCallback, filterIndex }) => {
 
 
   const classes = useStyles();
-  const [view, changeView] = React.useState(viewState);
+  const [view, changeView] = React.useState("GRAPHVIEW");
 
   const [showInfo, setInfoView] = React.useState(false);
 
@@ -113,7 +115,7 @@ const NetworkComponent = ({ graph, viewState, viewCallback, filterIndex }) => {
       graph.links[link]['config'] = { curve: d3.curveBasis, arrowheadStyle: "fill: #009374;", labelStyle: "font-family: roboto", style: 'font-family: roboto;color: #009374;stroke: #009374;fill: none; stroke-width: ' + linkThickness + 'px;cursor:pointer' };
     }
     const filterBox = [];
-    for (const node in graph.nodes) {
+    for (let node = 0; node < graph.nodes.length; node++) {
       graph.nodes[node]['labelType'] = 'html';
       graph.nodes[node]['config'] = { style: 'fill: #CCEAE3; cursor:pointer, width:200px, height:200px' };
       const nodeId = graph.nodes[node]['id'];
@@ -122,28 +124,46 @@ const NetworkComponent = ({ graph, viewState, viewCallback, filterIndex }) => {
       content = document.createElement("div");
       var imgs = document.createElement("div");
       imgs.setAttribute('class', classes.imagecontainer);
+      const currNode = graph.nodes[node].id
       //imgs.classList.add(classes.imagecontainer);
-      for (let img in graph.properties[nodeId]['images']) {
-        var image = document.createElement('img');
-        image.src = 'data:image/png;base64,' + graph.properties[nodeId]['images'][img];
-        image.setAttribute('class', classes.images);
-        imgs.appendChild(image)
-
-      }
+      /*  for (let img in graph.properties[nodeId]['images']) {
+         var image = document.createElement('img');
+         image.src = 'data:image/png;base64,' + graph.properties[nodeId]['images'][img];
+         image.setAttribute('class', classes.images);
+         imgs.appendChild(image)
+ 
+       } */
       //content.appendChild(imgs);
 
-      /*  const filter = <Filter
-         filterAmount={graph.nodes.length}
-         images={graph.properties[nodeId]['images']}
-         filterIndex={node}
-         filterActivationCallback={console.log('hi')}
-         filterHeatmapCallback={console.log('hi')}
-         key={`filter_index_${node}`}
-         relevance={1}
-         filterImgSize={20}
-         filterGraphCallback={console.log('hi')}
-         filterStatisticsCallback={console.log('hi')}
-       />;*/
+      const filter = <Filter
+        target={""}
+        view={viewState}
+        position={0}
+        partial={""}
+        synthetic={""}
+        activation={""}
+        cnnActivation={""}
+        filterPosition={0}
+        filterName={""}
+        filterAmount={graph.nodes.length}
+        images={[""]}
+        placeholder={""}
+        filterIndex={graph.properties[currNode].filter_index}
+        filterActivationCallback={console.log('hi')}
+        filterHeatmapCallback={console.log('hi')}
+        key={`filter_index_${node}`
+        }
+        relevance={2}
+        filterImgSize={28}
+        filterInspectionCallback={console.log('hi')}
+        filterSamplesCallback={console.log('hi')}
+        nameCallback={console.log('hi')}
+        currentTab={"test"}
+        hasRelevanceStats={0}
+        hasActivationStats={0}
+      />;
+
+
 
 
       const embed = document.createElement("div");
@@ -160,7 +180,9 @@ const NetworkComponent = ({ graph, viewState, viewCallback, filterIndex }) => {
 
       //embed.appendChild(inner)
 
-      content.appendChild(embed)
+      content.innerHTML = ReactDOMServer.renderToStaticMarkup(filter
+      );
+
 
 
 

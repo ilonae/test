@@ -8,6 +8,7 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import InputWidget from 'src/widgets/InputWidget';
+import { ImageAspectRatio } from '@material-ui/icons';
 
 
 const useStyles = makeStyles(() => ({
@@ -31,8 +32,9 @@ const useStyles = makeStyles(() => ({
   caption: { display: 'table-caption' },
   row: {
     wordWrap: 'break-word',
-    display: 'inline-flex',
+    display: 'flex',
     alignItems: "center",
+    marginLeft: "1em"
   },
   centering: {
     textAlign: 'center',
@@ -40,11 +42,24 @@ const useStyles = makeStyles(() => ({
   },
   images: {
     height: 'auto',
-    width: '90%',
+    width: '75%',
     display: 'grid',
     marginTop: '1em',
-    gridTemplateColumns: 'repeat(9, 1fr)',
+    gridTemplateColumns: 'repeat(9,1fr)',
     gap: "1em"
+  },
+  analysis: {
+    display: "flex",
+    flexDirection: "column",
+    height: 'auto',
+    width: '15%',
+    marginLeft: "2%"
+  },
+  margins: {
+    marginLeft: "2em",
+    border: '1px solid #555',
+    verticalAlign: 'middle',
+    height: "auto"
   },
   image: {
     border: '1px solid #555',
@@ -66,13 +81,20 @@ const useStyles = makeStyles(() => ({
     justifyContent: 'center',/* For horizontal alignment */
     paddingBottom: '3%',
     paddingTop: '3%',
-    paddingLeft: "5%",
+    paddingLeft: "3%",
     "&:hover >*": {
       visibility: 'visible',
     },
   },
   hidden: {
     visibility: 'hidden'
+  },
+  rotated: {
+    transform: 'rotate(-90deg) translate(-100%, 0)',
+    transformOrigin: 'top left',
+    textAlign: "center",
+    fontSize: "small"
+
   },
   shown: {
     visibility: 'visible'
@@ -123,11 +145,23 @@ const FilterBox = ({
   filterInspectionCallback,
   filterSamplesCallback,
   nameCallback,
-  hasActivationStats, hasRelevanceStats,
+  hasActivationStats,
+  hasRelevanceStats,
   currentTab,
-  filterPosition
+  filterPosition,
+  target,
+  placeholder,
+  activation = null,
+  partial = null,
+  synthetic = null,
+  position = null,
+  view
 }) => {
   const classes = useStyles(filterImgSize);
+  const [partialState, setPartialState] = React.useState([]);
+
+  const [syntheticState, setSyntheticState] = React.useState([]);
+  const [actState, setActivations] = React.useState([]);
   const [imgState, setImages] = React.useState([]);
   const [isHovered, setHovered] = React.useState(false);
   const inputRef = React.useRef();
@@ -163,7 +197,7 @@ const FilterBox = ({
     }
     if (filterPosition) {
       console.log(filterPosition)
-      createBarPlot()
+      //createBarPlot()
 
     }
   }, [filterPosition]);
@@ -198,58 +232,91 @@ const FilterBox = ({
 
   var imageSize = images.length === 9 ? 4 : 12;
 
-  React.useEffect(() => {
-    const makeImages = async () => {
+  const makeImages = async (images, stateToSet, name) => {
 
-      if (images instanceof Array) {
-        const filterImages = [];
-        for (let i = 0; i < images.length; i++) {
-          const img = `data:image/png;base64,${images[i]}`;
-          filterImages.push(
-            <img src={img} className={classes.image} key={`${reference}_image_index${i}`} name={'image'} alt="" />
-          );
-        }
-        setImages(filterImages);
-      } else {
-        const filterImages = [];
-        const img = `data:image/png;base64,${images}`;
+    if (images instanceof Array) {
+      const filterImages = [];
+      filterImages.push(
+
+      )
+      for (let i = 0; i < images.length; i++) {
+        const img = `data:image/png;base64,${images[i]}`;
         filterImages.push(
-          <img src={img} className={classes.image} key={`${reference}_image`} name={'image'} alt="" />
+          <img
+            src={img} className={classes.image} id={"imgg"} key={`${reference}_image_index${i}`} name={'image'} alt="" />
         );
-        setImages(filterImages);
       }
-    };
-    if (images && filterImgSize) {
-      makeImages();
+      stateToSet(filterImages);
+    } else {
+      const filterImages = [];
+      filterImages.push(
+        <Typography key={1} className={classes.rotated}>{name}</Typography>
+      )
+      const img = `data:image/png;base64,${images}`;
+      filterImages.push(
+        <img
+          src={img} className={classes.margins} key={`${reference}_image`} name={'image'} alt="" />
+      );
+      stateToSet(filterImages);
     }
+  };
 
-  }, [images, classes.image, reference, filterImgSize, imageSize]);
+  React.useEffect(() => {
+    if (activation && filterImgSize) {
+      makeImages(activation, setActivations, "Activations");
+    }
+    else if (partial) {
+      makeImages(partial, setPartialState, "R(x|theta={" + target + " or " + filterIndex + "})");
+    }
+    else if (synthetic) {
+      makeImages(synthetic, setSyntheticState, "Synthetic");
+    }
+    if (images && filterImgSize) {
+      makeImages(images, setImages, "Samples");
+    }
+  }, [activation, images, classes.image, reference, filterImgSize, imageSize]);
 
   const defaultFilter = <div className={classes.row, 'filters'} ref={inputRef}>
     <div className={relevance >= 0 ? classes.positive : classes.negative} name={'filter'}>
-      <div className={classes.row}>
+      <div className={classes.row} >
         <div >
         </div>
-        <Typography variant="body1" gutterBottom fontWeight="300">
+        <Typography variant="body1" fontWeight="300">
           Relevance
           :  {relevance}
-
         </Typography>
-        <Typography variant="body1" gutterBottom>
+        <Typography variant="body1" style={{ marginLeft: 20 }}>
           Filter:  {filterIndex}
         </Typography>
-        {filterName ? <Typography variant="body1" gutterBottom>
+        {filterName ? <Typography variant="body1" >
           Filter name:  {filterName}
         </Typography> : null}
-      </div>
+      </div><div className={classes.row}>
+        {partial ?
+          <div className={classes.analysis}>{partialState}</div> : null}
 
-      <div className={classes.images}  >
-        {imgState}
-      </div>
+        {synthetic ?
+          <div className={classes.analysis}>{syntheticState}</div> : null}
+        <div className={classes.row} style={{ flexWrap: 'wrap' }} >
+          <div className={classes.row}>
+            <Typography className={classes.rotated} >R(x|theta={filterIndex} )</Typography>
+            <div className={classes.images}  >
+              {actState}
+            </div>
+          </div>
 
-      {hasActivationStats ? <div className={classes.overlay}>
-        <div className={classes.buttons}>
-          <ButtonGroup className="mb-2" variant="contained" orientation='vertical' className={classes.buttonLeft} >
+          <div className={classes.row}>
+            <Typography className={classes.rotated}>Sample</Typography>
+            <div className={classes.images}  >
+              {imgState}
+            </div>
+          </div>
+        </div>
+      </div>
+      {view !== "GRAPHVIEW" ?
+        <div className={classes.overlay}>
+          <div className={classes.buttons}>
+            {/*          <ButtonGroup className="mb-2" variant="contained" orientation='vertical' className={classes.buttonLeft} >
             <Button
               onClick={() => filterActivationCallback(filterIndex)}
             ><ChevronLeftIcon></ChevronLeftIcon>
@@ -266,33 +333,38 @@ const FilterBox = ({
               Show more Samples
             </Button>
           </ButtonGroup>
-
-          <InputWidget filterNameCallback={nameCallback} value={1} id={'filter'}></InputWidget>
-          {((currentTab === 'activation' && hasActivationStats) || (currentTab === 'relevance' && hasRelevanceStats)) ?
-            <ButtonGroup className="mb-2" variant="contained" orientation='vertical' className={classes.buttonRight} >
-              <Button onClick={() => triggerTransitionPiping('GRAPHVIEW')}
-              >
-                Show Graph <ChevronRightIcon></ChevronRightIcon>
-              </Button>
-              <Button onClick={() => triggerTransitionPiping('STATISTICSVIEW')}
-              >
-                Show Statistics <ChevronRightIcon></ChevronRightIcon>
-              </Button>
-            </ButtonGroup>
-            : null
-          }
-        </div>
-        {/*         <div className={classes.add} onClick={() => filterSamplesCallback(filterIndex)}>
+ */}{/* 
+          <InputWidget filterNameCallback={nameCallback} value={1} id={'filter'}></InputWidget> */}
+            {((currentTab === 'activation' && hasActivationStats) || (currentTab === 'relevance' && hasRelevanceStats)) ?
+              <ButtonGroup className="mb-2" variant="contained" orientation='vertical' className={classes.buttonRight} >
+                <Button onClick={() => triggerTransitionPiping('GRAPHVIEW')}
+                >
+                  Show Graph <ChevronRightIcon></ChevronRightIcon>
+                </Button>
+                <Button onClick={() => triggerTransitionPiping('STATISTICSVIEW')}
+                >
+                  Show Statistics <ChevronRightIcon></ChevronRightIcon>
+                </Button>
+              </ButtonGroup>
+              : <ButtonGroup className="mb-2" variant="contained" orientation='vertical' className={classes.buttonRight} >
+                <Button onClick={() => triggerTransitionPiping('GRAPHVIEW')}
+                >
+                  Show Graph <ChevronRightIcon></ChevronRightIcon>
+                </Button>
+              </ButtonGroup>
+            }
+          </div>
+          {/*         <div className={classes.add} onClick={() => filterSamplesCallback(filterIndex)}>
           <Typography variant="body1" gutterBottom className={classes.caption}>
             <AddCircleOutlineOutlinedIcon fontSize='large' />
             more samples
           </Typography>
         </div> */}
 
-      </div>
+        </div>
 
-        : null
-      }
+        : null}
+
     </div >
   </div>;
 

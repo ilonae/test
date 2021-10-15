@@ -1,4 +1,5 @@
 import React from 'react';
+
 import PropTypes from 'prop-types';
 import { Card, makeStyles, Grid, Typography, Tab, Tabs, withStyles } from '@material-ui/core';
 
@@ -12,7 +13,7 @@ const useStyles = makeStyles((theme) => ({
     padding: '3vh',
     position: 'relative',
     overflow: 'hidden',
-    width: "100%",
+    width: "100%"
   },
 
   innergrid: {
@@ -71,6 +72,20 @@ const FilterComponent = ({
   const [value, setValue] = React.useState(0);
   const [currentTab, setCurrentTab] = React.useState('');
   const [compare, setToCompare] = React.useState(false)
+
+
+
+
+  var placeholder = async () => {
+    return await fetch('/img', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    }).then(async response => {
+      console.log(response)
+    });
+  };
 
   const handleChange = (_, newValue) => {
     setValue(newValue);
@@ -213,14 +228,14 @@ const FilterComponent = ({
           {compare ?
             (<Grid container>
               <Grid item xs={6}>
-                < TabContent currentTab={currentTab} value={value} filterImgSize={filterImgSize} layerFilters={filters} />
+                < TabContent currentTab={currentTab} placeholder={placeholder} target={target} value={value} filterImgSize={filterImgSize} layerFilters={filters} />
               </Grid>
               <Grid item xs={6}>
-                < TabContent currentTab={currentTab} value={value} filterImgSize={filterImgSize} layerFilters={filters} />
+                < TabContent currentTab={currentTab} placeholder={placeholder} value={value} target={target} filterImgSize={filterImgSize} layerFilters={filters} />
               </Grid>
             </Grid>)
             : (<Grid item xs={12}>
-              < TabContent nameCallback={nameCallback} filterInspectionCallback={(index, view) => filterInspectionCallback(index, view, currentTab)} currentTab={currentTab} hasRelevanceStats={hasRelevanceStats} hasActivationStats={hasActivationStats} indexCallback={value => indexCallback(value, currentTab)} viewTypeCallback={viewTypeCallback} filterSamplesCallback={filterSamplesCallback} filterHeatmapCallback={filterHeatmapCallback} filterActivationCallback={filterActivationCallback} value={value} filterImgSize={filterImgSize} layerFilters={filters} />
+              < TabContent nameCallback={nameCallback} placeholder={placeholder} target={target} filterInspectionCallback={(index, view) => filterInspectionCallback(index, view, currentTab)} currentTab={currentTab} hasRelevanceStats={hasRelevanceStats} hasActivationStats={hasActivationStats} indexCallback={value => indexCallback(value, currentTab)} viewTypeCallback={viewTypeCallback} filterSamplesCallback={filterSamplesCallback} filterHeatmapCallback={filterHeatmapCallback} filterActivationCallback={filterActivationCallback} value={value} filterImgSize={filterImgSize} layerFilters={filters} />
             </Grid>)
           }
 

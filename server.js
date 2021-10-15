@@ -1,7 +1,6 @@
 
 const express = require('express');
 const http = require("http");
-const path = require('path');
 const cookieParser = require('cookie-parser');
 const session = require("express-session");
 /* const MongoStore = require("connect-mongo");
@@ -13,6 +12,7 @@ const route = require('./route');
 const EventEmitter = require('events');
 const jwt = require('jsonwebtoken');
 
+const fs = require('fs');
 
 const myEmitter = new EventEmitter();
 const app = express();
@@ -27,22 +27,13 @@ const io = socketIo(httpServer, {
 const MONGO_URI = "mongodb://127.0.0.1:27017/tutorial_social_login"; */
 const cors = require('cors')
 app.use(cors());
-app.use(bodyParser.json());
-
-// add middlewares
-const root = require('path').join(__dirname, 'build');
-app.use(express.static(root));
-
-app.use('/*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'build', 'index.html'));
-});
 /* mongoose
   .connect(MONGO_URI, { useNewUrlParser: true })
   .then(console.log(`MongoDB connected ${MONGO_URI}`))
   .catch(err => console.log(err)); */
 // Bodyparser middleware, extended false does not allow nested payloads
-/* app.use(express.json());
-app.use(express.urlencoded({ extended: false })); */
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 // Express Session
 app.use(
   session({
@@ -51,11 +42,33 @@ app.use(
     saveUninitialized: true,
   })
 );
-app.use(express());
+app.use(express.static('public'))
 //app.use(express.static('build'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use('/route', route)
+app.use(express.static('images'));
+
+app.get('/img', function (req, res) {
+  try {
+    var full_path = "src/util/White-square.jpg"
+
+    fs.exists(full_path, function (exists) {
+      if (!exists) {
+        res.redirect("/");
+      } else {
+        fs.readFile(full_path, "binary", function (err, file) {
+          res.writeHeader(200);
+          res.write(file, "binary");
+          res.end();
+        });
+        console.log(res)
+      }
+    });
+  } catch (err) {
+    res.render('500.jade', {});
+  }
+});
 app.set('event', myEmitter) // Attach the event emitter to use on routes
 const connections = []
 
@@ -71,22 +84,17 @@ io
       socket.emit('message', data);
     });
     socket.on('authenticate', function (data) {
-      console.log(data)
       const token = data.token;
       if (token) {
         jwt.verify(token, process.env.JWT, [algorithm = "HS256"], (err, user) => {
           if (err) {
             console.log(err)
-            //return res.sendStatus(403);
           }
           else {
-            console.log("emit")
             socket.emit('authenticated', { done: 'Done', data: data });
           }
         });
-
       }
-
     });
   });
 
@@ -98,6 +106,8 @@ myEmitter.on('my-event', (data) => {
     socket.emit('notify', data)
   })
 })
+
+
 
 /* const getApiAndEmit = socket => {
   const response = new Date();

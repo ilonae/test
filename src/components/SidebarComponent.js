@@ -75,6 +75,8 @@ const SidebarComponent = ({
   const [barPlots, updateBarPlots] = React.useState();
   const [contentWidth, setContentWidth] = React.useState(null);
   const [currentClassIndices, changeCurrentClassIndices] = React.useState();
+  const [currentHeatmapClasses, changeCurrentHeatmapClasses] = React.useState();
+
 
   const onInputChange = (event, value) => {
     if (value !== null && classIndices && isNumeric(value)) {
@@ -112,7 +114,8 @@ const SidebarComponent = ({
 
     var sortedData = data.sort(function (a, b) {
       return d3.descending(a.confidence, b.confidence)
-    });
+    }).slice(0, 10)
+
 
     //if you want to just keep top three
 
@@ -256,8 +259,8 @@ const SidebarComponent = ({
       plot(canvas, iWidth, iWidth, object);
     }
     if (heatmapClasses.length &&
-      heatmapConfidences.length && isInitial) {
-      setInitial(false);
+      heatmapConfidences.length && currentHeatmapClasses !== heatmapClasses) {
+      changeCurrentHeatmapClasses(heatmapClasses)
       createBarPlot();
     }
   }, [heatmapClasses,
@@ -292,7 +295,7 @@ const SidebarComponent = ({
           />
           <Image
             content={heatmap}
-            title={'Heatmap'}
+            title={'R(x|theta={' + target + '})'}
             getLocalAnalysisCallback={localAnalysisCallback}
           />
         </Grid>
