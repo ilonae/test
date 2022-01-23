@@ -1,0 +1,8 @@
+{
+    "scripts": {
+        "serve": "live-server public/",
+        "build": "webpack",
+        "dev-server": "react-scripts --openssl-legacy-provider  start"
+    },
+    "proxy": "http://localhost:3000/"
+}
