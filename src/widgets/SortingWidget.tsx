@@ -5,14 +5,10 @@ import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
 
 type SortingButtonProps = {
   order?: string,
-  parentOrder: string,
   parentCallback?: (...args: any[]) => any
 };
 
-const SortingButton: React.FC<SortingButtonProps> = ({
-  parentCallback,
-  parentOrder
-}) => {
+const SortingButton: React.FC<SortingButtonProps> = (props: SortingButtonProps) => {
   const [descending, setSorting] = React.useState(true);
   const [order, setOrder] = React.useState("");
   const inputEl = React.useRef();
@@ -22,24 +18,16 @@ const SortingButton: React.FC<SortingButtonProps> = ({
   React.useEffect(
     () => {
       if (order) {
-        parentCallback(order);
+        props.parentCallback(order);
       }
     },
-    [order, parentCallback]
+    [order]
   );
   React.useEffect(
     () => {
       setOrder(descending ? "max" : "min");
     },
     [descending]
-  );
-  React.useEffect(
-    () => {
-      if (parentOrder) {
-        setOrder(parentOrder);
-      }
-    },
-    [parentOrder]
   );
 
   return (
@@ -54,11 +42,11 @@ const SortingButton: React.FC<SortingButtonProps> = ({
       }}
       onClick={handleChange}
       ref={inputEl}
-      value={order}
-      startIcon={order === "max" ? <ArrowDownwardIcon /> : <ArrowUpwardIcon />}
+      value={props.order}
+      startIcon={props.order === "max" ? <ArrowDownwardIcon /> : <ArrowUpwardIcon />}
     >
       <Typography noWrap>
-        {order === "max"
+        {props.order === "max"
           ? "Sort by lowest contribution"
           : "Sort by highest contribution"}
       </Typography>

@@ -50,6 +50,7 @@ export interface TabProps {
     filter_indices: any[]
   },
   name: string,
+  viewState: string,
   filterImgSize: number,
   indexCallback: (...args: any[]) => any,
   target: string,
@@ -102,7 +103,7 @@ const TabContent: React.FC<TabProps> = (props: TabProps) => {
             filterBox.push(
               <Filter
                 target={props.target}
-                view={""}
+                viewState={props.viewState}
                 position={filters.position[currIndex]}
                 partial={filters.partial[currIndex]}
                 synthetic={filters.synthetic[currIndex]}

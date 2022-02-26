@@ -255,7 +255,7 @@ export const FilterComponent: React.FC<FilterProps> = (props: FilterProps) => {
             parentCallback={props.methodsCallback}
             params={props.methods}
           />
-          <SortingButton parentOrder={props.order} parentCallback={props.orderCallback} />
+          <SortingButton order={props.order} parentCallback={props.orderCallback} />
 
         </Grid>
         <Grid item xs={12} style={{ height: "inherit" }}>
@@ -274,6 +274,7 @@ export const FilterComponent: React.FC<FilterProps> = (props: FilterProps) => {
             (<Grid container style={{ height: "inherit" }}>
               <Grid item xs={6} style={{ height: "inherit" }}>
                 < TabContent
+                  viewState={props.viewState}
                   nameCallback={props.nameCallback}
                   placeholder={placeholder}
                   target={props.target}
@@ -294,6 +295,7 @@ export const FilterComponent: React.FC<FilterProps> = (props: FilterProps) => {
               </Grid>
               <Grid item xs={6} style={{ height: "inherit" }}>
                 < TabContent
+                  viewState={props.viewState}
                   nameCallback={props.nameCallback}
                   placeholder={placeholder}
                   target={props.target}
@@ -317,6 +319,7 @@ export const FilterComponent: React.FC<FilterProps> = (props: FilterProps) => {
                 nameCallback={props.nameCallback}
                 placeholder={placeholder}
                 target={props.target}
+                viewState={props.viewState}
                 filterInspectionCallback={(index, view) => props.filterInspectionCallback(index, view, currentTab)}
                 currentTab={currentTab}
                 hasRelevanceStats={props.hasRelevanceStats}

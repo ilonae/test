@@ -64,14 +64,7 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
 
   const indicesFlag = React.useRef(true);
   const xaiFlag = React.useRef(true);
-  const cImg = React.useRef([]);
-  const cRel = React.useRef([]);
-  const cNames = React.useRef([]);
-  const stats = React.useRef({
-    image: [],
-    class_name: [],
-    class_rel: []
-  });
+
 
   const [viewType, changeViewType] = React.useState('DASHBOARDVIEW');
   const [filterAmount,] = React.useState(6);
@@ -81,7 +74,6 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
   const [filterImgSize, setFilterImgSize] = React.useState(28);
   const [order, setOrder] = React.useState('max');
 
-  const [index, changeIndex] = React.useState(0);
   const [filterIndex, changeFilterIndex] = React.useState(0);
   const [currentAnalysis, setCurrentAnalysis] = React.useState('max_activation');
   const [currentTabName, setCurrentTabName] = React.useState('');
@@ -94,9 +86,6 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
 
   const [methods, setMethods] = React.useState();
   const [method, changeMethod] = React.useState('');
-
-  const [heatmapClasses, changeHeatmapClasses] = React.useState([]);
-  const [heatmapConfidences, changeHeatmapConfidences] = React.useState([]);
 
   const [layer, changeLayer]: any[] = React.useState([]);
   const [singleLayer, setSingleLayer] = React.useState('');
@@ -128,8 +117,6 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
   const [hasRelevanceStats, changeRelevanceStats] = React.useState(0);
   const [hasActivationStats, changeActivationStats] = React.useState(0);
 
-  const [image, setImage] = React.useState('');
-  const [heatmap, setHeatmap] = React.useState('');
   const [target, setTarget] = React.useState('');
 
 
@@ -144,14 +131,34 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
     cnn_activations: {},
     position: {}
   });
+  interface graphProps {
+    images?: {
+      [key: string]: any[]
+    };
+    nodes?: any[];
+    links?: any[];
+    properties?: {
+      [key: string]:
+      {
+        layer: string,
+        filter_index: number
+      }
+    }
+  }
 
-  const [graphData, setGraphData] = React.useState({
-    images: []
+  const [graphData, setGraphData] = React.useState<graphProps>({
+    nodes: [],
+    properties: {},
+    links: [],
+    images: {}
   });
+
+
+
   const [statisticsData, setStatisticsData] = React.useState({
-    image: [],
-    class_name: [],
-    class_rel: []
+    images: {},
+    classNames: {},
+    classRelevances: {}
   });
   const [, setPrevView] = React.useState('');
   const [prevParams, setPrevParams] = React.useState({});
@@ -173,9 +180,32 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
     modes: ['max_activation', 'max_relevance_target'],
     cnn_activations: { 'max_activation': {}, 'max_relevance_target': {} }
   });
+  const [layerInfo, setLayerInfo]: any = React.useState({
+    experimentUpdate: false,
+    updateAfterAnalysis: false,
+    glocalAnalysisUpdate: false,
+    experiment: "",
+    method: "",
+    layer: [],
+    index: 0,
+    target: "",
+    singleLayer: "",
+    currentImage: '',
+    currentHeatmap: "",
+    currentHeatmapClasses: [],
+    currentHeatmapConfidences: [],
+    currentLayerModes: [],
+    currentClassIndices: [],
+    maxIndex: 0,
+    filters: {
+      filter_indices: [],
+      filter_names: {},
+      filter_relevances: {},
+    },
+    order: 'max',
+    currentAnalysis: "max_activation"
+  });
   const [filterDataUpdate, setFilterDataUpdate] = React.useState(false);
-  const [experimentUpdate, setExperimentUpdate] = React.useState(false);
-  const [glocalAnalysisUpdate, setGlocalAnalysisUpdate] = React.useState(false);
   const [targetUpdate, setTargetUpdate] = React.useState(false);
 
   const [isWatershed,] = React.useState(false);
@@ -237,7 +267,7 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
         var position = filters[i].getBoundingClientRect();
         var x = position.left;
         var y = position.top + (position.height / 2);
-        console.log(Object.values(currPosition)[i])
+        //console.log(Object.values(currPosition)[i])
         let currPos: any = Object.values(currPosition)[i];
         currPos = currPos.replace(/[\[\]']+/g, '');
         currPos = currPos.split(",");
@@ -267,8 +297,9 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
           var len = bytes.byteLength;
           for (var i = 0; i < len; i++) {
             binary += String.fromCharCode(bytes[i]);
-            currData.synthetic[item] = window.btoa(binary)
           }
+
+          currData.synthetic[item] = window.btoa(binary)
         }
 
         setFilterData(currData);
@@ -287,8 +318,8 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
             Object.keys(currData.partial).forEach((k) => {
               for (var i = 0; i < len; i++) {
                 binary += String.fromCharCode(bytes[i]);
-                currData.partial[k][item] = window.btoa(binary)
               }
+              currData.partial[k][item] = window.btoa(binary)
               currData.position[k][item] = data.pos_filter[item]
             })
           }
@@ -303,8 +334,9 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
             var len = bytes.byteLength;
             for (var i = 0; i < len; i++) {
               binary += String.fromCharCode(bytes[i]);
-              currData.partial[item] = window.btoa(binary)
+
             }
+            currData.partial[item] = window.btoa(binary)
             currData.position[item] = data.pos_filter[item];
           }
           setFilterData(currData);
@@ -312,78 +344,120 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
         }
       });
       props.socket.once('receive_data', (data: any) => {
-        changeIndex(data.image_index);
-        setTarget(data.ground_truth[0]);
+
         var arrayBufferView = new Uint8Array(data['image']);
         var blob = new Blob([arrayBufferView], { type: "image/jpeg" });
         var img_url = URL.createObjectURL(blob);
-        setImage(img_url);
-        setTargetUpdate(true)
+        setLayerInfo((layerInfo: any) => ({
+          ...layerInfo,
+          currentImage: img_url,
+          target: data.ground_truth[0]
 
-        props.socket.emit('get_global_analysis',
-          {
-            "layer": singleLayer,
-            "experiment": experiment,
-            "filter_indices": "0:5",
-            "sorting": order,
-            "image_index": data.image_index,
-            "method": method,
-            "zero_list_filter": [],
-            "zero_layer": singleLayer,
-            "target_class": data.ground_truth[0]
-          },
-          currentAnalysis,
-          {
-            "size": filterImgSize + 100,
-            "sample_indices": "0:9"
-          });
+        }));
+        setTargetUpdate(true)
+        /*  if (layerInfo.singleLayer && layerInfo.experiment && layerInfo.method) {
+           props.socket.emit('get_global_analysis',
+             {
+               "layer": layerInfo.singleLayer,
+               "experiment": layerInfo.experiment,
+               "filter_indices": "0:5",
+               "sorting": layerInfo.order,
+               "image_index": data.image_index,
+               "method": layerInfo.method,
+               "zero_list_filter": [],
+               "zero_layer": layerInfo.singleLayer,
+               "target_class": data.ground_truth[0]
+             },
+             layerInfo.currentAnalysis,
+             {
+               "size": filterImgSize + 100,
+               "sample_indices": "0:9"
+             });
+         } */
+
       });
       props.socket.once('receive_heatmap', (data: any) => {
         var arrayBufferView = new Uint8Array(data['image']);
         var blob = new Blob([arrayBufferView], { type: "image/jpeg" });
         var img_url = URL.createObjectURL(blob);
-        changeHeatmapClasses(data.pred_classes);
+        setLayerInfo((layerInfo: any) => ({
+          ...layerInfo,
+          currentHeatmap: img_url,
+          currentHeatmapClasses: data.pred_classes,
+          currentHeatmapConfidences: data.pred_confidences
+
+        }));
+        /* changeHeatmapClasses(data.pred_classes);
         changeHeatmapConfidences(data.pred_confidences);
-        setHeatmap(img_url);
+        setHeatmap(img_url); */
         //setArrows();
       });
       props.socket.once('receive_XAI_available', (data: any) => {
+
+        setLayerInfo((layerInfo: any) => ({
+          ...layerInfo,
+          layer: data.layers[data.experiments[0]],
+          index: 0,
+          method: data.methods[0],
+          experiment: data.experiments[0],
+          singleLayer: data.layers[data.experiments[0]][0],
+          currentLayerModes: data.layer_modes[data.experiments[0]][data.layers[data.experiments[0]][0]],
+          currentClassIndices: data.class_to_indices[data.experiments[0]],
+          maxIndex: data.max_index[data.experiments[0]]
+
+        }));
+
         setExperiments(data.experiments);
         changeExperiment(data.experiments[0]);
+
         setMethods(data.methods);
         changeMethod(data.methods[0])
+
         setExperimentsLayers(data.layers);
         changeLayer(data.layers[data.experiments[0]]);
         setSingleLayer(data.layers[data.experiments[0]][0]);
+
         setLayerModes(data.layer_modes);
         changeCurrentLayerModes(data.layer_modes[data.experiments[0]][data.layers[data.experiments[0]][0]]);
+
         setClassIndices(data.class_to_indices);
         changeCurrentClassIndices(data.class_to_indices[data.experiments[0]]);
+
         setMaxIndices(data.max_index);
         setMaxIndex(data.max_index[data.experiments[0]]);
       })
 
       props.socket.on('receive_attribution_graph', (graph: any) => {
         if (graph !== "empty") {
-          console.log(graph)
-          graph.images = []
-          setGraphData(graph)
+          setGraphData((data: any) => ({
+            ...data,
+            nodes: graph.nodes,
+            properties: graph.properties,
+            links: graph.links
+          }));
         }
       });
 
-      props.socket.on('receive_realistic_graph', (graph: any) => {
-        const currGraph = { ...graphData };
-        console.log(currGraph)
-        for (let item in graph) {
+      props.socket.on('receive_realistic_graph', (images: any, info: any) => {
+        const currImgs: any[] = [...(graphData.images[info.filter_index] || [])];
+
+        for (let item in images) {
           var binary = '';
-          var bytes = new Uint8Array(graph[item]);
+          var bytes = new Uint8Array(images[item]);
           var len = bytes.byteLength;
           for (var i = 0; i < len; i++) {
             binary += String.fromCharCode(bytes[i]);
-            currGraph.images[parseInt(item)] = window.btoa(binary)
           }
+          currImgs.push(window.btoa(binary))
+          setGraphData((data: any) => ({
+            ...data,
+            images: {
+              ...data.images,
+              [info.filter_index]: currImgs
+            }
+          }));
         }
-        setGraphData(currGraph)
+
       });
 
       props.socket.once('receive_global_analysis', (globaldata: any) => {
@@ -394,11 +468,30 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
           currData.filter_relevances[currMode] = (globaldata.relevance)
           setComparingData(currData);
         } else {
-          setExperimentUpdate(false)
-          setGlocalAnalysisUpdate(true)
-          setFilterIndices(globaldata.filter_indices)
-          setFilterNames(globaldata.filter_names)
-          setFilterRelevances(globaldata.relevance)
+
+          setFilterData({
+            filter_indices: [],
+            filter_names: {},
+            filter_relevances: {},
+            images: {},
+            heatmaps: {},
+            partial: {},
+            synthetic: {},
+            cnn_activations: {},
+            position: {}
+          });
+
+          setLayerInfo((layerInfo: any) => ({
+            ...layerInfo,
+            experimentUpdate: false,
+            glocalAnalysisUpdate: true,
+            filters: {
+              filter_indices: globaldata.filter_indices,
+              filter_names: globaldata.filter_names,
+              filter_relevances: globaldata.relevance
+            }
+
+          }));
         }
       });
 
@@ -424,15 +517,18 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
           const currData = { ...filterData };
           currData.heatmaps[index] = imgArr
           setFilterData(currData);
+          setLayerInfo((layerInfo: any) => ({
+            ...layerInfo,
+            glocalAnalysisUpdate: false
+          }));
         }
         setFilterDataUpdate(true);
       })
 
       props.socket.on('receive_realistic', (dict: any, data: any) => {
-        if (Object.keys(filterRelevances).length) {
+        if (Object.keys(layerInfo.filters.filter_relevances).length && layerInfo.glocalAnalysisUpdate) {
           const index = data.filter_index;
-
-          let imgArr = []
+          let imgArr: any[] = []
           for (let item in dict) {
             var binary = '';
             var bytes = new Uint8Array(dict[item]);
@@ -442,7 +538,6 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
             }
             imgArr.push(window.btoa(binary));
           }
-
           if (comparing) {
             console.log("comparingrealistic")
             const currData = { ...comparingData };
@@ -463,10 +558,10 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
             if (!currData.filter_indices.includes(index)) {
               currData.filter_indices.push(index);
             }
-            const currRelevance = filterRelevances[index]
-            currData.filter_relevances[index] = currRelevance;
+            currData.filter_relevances[index] = layerInfo.filters.filter_relevances[index]
             currData.images[index] = imgArr;
             setFilterData(currData)
+
           }
           setFilterDataUpdate(true);
         }
@@ -480,18 +575,19 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
           var len = bytes.byteLength;
           for (var i = 0; i < len; i++) {
             binary += String.fromCharCode(bytes[i]);
-            fData.synthetic[item] = window.btoa(binary)
           }
+
+          fData.synthetic[item] = window.btoa(binary)
         }
         setFilterData(fData);
         setFilterDataUpdate(true);
         console.log("synth")
       });
 
+
+      let ind = 0;
       props.socket.on('receive_statistics', (dict: any, data: any) => {
-        console.log(dict, data)
-        stats.current = data;
-        let imgArr = []
+        let imgArr: any = []
         for (let item in dict) {
           var binary = '';
           var bytes = new Uint8Array(dict[item]);
@@ -501,33 +597,25 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
           }
           imgArr.push(window.btoa(binary));
         }
-        stats.current.image = imgArr;
-        while (cRel.current.length !== 4) {
-          cNames.current.push(data.class_name);
-          cRel.current.push(data.class_rel);
-          cImg.current.push(imgArr)
+        if (ind <= 3 && !Object.values(statisticsData.classNames).includes(data.class_name)) {
+          setStatisticsData(inputs => ({
+            ...inputs,
+            images: {
+              ...inputs.images,
+              [ind]: imgArr
+            },
+            classNames: {
+              ...inputs.classNames,
+              [ind]: data.class_name
+            },
+            classRelevances: {
+              ...inputs.classRelevances,
+              [ind]: data.class_rel
+            }
+          }));
+          ind++;
         }
-        stats.current.class_name = cNames.current;
-        stats.current.class_rel = cRel.current;
-        stats.current.image = cImg.current;
-        setStatisticsData(stats.current)
-        cNames.current = [];
-        cRel.current = [];
-        cImg.current = [];
-        stats.current = {
-          image: [],
-          class_name: [],
-          class_rel: []
-        }
-        const flavoursContainer = document.getElementById('root');
-        const flavoursScrollWidth = flavoursContainer.scrollWidth;
 
-        if (flavoursContainer.scrollLeft !== flavoursScrollWidth) {
-          document.getElementById('root').scrollTo({
-            left: flavoursScrollWidth,
-            behavior: 'smooth',
-          })
-        }
       });
 
       props.socket.on('disconnect', () => {
@@ -535,9 +623,14 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
       });
 
       props.socket.on('receive_local_analysis', (json_data: any) => {
-        if (singleLayer && experiment && target && method && currentAnalysis && imgSize) {
-          setExperimentUpdate(false)
-          setGlocalAnalysisUpdate(true)
+        if (singleLayer && experiment && target && imgSize) {
+
+          setLayerInfo((layerInfo: any) => ({
+            ...layerInfo,
+            experimentUpdate: false,
+            glocalAnalysisUpdate: true
+          }));
+
           setFilterIndices(json_data.filter_indices)
           setFilterNames(json_data.filter_names)
           setFilterRelevances(json_data.relevance)
@@ -550,7 +643,7 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
         }
       })
     }
-  }, [props.socket, comparing, filterRelevances, currentAnalysis, filterImgSize, graphData, imgSize, index, method, order, singleLayer, target]);
+  }, [props.socket, layerInfo.singleLayer, layerInfo.experiment, layerInfo.method, layerInfo.index, comparing, layerInfo.filters, currentAnalysis, filterImgSize, imgSize, order]);
 
 
   React.useEffect(() => {
@@ -560,69 +653,103 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
   }, [currentlyUpdated]);
 
 
+
+
+  React.useEffect(() => {
+    if (Object.keys(statisticsData.classNames).length === 4) {
+      console.log("reache")
+      const flavoursContainer = document.getElementById('root');
+      const flavoursScrollWidth = flavoursContainer.scrollWidth;
+
+      if (flavoursContainer.scrollLeft !== flavoursScrollWidth) {
+        document.getElementById('root').scrollTo({
+          left: flavoursScrollWidth,
+          behavior: 'smooth',
+        })
+      }
+    }
+  }, [statisticsData]);
+
+
+
+
   const createPlaceholder = () => {
   }
 
 
-  /*   React.useEffect(() => {
-      if (!experimentUpdate && targetUpdate && singleLayer && method && target) {
-        props.socket.emit('get_global_analysis',
-          {
-            "layer": singleLayer,
-            "experiment": experiment,
-            "filter_indices": "0:5",
-            "sorting": order,
-            "image_index": index,
-            "method": method,
-            "zero_list_filter": [],
-            "zero_layer": singleLayer,
-            "target_class": target
-          },
-          currentAnalysis,
-          {
-            "size": filterImgSize + 100,
-            "sample_indices": "0:9"
-          });
-      }
-    }, [target, singleLayer, targetUpdate, order, index, method, currentAnalysis]); */
+  React.useEffect(() => {
+    if (layerInfo.singleLayer && layerInfo.method && layerInfo.target) {
+
+      props.socket.emit('get_global_analysis',
+        {
+          "layer": layerInfo.singleLayer,
+          "experiment": layerInfo.experiment,
+          "filter_indices": "0:5",
+          "sorting": layerInfo.order,
+          "image_index": layerInfo.index,
+          "method": layerInfo.method,
+          "zero_list_filter": [],
+          "zero_layer": layerInfo.singleLayer,
+          "target_class": layerInfo.target
+        },
+        layerInfo.currentAnalysis,
+        {
+          "size": filterImgSize + 100,
+          "sample_indices": "0:9"
+        });
+    }
+
+
+  }, [layerInfo.target, layerInfo.experiment, layerInfo.currentAnalysis, layerInfo.index, layerInfo.singleLayer, layerInfo.order, layerInfo.method, layerInfo.currentAnalysis]);
 
   React.useEffect(() => {
     if (experiment && layer.length && layerModes && classIndices && maxIndices && experimentLayers) {
-      setExperimentUpdate(true)
       console.log("experiment changed")
-      changeLayer(experimentLayers[experiment]);
+      setLayerInfo((layerInfo: any) => ({
+        ...layerInfo,
+        experimentUpdate: true,
+        layer: experimentLayers[experiment],
+        index: 0,
+        singleLayer: experimentLayers[experiment][0],
+        currentLayerModes: layerModes[experiment][experimentLayers[experiment][0]],
+        currentClassIndices: classIndices[experiment],
+        maxIndex: maxIndices[experiment]
+      }));
+      ///////////
+
+      /* changeLayer(experimentLayers[experiment]);
       setSingleLayer(experimentLayers[experiment][0]);
       changeCurrentLayerModes(layerModes[experiment][experimentLayers[experiment][0]]);
       changeCurrentClassIndices(classIndices[experiment]);
       setMaxIndex(maxIndices[experiment]);
-      changeIndex(0);
+      changeIndex(0); */
 
     }
   }, [experiment])
 
   React.useEffect(() => {
-    if (props.socket && imgSize && experiment) {
+    if (props.socket && imgSize && layerInfo.experiment) {
       props.socket.emit('get_data', {
-        'image_index': index,
-        "experiment": experiment,
+        'image_index': layerInfo.index,
+        "experiment": layerInfo.experiment,
         "size": imgSize
       });
     }
-  }, [experiment, index, imgSize, props.socket])
+  }, [layerInfo.index, layerInfo.experiment, imgSize, props.socket])
+
 
 
   React.useEffect(() => {
-    if (layerModes[experiment as keyof typeof layerModes] && props.socket && imgSize && filterImgSize && singleLayer && experiment && method) {
-      changeCurrentLayerModes(layerModes[experiment as keyof typeof layerModes][singleLayer])
+    if (props.socket && imgSize && layerInfo.experiment && layerInfo.method) {
       props.socket.emit("get_heatmap", {
-        'image_index': index,
-        "experiment": experiment,
-        "method": method,
+        'image_index': layerInfo.index,
+        "experiment": layerInfo.experiment,
+        "method": layerInfo.method,
         "N_pred": 0,
         "size": imgSize
       })
     }
-  }, [experiment, index, layerModes, method, filterImgSize, imgSize, props.socket])
+  }, [layerInfo.index, layerInfo.experiment, layerInfo.method, imgSize, props.socket])
 
   React.useEffect(() => {
     if (comparingEmit && comparing && Object.values(comparingData.filter_indices).flat().length === 10) {
@@ -632,19 +759,19 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
           sampleIndices = 3;
         }
         props.socket.emit('vis_partial_heatmap', {
-          "layer": singleLayer,
-          "experiment": experiment,
+          "layer": layerInfo.singleLayer,
+          "experiment": layerInfo.experiment,
           "list_filter": comparingData.filter_indices[key],
-          "image_index": index,
-          "method": method,
+          "image_index": layerInfo.index,
+          "method": layerInfo.method,
           "size": filterImgSize + 100,
           "weight_activation": 0,
-          "target_class": target
+          "target_class": layerInfo.target
         }
         );
         props.socket.emit("vis_realistic", {
           "layer": singleLayer,
-          "experiment": experiment,
+          "experiment": layerInfo.experiment,
           "list_filter": comparingData.filter_indices[key],
           "size": filterImgSize + 100,
           "sample_indices": "0:" + sampleIndices,
@@ -652,14 +779,14 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
         })
         for (let j = 0; j < comparingData.filter_indices[key].length; j++) {
           props.socket.emit('vis_realistic_heatmaps', {
-            "layer": singleLayer,
-            "experiment": experiment,
+            "layer": layerInfo.singleLayer,
+            "experiment": layerInfo.experiment,
             "filter_index": comparingData.filter_indices[key][j],
             "size": imgSize,
             "sample_indices": "0:" + sampleIndices,
             "mode": comparingData.modes[comparingData.modes.findIndex((mode: any) => mode === key)],
-            "method": method,
-            "target_class": target
+            "method": layerInfo.method,
+            "target_class": layerInfo.target
           }
           );
         }
@@ -681,52 +808,57 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
       xaiFlag.current = false;
     }
   }, [props.socket, filterAmount]);
-
   React.useEffect(() => {
-    if (!experimentUpdate && glocalAnalysisUpdate && props.socket && filterIndices.length && indicesFlag.current === true && target && singleLayer) {
+    if (props.socket && layerInfo.glocalAnalysisUpdate && layerInfo.method && layerInfo.experiment && layerInfo.filters.filter_indices.length && layerInfo.target && layerInfo.singleLayer) {
       props.socket.emit('vis_partial_heatmap', {
-        "layer": singleLayer,
-        "experiment": experiment,
-        "list_filter": filterIndices,
-        "image_index": index,
-        "method": method,
+        "layer": layerInfo.singleLayer,
+        "experiment": layerInfo.experiment,
+        "list_filter": layerInfo.filters.filter_indices,
+        "image_index": layerInfo.index,
+        "method": layerInfo.method,
         "size": filterImgSize + 100,
         "weight_activation": 0,
-        "target_class": target
+        "target_class": layerInfo.target
       }
       );
-      for (let i = 0; i < filterIndices.length; i++) {
-        props.socket.emit('vis_realistic_heatmaps', {
-          "layer": singleLayer,
-          "experiment": experiment,
-          "filter_index": filterIndices[i],
-          "size": imgSize,
-          "sample_indices": "0:9",
-          "mode": currentAnalysis,
-          "method": method,
-          "target_class": target
-        }
-        );
-      }
-      //indicesFlag.current = false;
     }
-  }, [singleLayer, filterIndices, currentAnalysis, target, filterImgSize, imgSize, index, method, props.socket])
+  }, [props.socket, layerInfo.glocalAnalysisUpdate, layerInfo.index, layerInfo.filters.filter_indices, layerInfo.method, layerInfo.experiment, layerInfo.target, layerInfo.singleLayer])
+
 
   React.useEffect(() => {
-    if (props.socket && !experimentUpdate && filterIndices.length && singleLayer) {
+    if (props.socket && layerInfo.glocalAnalysisUpdate && !layerInfo.experimentUpdate && layerInfo.experiment && layerInfo.filters.filter_indices.length && layerInfo.singleLayer) {
       props.socket.emit("vis_realistic", {
-        "layer": singleLayer,
-        "experiment": experiment,
-        "list_filter": filterIndices,
+        "layer": layerInfo.singleLayer,
+        "experiment": layerInfo.experiment,
+        "list_filter": layerInfo.filters.filter_indices,
         "size": filterImgSize + 100,
         "sample_indices": "0:9",
-        "mode": currentAnalysis
+        "mode": layerInfo.currentAnalysis
       })
 
       //indicesFlag.current = false;
     }
-  }, [singleLayer, filterIndices, currentAnalysis, filterImgSize, props.socket])
+  }, [layerInfo.singleLayer, layerInfo.glocalAnalysisUpdate, layerInfo.experiment, layerInfo.experimentUpdate, layerInfo.filters.filter_indices, layerInfo.currentAnalysis, filterImgSize, props.socket])
 
+
+  React.useEffect(() => {
+    if (props.socket && layerInfo.glocalAnalysisUpdate && layerInfo.method && layerInfo.experiment && layerInfo.filters.filter_indices.length && layerInfo.target && layerInfo.singleLayer) {
+
+      for (let i = 0; i < layerInfo.filters.filter_indices.length; i++) {
+        props.socket.emit('vis_realistic_heatmaps', {
+          "layer": layerInfo.singleLayer,
+          "experiment": layerInfo.experiment,
+          "filter_index": layerInfo.filters.filter_indices[i],
+          "size": imgSize,
+          "sample_indices": "0:9",
+          "mode": layerInfo.currentAnalysis,
+          "method": layerInfo.method,
+          "target_class": layerInfo.target
+        }
+        );
+      }
+    }
+  }, [props.socket, layerInfo.glocalAnalysisUpdate, layerInfo.experiment, layerInfo.method, layerInfo.currentAnalysis, layerInfo.filters.filter_indices, layerInfo.target, layerInfo.singleLayer])
 
 
   //React.useEffect(() => () => props.socket.disconnect(), []);
@@ -807,56 +939,57 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
     }, [isSynth, singleLayer, filterIndices]); */
 
 
+  /*  React.useEffect(() => {
+   
+     if (props.socket && layerInfo.method && order && layerInfo.experiment && imgSize && layerInfo.singleLayer && layerInfo.currentLayerModes && filterDataUpdate) {
+       console.log("filterupdate")
+       setFilterData({
+         filter_indices: [],
+         filter_names: {},
+         filter_relevances: {},
+         images: {},
+         heatmaps: {},
+         partial: {},
+         synthetic: {},
+         cnn_activations: {},
+         position: {}
+       })
+   
+   
+       props.socket.emit('get_global_analysis',
+         {
+           "layer": layerInfo.singleLayer,
+           "experiment": layerInfo.experiment,
+           "filter_indices": "0:5",
+           "sorting": order,
+           "image_index": layerInfo.index,
+           "method": layerInfo.method
+         },
+         currentAnalysis,
+         {
+           "size": filterImgSize + 100,
+           "sample_indices": "0:9"
+         });
+   
+       setCurrentyUpdated(true);
+   
+       setFilterDataUpdate(false)
+     }
+   }, [layerInfo.method, layerInfo.experiment, order, layerInfo.singleLayer, currentAnalysis, layerInfo.index, filterImgSize]);
+  */
+
   React.useEffect(() => {
-
-    if (props.socket && !experimentUpdate && method && order && experiment && imgSize && singleLayer && currentLayerModes && filterDataUpdate) {
-      console.log("filterupdate")
-      setFilterData({
-        filter_indices: [],
-        filter_names: {},
-        filter_relevances: {},
-        images: {},
-        heatmaps: {},
-        partial: {},
-        synthetic: {},
-        cnn_activations: {},
-        position: {}
-      })
-
-      props.socket.emit('get_global_analysis',
-        {
-          "layer": singleLayer,
-          "experiment": experiment,
-          "filter_indices": "0:5",
-          "sorting": order,
-          "image_index": index,
-          "method": method
-        },
-        currentAnalysis,
-        {
-          "size": filterImgSize + 100,
-          "sample_indices": "0:9"
-        });
-
-      setCurrentyUpdated(true);
-
-      setFilterDataUpdate(false)
-    }
-  }, [method, order, singleLayer, currentAnalysis, index, filterImgSize]);
-
-
-  React.useEffect(() => {
-    if (target) {
+    if (layerInfo.target) {
       props.socket.emit("get_heatmap", {
-        'image_index': index,
-        "experiment": experiment,
-        "method": method,
+        'image_index': layerInfo.index,
+        "experiment": layerInfo.experiment,
+        "method": layerInfo.method,
         "N_pred": 0,
         "size": imgSize,
-        "target_class": target
+        "target_class": layerInfo.target
       })
     }
-  }, [target])
+  }, [layerInfo.target])
 
 
 
@@ -1014,12 +1147,12 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
   const localAnalysis = async (x: number, y: number, width: number, height: number, maskId = -1) => {
     const normedValues = helper.normLocalSelection(x, y, width, height, imgSize);
     props.socket.emit("get_local_analysis", {
-      "layer": singleLayer,
-      "experiment": experiment,
+      "layer": layerInfo.singleLayer,
+      "experiment": layerInfo.experiment,
       "filter_indices": "0:5",
-      "sorting": order,
-      "image_index": index,
-      "method": method,
+      "sorting": layerInfo.order,
+      "image_index": layerInfo.index,
+      "method": layerInfo.method,
       "x": normedValues.newX,
       "y": normedValues.newY,
       "width": normedValues.newWidth,
@@ -1227,10 +1360,11 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
   }
 
   const inspectFilter = async (value: any, view: string, currentTab: string) => {
-    changeFilterIndex(Number(value));
+    /* changeFilterIndex(Number(value));
     changeViewType(view);
-    setCurrentTabName(currentTab);
+    setCurrentTabName(currentTab); */
     console.log(value, view, currentTab)
+    changeViewType(view)
 
     let statisticsMode
     if (currentTab === 'activation') {
@@ -1241,8 +1375,8 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
 
     if (view === 'STATISTICSVIEW') {
       props.socket.emit("vis_statistics", {
-        "layer": singleLayer,
-        "experiment": experiment,
+        "layer": layerInfo.singleLayer,
+        "experiment": layerInfo.experiment,
         "filter_index": Number(value),
         "sample_indices": "0:9",
         "size": imgSize,
@@ -1268,19 +1402,19 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
 
       props.socket.emit("get_attribution_graph",
         {
-          "layer": singleLayer,
-          "experiment": experiment,
-          "image_index": index,
-          "method": method,
+          "layer": layerInfo.singleLayer,
+          "experiment": layerInfo.experiment,
+          "image_index": layerInfo.index,
+          "method": layerInfo.method,
           "size": imgSize,
           "view_prev": 1,
-          "mode": currentAnalysis,
-          "filter_index": filterIndex,
+          "mode": layerInfo.currentAnalysis,
+          "filter_index": value,
           //target_class in cookie for test only
         }
-        , currentAnalysis, {
+        , layerInfo.currentAnalysis, {
         "size": imgSize,
-        "sample_indices": "0:8",
+        "sample_indices": "0:9",
       }
       )
       /*  const filters = queueries.getAttributionGraph(
@@ -1299,18 +1433,32 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
        }
        else {
          setGraphData(data);
-       } */
+       } 
+       */
     }
+
   }
   const selectedOrder = (value: any) => {
-    setOrder(value);
+    setLayerInfo((layerInfo: any) => ({
+      ...layerInfo,
+      order: value
+    }))
   };
   const viewState = (value: any) => {
+    setStatisticsData(() => ({
+      images: {},
+      classNames: {},
+      classRelevances: {}
+    }))
+    console.log(value)
     changeViewType(value);
     setPrevView(value);
   };
   const indexState = (value: any) => {
-    changeIndex(value);
+    setLayerInfo((layerInfo: any) => ({
+      ...layerInfo,
+      index: value
+    }))
   };
   /*  const classIndexState = value => {
      console.log(value)
@@ -1318,6 +1466,10 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
    }; */
   const selectedExperiment = (value: string) => {
     changeExperiment(value);
+    setLayerInfo((layerInfo: any) => ({
+      ...layerInfo,
+      experiment: value
+    }))
     changeLayer(experimentLayers[value as keyof typeof experimentLayers])
     setSingleLayer(experimentLayers[value as keyof typeof experimentLayers][0])
   };
@@ -1325,15 +1477,10 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
 
   const checkAnalysisCallback = async (value: any) => {
     console.log(value)
-    setCurrentAnalysis(value)
-    /*     props.socket.emit("vis_realistic", {
-          "layer": singleLayer,
-          "experiment": experiment,
-          "list_filter": filterIndices,
-          "size": 120,
-          "sample_indices": "0:9",
-          "mode": value
-        }) */
+    setLayerInfo((layerInfo: any) => ({
+      ...layerInfo,
+      currentAnalysis: value
+    }))
   }
 
   const compareCallback = () => {
@@ -1345,7 +1492,7 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
         "experiment": experiment,
         "filter_indices": "0:5",
         "sorting": order,
-        "image_index": index,
+        "image_index": layerInfo.index,
         "method": method
       },
       "max_activation",
@@ -1359,7 +1506,7 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
         "experiment": experiment,
         "filter_indices": "0:5",
         "sorting": order,
-        "image_index": index,
+        "image_index": layerInfo.index,
         "method": method
       },
       "max_relevance_target",
@@ -1387,16 +1534,22 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
 
   const selectedMethod = (value: any) => {
     if (value) {
-      changeMethod(value);
+      setLayerInfo((layerInfo: any) => ({
+        ...layerInfo,
+        method: value
+      }))
     }
   };
   const selectedFilterName = (value: any) => {
     if (value) {
-      queueries.setFilterName(experiment, singleLayer, index, value)
+      queueries.setFilterName(experiment, singleLayer, layerInfo.index, value)
     }
   };
   const selectedLayer = (value: any) => {
-    setSingleLayer(value);
+    setLayerInfo((layerInfo: any) => ({
+      ...layerInfo,
+      singleLayer: value
+    }))
   };
   /*   const filterAmountCallback = value => {
       changeFilterAmount(value);
@@ -1443,13 +1596,13 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
 
   React.useEffect(() => {
     let values = queryString.parse(window.location.search)
-    if (index && values.index && values !== prevParams) {
+    if (layerInfo.index && values.index && values !== prevParams) {
       setPrevParams(values)
-      const newQueries = { ...values, index: index };
+      const newQueries = { ...values, index: layerInfo.index };
       history.push({ search: queryString.stringify(newQueries) });
       changeFromState(true);
     }
-  }, [index, history, prevParams]);
+  }, [layerInfo.index, history, prevParams]);
   React.useEffect(() => {
     let values = queryString.parse(window.location.search)
     if (order && values.order && values !== prevParams) {
@@ -1496,33 +1649,37 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
       <div className={classes.default}>
         <Grid item xl={2} lg={3} md={4} xs={4}>
           <SidebarComponent
-            target={target}
-            maxIndex={maxIndex}
+            target={layerInfo.target}
+            maxIndex={layerInfo.maxIndex}
             indexCallback={indexState}
-            image={image}
-            heatmap={heatmap}
+            image={layerInfo.currentImage}
+            heatmap={layerInfo.currentHeatmap}
             localAnalysisCallback={localAnalysis}
-            index={index}
-            classIndices={currentClassIndices}
-            heatmapClasses={heatmapClasses}
-            heatmapConfidences={heatmapConfidences}
-            targetCallback={newTarget => setTarget(newTarget)}
+            index={layerInfo.index}
+            classIndices={layerInfo.currentClassIndices}
+            heatmapClasses={layerInfo.currentHeatmapClasses}
+            heatmapConfidences={layerInfo.currentHeatmapConfidences}
+            targetCallback={newTarget => setLayerInfo((layerInfo: any) => ({
+              ...layerInfo,
+              target: newTarget
+            }))
+            }
           />
         </Grid>
 
         <FilterComponent
-          target={target}
+          target={layerInfo.target}
           filterAmount={filterAmount}
           viewTypeCallback={viewState}
           filterActivationCallback={getFilterActivation}
           filterHeatmapCallback={getFilterHeatmap}
           orderCallback={selectedOrder}
-          viewState={viewType}
-          selectedLayer={singleLayer}
-          selectedExperiment={experiment}
-          selectedMethod={method}
+          viewState={"DASHBOARDVIEW"}
+          selectedLayer={layerInfo.singleLayer}
+          selectedExperiment={layerInfo.experiment}
+          selectedMethod={layerInfo.method}
           layers={layer}
-          order={order}
+          order={layerInfo.order}
           methods={methods}
           models={experiments}
           experimentsCallback={selectedExperiment}
@@ -1555,7 +1712,7 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
             viewState={viewType}
             viewCallback={viewState}
             statistics={statisticsData}
-            statisticName={currentTabName}
+            statisticName={currentAnalysis}
             filterIndex={filterIndex} /> : viewType === 'GRAPHVIEW' ?
             <NetworkComponent
               viewState={viewType}

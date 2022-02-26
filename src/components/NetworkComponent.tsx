@@ -74,11 +74,21 @@ const useStyles = makeStyles(() => ({
 const Menu = (props: any) => <div>menu</div>;
 let content;
 
+
+
 interface graphProps {
-  images?: any[];
+  images?: {
+    [key: string]: any[]
+  };
   nodes?: any[];
   links?: any[];
-  properties?: any[]
+  properties?: {
+    [key: string]:
+    {
+      layer: string,
+      filter_index: number
+    }
+  }
 }
 type NetworkComponentProps = {
   graph?: graphProps,
@@ -86,12 +96,7 @@ type NetworkComponentProps = {
   viewState: string;
   viewCallback: (value: any) => void;
 };
-const NetworkComponent: React.FC<NetworkComponentProps> = ({
-  graph,
-  viewState,
-  viewCallback,
-  filterIndex
-}) => {
+const NetworkComponent: React.FC<NetworkComponentProps> = (props: NetworkComponentProps) => {
   const classes = useStyles();
   const dynamicContentWrapper = React.useRef(null);
   const [view, changeView] = React.useState("GRAPHVIEW");
@@ -118,11 +123,12 @@ const NetworkComponent: React.FC<NetworkComponentProps> = ({
   var scale = function (db: number) {
     return db / 100 * 7;
   };
+
   async function createGraph() {
-    for (const link in graph.links) {
-      const linkThickness = scale(graph.links[link]["label"]);
-      graph.links[link]["class"] = "contrib_id_" + link;
-      graph.links[link]["config"] = {
+    for (const link in props.graph.links) {
+      const linkThickness = scale(props.graph.links[link]["label"]);
+      props.graph.links[link]["class"] = "contrib_id_" + link;
+      props.graph.links[link]["config"] = {
         curve: d3.curveBasis,
         arrowheadStyle: "fill: #009374;",
         labelStyle: "font-family: roboto",
@@ -132,17 +138,21 @@ const NetworkComponent: React.FC<NetworkComponentProps> = ({
           "px;cursor:pointer"
       };
     }
-    for (let node = 0; node < graph.nodes.length; node++) {
-      graph.nodes[node]["labelType"] = "html";
-      graph.nodes[node]["config"] = {
+    for (let node = 0; node < props.graph.nodes.length; node++) {
+      props.graph.nodes[node]["labelType"] = "html";
+      props.graph.nodes[node]["config"] = {
         style: "fill: #CCEAE3; cursor:pointer, width:200px, height:200px"
       };
       //const nodeId = graph.nodes[node]["id"];
-      graph.nodes[node].class = "";
+      props.graph.nodes[node].class = "";
       content = document.createElement("div");
       var imgs = document.createElement("div");
       imgs.setAttribute("class", classes.imagecontainer);
-      const currNode = graph.nodes[node].id;
+      const currNode: string = props.graph.nodes[node].id;
+      const currFilterIndex = props.graph.properties[currNode].filter_index;
+      console.log(props.graph.images)
+      console.log(props.graph.images[currFilterIndex])
+
       //imgs.classList.add(classes.imagecontainer);
       /*  for (let img in graph.properties[nodeId]['images']) {
                var image = document.createElement('img');
@@ -155,21 +165,22 @@ const NetworkComponent: React.FC<NetworkComponentProps> = ({
       const filter = (
         <Filter
           target={""}
-          view={viewState}
+          viewState={props.viewState}
           position={0}
           partial={[]}
           synthetic={[]}
           activation={[]}
           filterPosition={[]}
           filterName={""}
-          filterAmount={graph.nodes.length}
-          images={graph.images ? graph.images[node] : [""]}
+          filterAmount={props.graph.nodes.length}
+          images={props.graph.images[currFilterIndex]}
           placeholder={""}
-          filterIndex={graph.properties[currNode].filter_index}
+          filterIndex={currFilterIndex}
+          parentCallback={(val) => console.log(val)}
           filterActivationCallback={() => (console.log(""))}
           filterHeatmapCallback={() => (console.log(""))}
-          key={`filter_index_${node}`}
-          relevance={2}
+          key={currNode}
+          layer={(props.graph.properties[currNode].layer)}
           filterImgSize={28}
           filterInspectionCallback={() => console.log("hi")}
           filterSamplesCallback={() => console.log("hi")}
@@ -186,17 +197,24 @@ const NetworkComponent: React.FC<NetworkComponentProps> = ({
       //inner.append({ el => { dynamicContentWrapper = el }});
       //embed.appendChild(inner)
       content.innerHTML = ReactDOMServer.renderToStaticMarkup(filter);
-      graph.nodes[node]["label"] = content;
+      props.graph.nodes[node]["label"] = content;
       //.nodes[node]['label'] = content;
       //graph.nodes[node]['label'].onmouseover = function () {setShown(true); };
       //graph.nodes[node]['label'].onmouseout = function () {setShown(false)};
     }
-    console.log(graph);
   }
-  if (graph.nodes) {
-    console.log(graph);
-    createGraph();
-  }
+
+  React.useEffect(
+    () => {
+      console.log(Object.keys(props.graph.images).length)
+      console.log(props.graph.nodes.length)
+      if (props.graph.nodes.length === Object.keys(props.graph.images).length && Object.values(props.graph.images).map(value => value.length === 9)) {
+        createGraph();
+      }
+    },
+    [props.graph.images]);
+
+
   React.useEffect(() => {
     if (document.querySelector(".test")) {
       console.log("dfd");
@@ -210,18 +228,14 @@ const NetworkComponent: React.FC<NetworkComponentProps> = ({
       ReactDOM.render(<Menu />, dynamicContentWrapper.current.querySelector(".test"));
     }
   });
-  React.useEffect(
-    () => {
-      viewCallback(view);
-    },
-    [view, viewCallback]
-  );
+
+
   return (
     <Card>
       <CardContent className={classes.root}>
         <Box display="flex" flexDirection="column" position="relative">
           <Box flexGrow={1}>
-            <Typography gutterBottom>Selected Filter: {filterIndex}</Typography>
+            <Typography gutterBottom>Selected Filter: {props.filterIndex}</Typography>
             <div
               ref={el => (dynamicContentWrapper.current = el)}
               className="dynamic-content-wrapper"
@@ -237,10 +251,10 @@ const NetworkComponent: React.FC<NetworkComponentProps> = ({
             Return back{" "}
           </Button>
         </Box>
-        {graph.nodes ? (
+        {props.graph.nodes ? (
           <DagreGraph
-            nodes={graph.nodes}
-            links={graph.links}
+            nodes={props.graph.nodes}
+            links={props.graph.links}
             width="100%"
             height="100%"
             animate={1000}

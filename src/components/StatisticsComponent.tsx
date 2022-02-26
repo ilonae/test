@@ -77,9 +77,15 @@ const useStyles = makeStyles(() => ({
 }));
 
 interface statisticsProps {
-  class_rel?: any[];
-  class_name?: string[];
-  image?: any[];
+  images: {
+    [key: string]: any[]
+  },
+  classNames: {
+    [key: string]: string
+  },
+  classRelevances: {
+    [key: string]: string
+  },
   properties?: object
 }
 type StatisticsComponentProps = {
@@ -89,49 +95,42 @@ type StatisticsComponentProps = {
   viewState: string;
   viewCallback: (value: any) => void;
 };
-const StatisticsComponent: React.FC<StatisticsComponentProps> = ({
-  statistics,
-  statisticName,
-  viewState,
-  viewCallback,
-  filterIndex
-}) => {
+const StatisticsComponent: React.FC<StatisticsComponentProps> = (props: StatisticsComponentProps) => {
   const classes = useStyles();
-  const [view, changeView] = React.useState(viewState);
+  const [view, changeView] = React.useState(props.viewState);
   const [statisticsBox, setStatisticsBox] = React.useState([]);
   React.useEffect(
     () => {
-      if (statistics) {
-        console.log(statistics);
-        const statisticsArr = [];
-        for (let i = 0; i < statistics.class_rel.length; i++) {
+      if (props.statistics) {
+        const statisticsArr: any[] = [];
+
+        Object.keys(props.statistics.classNames).forEach(key => {
+          const ind = Number(key)
           statisticsArr.push(
             <Statistic
-              statistic={statisticName}
-              name={statistics.class_name[i]}
-              relevance={statistics.class_rel[i]}
-              images={statistics.image[i]}
-              key={`statistic_${i}`}
-              amount={statistics.class_rel.length}
+              statistic={props.statisticName}
+              name={props.statistics.classNames[key]}
+              relevance={props.statistics.classRelevances[key]
+              }
+              images={props.statistics.images[key]}
+              key={`statistic_${key}`
+              }
+              amount={Object.keys(props.statistics.classRelevances).length}
             />
           );
-        }
+        })
         setStatisticsBox(statisticsArr);
       }
     },
-    [statistics, statisticName]
+    [props.statistics, props.statisticName]
   );
-  React.useEffect(
-    () => {
-      viewCallback(view);
-    },
-    [view, viewCallback]
-  );
+
+
   return (
     <Card className={classes.root} id="statistics">
       <Button
         startIcon={<ArrowBackIosIcon />}
-        onClick={() => changeView("DASHBOARDVIEW")}
+        onClick={() => props.viewCallback("DASHBOARDVIEW")}
         variant="contained"
         className={classes.buttonback}
       >
@@ -146,11 +145,11 @@ const StatisticsComponent: React.FC<StatisticsComponentProps> = ({
       >
         <Box flexGrow={1}>
           <Typography gutterBottom variant="h4" align="center">
-            Similarities with respect of {statisticName} in other classes
+            Similarities with respect of {props.statisticName} in other classes
           </Typography>
 
           <Typography gutterBottom variant="h6" align="center">
-            Selected Filter: {filterIndex}
+            Selected Filter: {props.filterIndex}
           </Typography>
         </Box>
 

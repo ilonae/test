@@ -146,9 +146,9 @@ const plot = (chart: d3.Selection<SVGSVGElement, unknown, HTMLElement, any>, wid
     })
     .on("click", function (event, d) {
       event.stopPropagation();
-      let bar_index = index.get(this);
+      let bar_index: any = index.get(this);
       let current_index = index.get(this);
-      console.log(bar_index)
+      targetCallback(sortedData[bar_index].classname)
       d3.select(inputRef.current).selectAll("rect")
         .transition()
         .duration(500)
@@ -176,6 +176,7 @@ const plot = (chart: d3.Selection<SVGSVGElement, unknown, HTMLElement, any>, wid
             return (y(`${i}`) + y.bandwidth() / 2)
           }
           else {
+            console.log(i)
             return (y(String(0)) + y.bandwidth() / 2);
           }
         })
@@ -254,12 +255,16 @@ export const SidebarComponent: React.FC<SidebarProps> = (props: SidebarProps) =>
         .attr("width", iWidth).attr("height", iWidth - 80);
       plot(canvas, iWidth, iWidth, object, props.targetCallback, inputRef);
     }
+
+    const arraysEqual = (currentHeatmapClasses.length === props.heatmapClasses.length) &&
+      (currentHeatmapClasses.every((val: any) => props.heatmapClasses.includes(val)));
+
     if (props.heatmapClasses.length &&
-      props.heatmapConfidences.length && currentHeatmapClasses !== props.heatmapClasses) {
+      props.heatmapConfidences.length && !arraysEqual) {
       changeCurrentHeatmapClasses(props.heatmapClasses)
       createBarPlot();
     }
-  }, [props.heatmapClasses, props.targetCallback, currentHeatmapClasses, props.heatmapConfidences]);
+  }, [props.heatmapClasses, currentHeatmapClasses, props.heatmapConfidences]);
 
 
   return <Card className={classes.root} id={'inputsCard'}>

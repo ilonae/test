@@ -29,6 +29,10 @@ const useStyles = makeStyles(() => ({
     alignItems: "center",
     marginLeft: "1em"
   },
+
+  block: {
+    background: "red"
+  },
   rowCol: {
     display: "flex",
     flexDirection: "column",
@@ -39,6 +43,11 @@ const useStyles = makeStyles(() => ({
   centering: {
     textAlign: "center",
     maxHeight: "100%"
+  },
+  imagesGraph: {
+    height: "auto",
+    gap: "1em",
+    gridTemplateColumns: "repeat(9,1fr)"
   },
   images: {
     height: "auto",
@@ -140,15 +149,16 @@ const useStyles = makeStyles(() => ({
 }));
 type FilterBoxProps = {
   filterAmount?: number,
-  name?: string,
-  parentCallback?: (...args: any[]) => any,
+  reference?: string,
+  parentCallback?: (value: boolean) => void,
   viewState?: string,
   relevance?: number,
   filterIndex?: number,
   filterImgSize?: number,
   cnnActivation?: any,
+  layer?: string,
   filterName: string,
-  images: any[],
+  images?: any[],
   filterInspectionCallback: (index: number, viewType: string) => void;
   filterActivationCallback: (value: any) => void;
   filterSamplesCallback: (value: any) => void;
@@ -163,34 +173,10 @@ type FilterBoxProps = {
   activation: any[],
   partial: any[],
   synthetic: any[],
-  position: any,
-  view: string
+  position: any
 };
-const FilterBox: React.FC<FilterBoxProps> = ({
-  filterName,
-  name: reference,
-  relevance,
-  filterIndex,
-  images,
-  filterImgSize,
-  filterInspectionCallback,
-  nameCallback,
-  filterSamplesCallback,
-  filterHeatmapCallback,
-  hasActivationStats,
-  hasRelevanceStats,
-  currentTab,
-  filterPosition,
-  target,
-  filterActivationCallback,
-  placeholder,
-  activation = null,
-  partial = null,
-  synthetic = null,
-  position = null,
-  view
-}) => {
-  const classes = useStyles(filterImgSize);
+const FilterBox: React.FC<FilterBoxProps> = (props: FilterBoxProps) => {
+  const classes = useStyles(props.filterImgSize);
   const [partialState, setPartialState] = React.useState([]);
   const [syntheticState, setSyntheticState] = React.useState([]);
   const [actState, setActivations] = React.useState([]);
@@ -198,7 +184,7 @@ const FilterBox: React.FC<FilterBoxProps> = ({
   const [, setHovered] = React.useState(false);
   const inputRef = React.useRef();
   async function triggerTransitionPiping(viewtype: string) {
-    filterInspectionCallback(filterIndex, viewtype);
+    props.filterInspectionCallback(props.filterIndex, viewtype);
   }
   /* const plot = svg => {
     var element = svg.node().parentNode.parentNode;
@@ -222,10 +208,10 @@ const FilterBox: React.FC<FilterBoxProps> = ({
          var f = canvas.insert("svg", ":first-child");
          plot(f);
        }; */
-      if (filterPosition) {
+      if (props.filterPosition) {
       }
     },
-    [filterPosition]
+    [props.filterPosition]
   );
   /* React.useEffect(() => {
          console.log(inputRef);
@@ -253,8 +239,8 @@ const FilterBox: React.FC<FilterBoxProps> = ({
    
   }, []);*/
   let imageSize;
-  if (images) {
-    imageSize = images.length === 9 ? 4 : 12;
+  if (props.images) {
+    imageSize = props.images.length === 9 ? 4 : 12;
   }
   const makeImages = React.useCallback((images, stateToSet) => {
     const filterImages = [];
@@ -265,7 +251,7 @@ const FilterBox: React.FC<FilterBoxProps> = ({
           <img
             src={img}
             className={classes.image}
-            key={`${reference}_image_index${i}`}
+            key={`${props.reference}_image_index${i}`}
             alt=""
           />
         );
@@ -277,72 +263,82 @@ const FilterBox: React.FC<FilterBoxProps> = ({
         <img
           src={img}
           className={classes.margins}
-          key={`${reference}_image`}
+          key={`${props.reference}_image`}
           alt=""
         />
       );
       stateToSet(filterImages);
     }
-  }, [classes.image, classes.margins, reference]);
+  }, [classes.image, classes.margins, props.reference]);
   React.useEffect(
     () => {
-      if (activation && filterImgSize) {
-        makeImages(activation, setActivations);
+      if (props.activation && props.filterImgSize) {
+        makeImages(props.activation, setActivations);
       }
-      if (partial) {
-        makeImages(partial, setPartialState);
+      if (props.partial) {
+        makeImages(props.partial, setPartialState);
       }
-      if (synthetic) {
-        makeImages(synthetic, setSyntheticState);
+      if (props.synthetic) {
+        makeImages(props.synthetic, setSyntheticState);
       }
-      if (images && filterImgSize) {
-        makeImages(images, setImages);
+      if (props.images.length === 9) {
+        makeImages(props.images, setImages);
       }
     },
     [
-      activation,
+      props.activation,
       makeImages,
-      partial,
-      synthetic,
-      images,
-      target,
+      props.partial,
+      props.synthetic,
+      props.images,
       classes.image,
-      reference,
-      filterImgSize,
+      props.reference,
+      props.filterImgSize,
       imageSize
     ]
   );
-  return (
-    <Grid
-      item
-      xl={12}
-      lg={12}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onDragStart={e => {
-        e.preventDefault();
-      }}
-    >
-      <div className={`${classes.row}  filters`} ref={inputRef}>
-        <div className={relevance >= 0 ? classes.positive : classes.negative + " filter"} >
-          <div className={classes.row} >
-            <Typography variant="body1" >
-              Relevance
-              :  {relevance}
-            </Typography>
-            <Typography variant="body1" style={{ marginLeft: 20 }}>
-              Filter:  {filterIndex}
-            </Typography>
-            {filterName ? <Typography variant="body1" >
-              Filter name:  {filterName}
-            </Typography> : null}
-          </div>
+
+
+
+
+  React.useEffect(
+    () => {
+      console.log(props.images)
+    },
+    [
+
+      props.images,
+
+    ]
+  );
+  const def =
+    <div className={`${classes.row}  filters`} ref={inputRef}>
+      <div className={(props.relevance >= 0 || props.layer) ? classes.positive : classes.negative + " filter"} >
+        <div className={classes.row} >
+
+          {props.relevance ? <Typography variant="body1" >
+            Relevance
+            :  {props.relevance}
+          </Typography> : <Typography variant="body1" >
+            Layer
+            :  {props.layer}
+          </Typography>}
+
+
+          <Typography variant="body1" style={{ marginLeft: 20 }}>
+            Filter:  {props.filterIndex}
+          </Typography>
+          {props.filterName ? <Typography variant="body1" >
+            Filter name:  {props.filterName}
+          </Typography> : null}
+        </div>
+        {props.viewState !== "GRAPHVIEW" ? (
           <div className={classes.row}>
-            {partial ? <div className={classes.analysis}>{partialState}</div> : null}
-            {synthetic ? <div className={classes.analysis}>{syntheticState}</div> : null}
+            {props.partial ? <div className={classes.analysis}>{partialState}</div> : null}
+            {props.synthetic ? <div className={classes.analysis}>{syntheticState}</div> : null}
             <div className={classes.row} style={{ flexWrap: 'wrap' }} >
               <div className={classes.rowCol}>
-                <Typography className={classes.smallText}  >R(x|theta={filterIndex} )</Typography>
+                <Typography className={classes.smallText}  >R(x|theta={props.filterIndex} )</Typography>
                 <div className={classes.images}  >
                   {actState}
                 </div>
@@ -355,32 +351,82 @@ const FilterBox: React.FC<FilterBoxProps> = ({
               </div>
             </div>
           </div>
-          {view !== "GRAPHVIEW" ?
-            <div className={classes.overlay}>
-              <div className={classes.buttons}>
-                {((currentTab === 'activation' && hasActivationStats) || (currentTab === 'relevance' && hasRelevanceStats)) ?
-                  <ButtonGroup variant="contained" orientation='vertical' className={`${classes.buttonRight}  mb-2`} >
-                    <Button onClick={() => triggerTransitionPiping('GRAPHVIEW')}
-                    >
-                      Show Graph <ChevronRightIcon></ChevronRightIcon>
-                    </Button>
-                    <Button onClick={() => triggerTransitionPiping('STATISTICSVIEW')}
-                    >
-                      Show Statistics <ChevronRightIcon></ChevronRightIcon>
-                    </Button>
-                  </ButtonGroup>
-                  : <ButtonGroup variant="contained" orientation='vertical' className={`${classes.buttonRight}  mb-2`} >
-                    <Button onClick={() => triggerTransitionPiping('GRAPHVIEW')}
-                    >
-                      Show Graph <ChevronRightIcon></ChevronRightIcon>
-                    </Button>
-                  </ButtonGroup>
-                }
-              </div>
+        ) : <Typography variant="body1" style={{ marginLeft: 20 }}>
+          oiugzzguiuzgiuz
+        </Typography>}
+
+        {props.viewState !== "GRAPHVIEW" ?
+          <div className={classes.overlay}>
+            <div className={classes.buttons}>
+              {((props.currentTab === 'activation' && props.hasActivationStats) || (props.currentTab === 'relevance' && props.hasRelevanceStats)) ?
+                <ButtonGroup variant="contained" orientation='vertical' className={`${classes.buttonRight}  mb-2`} >
+                  <Button onClick={() => props.filterInspectionCallback(props.filterIndex, 'GRAPHVIEW')}
+                  >
+                    Show Graph <ChevronRightIcon></ChevronRightIcon>
+                  </Button>
+                  <Button onClick={() => props.filterInspectionCallback(props.filterIndex, 'STATISTICSVIEW')}
+                  >
+                    Show Statistics <ChevronRightIcon></ChevronRightIcon>
+                  </Button>
+                </ButtonGroup>
+                : <ButtonGroup variant="contained" orientation='vertical' className={`${classes.buttonRight}  mb-2`} >
+                  <Button onClick={() => console.log('GRAPHVIEW')}
+                  >
+                    Show Graph <ChevronRightIcon></ChevronRightIcon>
+                  </Button>
+                </ButtonGroup>
+              }
             </div>
-            : null}
-        </div >
+          </div>
+          : null}
+      </div >
+    </div>;
+
+
+  const gra = <div className={`${classes.block}  filters`} >
+    <div className={classes.positive + " filter"} >
+      <div className={classes.block} >
+        {imgState}
+        <Typography variant="body1" >
+          Layer
+          :  {props.layer}
+        </Typography>
+
+
+        <Typography variant="body1" style={{ marginLeft: 20 }}>
+          Filter:  {props.filterIndex}
+        </Typography>
+        {props.filterName ? <Typography variant="body1" >
+          Filter name:  {props.filterName}
+        </Typography> : null}
       </div>
+
+      <div className={classes.block} style={{ flexWrap: 'wrap' }} >
+
+        <div >
+          <Typography className={classes.smallText} >Sample</Typography>
+          <div className={classes.imagesGraph}  >
+            {imgState}
+          </div>
+        </div>
+      </div>
+
+
+    </div >
+  </div>;
+  return (
+    <Grid
+      item
+      xl={12}
+      lg={12}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onDragStart={e => {
+        e.preventDefault();
+      }}
+    >
+      {props.viewState === "DASHBOARDVIEW" ? def : gra}
+
     </Grid>
   );
 };

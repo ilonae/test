@@ -27,53 +27,36 @@ type SelectionProps = {
   parentCallback?: (...args: any[]) => any,
   params?: any[]
 };
-const Selection: React.FC<SelectionProps> = ({
-  select,
-  parentCallback,
-  params,
-  selectedParam
-}) => {
-  const [parameters, setParameters] = React.useState([]);
-  const [parameter, setParameter]: any = React.useState("");
+const Selection: React.FC<SelectionProps> = (props: SelectionProps) => {
+
   const classes = useStyles();
   const handleChange = (event: React.ChangeEvent<{
     name?: string;
     value: unknown;
   }>) => {
-    setParameter(event.target.value);
-    parentCallback(event.target.value);
+    props.parentCallback(event.target.value);
   };
-  React.useEffect(
-    () => {
-      if (typeof params !== "undefined" && params.length > 0 && selectedParam) {
-        setParameters(params);
-        setParameter(selectedParam);
-      }
-    },
-    [params, selectedParam]
-  );
-  if (!parameters) {
-    return null;
-  }
+
+
   return (
     <FormControl variant="filled" className={classes.root}>
       <InputLabel className={classes.label} htmlFor="selection">
-        {select}:
+        {props.select}:
       </InputLabel>
       <Select
         className={classes.text}
         native
-        value={parameter}
+        value={props.selectedParam}
         onChange={handleChange}
         inputProps={{
           index: "select"
         }}
       >
-        {parameters.map(i => (
+        {props.params ? (props.params.map(i => (
           <option key={i} value={i} className={classes.selected}>
             {i}
           </option>
-        ))}
+        ))) : null}
       </Select>
     </FormControl>
   );

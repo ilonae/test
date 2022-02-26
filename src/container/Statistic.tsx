@@ -31,10 +31,16 @@ const useStyles = makeStyles(() => ({
     height: "80%",
     width: "80%",
     display: "grid",
+    gridGap: '10px',
     gridTemplate: "repeat(3, 1fr) / repeat(3, 1fr)",
     margin: "0 auto"
   },
   test: {
+    aspectRatio: ' 1 / 1', /* a square ratio */
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    textAlign: 'center',
     padding: "10px",
     overflow: "hidden",
     minWidth: "0"
@@ -61,25 +67,19 @@ type StatisticBoxProps = {
   amount?: number
 };
 
-const StatisticBox: React.FC<StatisticBoxProps> = ({
-  statistic,
-  name,
-  relevance,
-  images,
-  amount
-}) => {
+const StatisticBox: React.FC<StatisticBoxProps> = (props: StatisticBoxProps) => {
   const classes = useStyles();
   const [imgState, setImages] = React.useState([]);
   React.useEffect(
     () => {
       const makeImages = async () => {
         let statisticsImages = Array();
-        for (let i = 0; i < images.length; i++) {
-          const img = `data:image/png;base64,${images[i]}`;
+        for (let i = 0; i < props.images.length; i++) {
+          const img = `data:image/png;base64,${props.images[i]}`;
           statisticsImages.push(
             <Container
               className={classes.test}
-              key={`${name}_image_index${i}`}
+              key={`${props.name}_image_index${i}`}
             >
               <img src={img} className={classes.image} id={"image"} alt="" />
             </Container>
@@ -87,13 +87,13 @@ const StatisticBox: React.FC<StatisticBoxProps> = ({
         }
         setImages(statisticsImages);
       };
-      if (images) {
+      if (props.images) {
         makeImages();
       }
     },
-    [images, classes.image, name, classes.test]
+    [props.images, classes.image, props.name, classes.test]
   );
-  const statisticWidth = amount === 2 ? 6 : amount === 4 ? 6 : 4;
+  const statisticWidth = props.amount === 2 ? 6 : props.amount === 4 ? 6 : 4;
   const statistics = (
     <div id={"statistic"} className={classes.box}>
       <div className={classes.flex}>
@@ -105,7 +105,7 @@ const StatisticBox: React.FC<StatisticBoxProps> = ({
           Class name:
         </Typography>
         <Typography variant="subtitle1" gutterBottom>
-          {name}
+          {props.name}
         </Typography>
 
         <Typography
@@ -113,10 +113,10 @@ const StatisticBox: React.FC<StatisticBoxProps> = ({
           gutterBottom
           className={classes.typography}
         >
-          {statistic}:
+          Class relevance:
         </Typography>
         <Typography variant="subtitle1" gutterBottom>
-          {relevance}
+          {props.relevance}
         </Typography>
       </div>
       <div className={classes.height}>{imgState}</div>{" "}
