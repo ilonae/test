@@ -19,7 +19,10 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'center',
     marginTop: '1em',
   },
-  grid: { width: '100%', height: "90%" },
+  grid: {
+    width: '100%',
+    overflow: 'scroll'
+  },
   centering: {
     paddingLeft: '3vh',
     paddingBottom: '3vh',
@@ -59,7 +62,7 @@ export interface FilterProps {
   selectedExperiment: string;
   selectedMethod: string;
   layers: string[];
-  order: string;
+  descending: boolean;
   methods: string[];
   models: string[];
   filters: any;
@@ -255,10 +258,10 @@ export const FilterComponent: React.FC<FilterProps> = (props: FilterProps) => {
             parentCallback={props.methodsCallback}
             params={props.methods}
           />
-          <SortingButton order={props.order} parentCallback={props.orderCallback} />
+          <SortingButton descending={props.descending} parentCallback={props.orderCallback} />
 
         </Grid>
-        <Grid item xs={12} style={{ height: "inherit" }}>
+        <Grid item xs={12} >
           <Grid container spacing={5} className={classes.centering} >
             <Typography gutterBottom  >Explanation (Target class: {props.target} ) </Typography>
           </Grid>

@@ -5,7 +5,6 @@ import { makeStyles, Grid, Typography } from "@material-ui/core";
 
 const useStyles = makeStyles(() => ({
   root: {
-    height: "100%",
     position: "relative"
   },
   crop: {
@@ -39,6 +38,7 @@ const Image: React.FC<ImageProps> = ({
   getLocalAnalysisCallback,
   title
 }) => {
+  const isMounted = React.useRef(true);
   const classes = useStyles();
   const [crop, setCrop]: any = React.useState({
     aspect: 0,
@@ -48,6 +48,16 @@ const Image: React.FC<ImageProps> = ({
     height: 0,
     unit: 'px'
   });
+  React.useEffect(() => {
+    if (isMounted.current) {
+      // fetch data
+      // setData (fetch result)
+
+      return () => {
+        isMounted.current = false;
+      };
+    }
+  }, [])
   /*   React.useEffect(() => {
       const handleCanvasClick = () => {
         const canvas = document.querySelector('canvas');
@@ -111,6 +121,7 @@ const Image: React.FC<ImageProps> = ({
       });
     } */
   const onCropComplete = async (crop: ReactCrop.Crop, percentCrop: ReactCrop.PercentCrop) => {
+    console.log("trigger")
     if ((crop.width && crop.height) !== 0) {
       getLocalAnalysisCallback(
         Math.floor(crop.x),

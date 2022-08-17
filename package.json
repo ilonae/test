@@ -95,6 +95,7 @@
     "react-scroll": "^1.8.3",
     "react-scroll-to-component": "^1.0.2",
     "react-simple-arrows": "^0.2.0",
+    "react-spinners": "^0.13.4",
     "react-tree-graph": "^6.0.0",
     "regenerator-runtime": "^0.13.9",
     "request-promise": "^4.2.6",

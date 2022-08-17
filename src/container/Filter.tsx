@@ -21,6 +21,10 @@ const useStyles = makeStyles(() => ({
   buttonRight: {
     marginLeft: "auto"
   },
+  partial: {
+    height: "100%",
+    width: "100%"
+  },
   add: { display: "inline" },
   caption: { display: "table-caption" },
   row: {
@@ -44,6 +48,11 @@ const useStyles = makeStyles(() => ({
     textAlign: "center",
     maxHeight: "100%"
   },
+  partialText: {
+    top: "80%",
+    right: 0,
+    position: "absolute"
+  },
   imagesGraph: {
     height: "auto",
     gap: "1em",
@@ -58,13 +67,22 @@ const useStyles = makeStyles(() => ({
   },
   analysis: {
     display: "flex",
-    flexDirection: "column",
+    flexDirection: "row",
     height: "auto",
+    position: "relative",
     marginLeft: "2%"
   },
+  rotation: {
+    transform: "rotate(-90deg)",
+    whiteSpace: "nowrap"
+  },
+  italic: {
+    fontStyle: 'italic',
+    whiteSpace: "nowrap"
+  },
   margins: {
-    marginLeft: "2em",
     border: "1px solid #555",
+    marginLeft: "-5em",
     verticalAlign: "middle",
     width: "10em",
     height: "10em",
@@ -137,7 +155,7 @@ const useStyles = makeStyles(() => ({
     justifyContent: "center",
     paddingBottom: "3%",
     paddingTop: "3%",
-    paddingLeft: "5%",
+    paddingLeft: "3%",
     "&:hover >*": {
       visibility: "visible"
     }
@@ -153,11 +171,11 @@ type FilterBoxProps = {
   parentCallback?: (value: boolean) => void,
   viewState?: string,
   relevance?: number,
-  filterIndex?: number,
+  conceptId?: number,
   filterImgSize?: number,
   cnnActivation?: any,
   layer?: string,
-  filterName: string,
+  filterName?: string,
   images?: any[],
   filterInspectionCallback: (index: number, viewType: string) => void;
   filterActivationCallback: (value: any) => void;
@@ -171,7 +189,7 @@ type FilterBoxProps = {
   target: string,
   placeholder: string,
   activation: any[],
-  partial: any[],
+  partial: any,
   synthetic: any[],
   position: any
 };
@@ -184,7 +202,7 @@ const FilterBox: React.FC<FilterBoxProps> = (props: FilterBoxProps) => {
   const [, setHovered] = React.useState(false);
   const inputRef = React.useRef();
   async function triggerTransitionPiping(viewtype: string) {
-    props.filterInspectionCallback(props.filterIndex, viewtype);
+    props.filterInspectionCallback(props.conceptId, viewtype);
   }
   /* const plot = svg => {
     var element = svg.node().parentNode.parentNode;
@@ -281,7 +299,7 @@ const FilterBox: React.FC<FilterBoxProps> = (props: FilterBoxProps) => {
       if (props.synthetic) {
         makeImages(props.synthetic, setSyntheticState);
       }
-      if (props.images.length === 9) {
+      if (props.images && props.images.length === 9) {
         makeImages(props.images, setImages);
       }
     },
@@ -299,46 +317,31 @@ const FilterBox: React.FC<FilterBoxProps> = (props: FilterBoxProps) => {
   );
 
 
-
-
-  React.useEffect(
-    () => {
-      console.log(props.images)
-    },
-    [
-
-      props.images,
-
-    ]
-  );
   const def =
     <div className={`${classes.row}  filters`} ref={inputRef}>
       <div className={(props.relevance >= 0 || props.layer) ? classes.positive : classes.negative + " filter"} >
         <div className={classes.row} >
-
-          {props.relevance ? <Typography variant="body1" >
-            Relevance
-            :  {props.relevance}
-          </Typography> : <Typography variant="body1" >
-            Layer
-            :  {props.layer}
-          </Typography>}
-
-
-          <Typography variant="body1" style={{ marginLeft: 20 }}>
-            Filter:  {props.filterIndex}
-          </Typography>
           {props.filterName ? <Typography variant="body1" >
             Filter name:  {props.filterName}
           </Typography> : null}
         </div>
         {props.viewState !== "GRAPHVIEW" ? (
           <div className={classes.row}>
-            {props.partial ? <div className={classes.analysis}>{partialState}</div> : null}
+            {props.partial ? <div className={classes.analysis}>
+              <Typography variant="body1" className={classes.rotation}>
+                Concept ID: {props.conceptId}
+              </Typography>
+              {partialState}
+              <div className={classes.partialText}>
+                <var>R<sub>{props.conceptId}</sub>(x|y)</var> = {Math.round(props.relevance * 100 + Number.EPSILON) / 100} %
+              </div>
+              <Typography variant="body1" className={classes.italic}>
+              </Typography>
+            </div> : null}
             {props.synthetic ? <div className={classes.analysis}>{syntheticState}</div> : null}
             <div className={classes.row} style={{ flexWrap: 'wrap' }} >
               <div className={classes.rowCol}>
-                <Typography className={classes.smallText}  >R(x|theta={props.filterIndex} )</Typography>
+                <Typography className={classes.smallText}  >R(x|theta={props.conceptId} )</Typography>
                 <div className={classes.images}  >
                   {actState}
                 </div>
@@ -358,19 +361,19 @@ const FilterBox: React.FC<FilterBoxProps> = (props: FilterBoxProps) => {
         {props.viewState !== "GRAPHVIEW" ?
           <div className={classes.overlay}>
             <div className={classes.buttons}>
-              {((props.currentTab === 'activation' && props.hasActivationStats) || (props.currentTab === 'relevance' && props.hasRelevanceStats)) ?
+              {((props.currentTab === 'activation') || (props.currentTab === 'relevance')) ?
                 <ButtonGroup variant="contained" orientation='vertical' className={`${classes.buttonRight}  mb-2`} >
-                  <Button onClick={() => props.filterInspectionCallback(props.filterIndex, 'GRAPHVIEW')}
+                  <Button onClick={() => props.filterInspectionCallback(props.conceptId, 'GRAPHVIEW')}
                   >
                     Show Graph <ChevronRightIcon></ChevronRightIcon>
                   </Button>
-                  <Button onClick={() => props.filterInspectionCallback(props.filterIndex, 'STATISTICSVIEW')}
+                  <Button onClick={() => props.filterInspectionCallback(props.conceptId, 'STATISTICSVIEW')}
                   >
                     Show Statistics <ChevronRightIcon></ChevronRightIcon>
                   </Button>
                 </ButtonGroup>
                 : <ButtonGroup variant="contained" orientation='vertical' className={`${classes.buttonRight}  mb-2`} >
-                  <Button onClick={() => console.log('GRAPHVIEW')}
+                  <Button onClick={() => props.filterInspectionCallback(props.conceptId, 'GRAPHVIEW')}
                   >
                     Show Graph <ChevronRightIcon></ChevronRightIcon>
                   </Button>
@@ -391,18 +394,14 @@ const FilterBox: React.FC<FilterBoxProps> = (props: FilterBoxProps) => {
           Layer
           :  {props.layer}
         </Typography>
-
-
         <Typography variant="body1" style={{ marginLeft: 20 }}>
-          Filter:  {props.filterIndex}
+          Concept ID:  {props.conceptId}
         </Typography>
         {props.filterName ? <Typography variant="body1" >
           Filter name:  {props.filterName}
         </Typography> : null}
       </div>
-
       <div className={classes.block} style={{ flexWrap: 'wrap' }} >
-
         <div >
           <Typography className={classes.smallText} >Sample</Typography>
           <div className={classes.imagesGraph}  >
@@ -410,10 +409,9 @@ const FilterBox: React.FC<FilterBoxProps> = (props: FilterBoxProps) => {
           </div>
         </div>
       </div>
-
-
     </div >
   </div>;
+
   return (
     <Grid
       item

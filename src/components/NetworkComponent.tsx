@@ -13,6 +13,7 @@ import {
 } from "@material-ui/core";
 import Filter from "../container/Filter";
 import * as d3 from "d3";
+
 const useStyles = makeStyles(() => ({
   root: {
     height: "72vh",
@@ -71,50 +72,46 @@ const useStyles = makeStyles(() => ({
     display: "block"
   }
 }));
-const Menu = (props: any) => <div>menu</div>;
-let content;
 
-
-
-interface graphProps {
+export interface graphProps {
   images?: {
     [key: string]: any[]
   };
   nodes?: any[];
   links?: any[];
-  properties?: {
-    [key: string]:
-    {
-      layer: string,
-      filter_index: number
-    }
-  }
+  jobId: any
 }
+
 type NetworkComponentProps = {
   graph?: graphProps,
-  filterIndex?: number,
+  conceptId?: number,
   viewState: string;
+  target: string,
   viewCallback: (value: any) => void;
 };
+
+
 const NetworkComponent: React.FC<NetworkComponentProps> = (props: NetworkComponentProps) => {
   const classes = useStyles();
   const dynamicContentWrapper = React.useRef(null);
-  const [view, changeView] = React.useState("GRAPHVIEW");
   const [showInfo, setInfoView] = React.useState(false);
+
+  const Menu = (props: any) => <div>menu</div>;
+  let content;
+
   function changeLayout(element: any) {
     setInfoView(!showInfo);
-
     showInfo
       ? (element.original.label.children[0].className = classes.hide)
       : (element.original.label.children[0].className =
         classes.imagecontainer);
-
 
     showInfo
       ? (element.original.label.children[1].className = classes.infocontainer)
       : (element.original.label.children[1].className = classes.hide);
 
   }
+
   function displayConnectionInfo(element: any) {
     console.log(element.d3source);
     console.log(element.source.label.children[1].innerHTML);
@@ -126,8 +123,10 @@ const NetworkComponent: React.FC<NetworkComponentProps> = (props: NetworkCompone
 
   async function createGraph() {
     for (const link in props.graph.links) {
-      const linkThickness = scale(props.graph.links[link]["label"]);
-      props.graph.links[link]["class"] = "contrib_id_" + link;
+      console.log(props.graph.links[link])
+      props.graph.links[link]["label"] = Math.round(props.graph.links[link].value * 100 + Number.EPSILON) / 100 + "%"
+      const linkThickness = scale(props.graph.links[link]["label"]) * 100;
+      //props.graph.links[link]["class"] = "contrib_id_" + link;
       props.graph.links[link]["config"] = {
         curve: d3.curveBasis,
         arrowheadStyle: "fill: #009374;",
@@ -141,17 +140,19 @@ const NetworkComponent: React.FC<NetworkComponentProps> = (props: NetworkCompone
     for (let node = 0; node < props.graph.nodes.length; node++) {
       props.graph.nodes[node]["labelType"] = "html";
       props.graph.nodes[node]["config"] = {
-        style: "fill: #CCEAE3; cursor:pointer, width:200px, height:200px"
+        style: "fill: #CCEAE3; cursor:pointer;  height: max-content"
       };
-      //const nodeId = graph.nodes[node]["id"];
       props.graph.nodes[node].class = "";
       content = document.createElement("div");
       var imgs = document.createElement("div");
       imgs.setAttribute("class", classes.imagecontainer);
       const currNode: string = props.graph.nodes[node].id;
-      const currFilterIndex = props.graph.properties[currNode].filter_index;
-      console.log(props.graph.images)
-      console.log(props.graph.images[currFilterIndex])
+      const currLayer: string = props.graph.nodes[node].layer_name;
+      const currFilterIndex = parseInt(currNode.split(":")[1])
+
+      //const currFilterIndex = props.graph.properties[currNode].filter_index;
+      //console.log(props.graph.images)
+      //console.log(props.graph.images[currFilterIndex])
 
       //imgs.classList.add(classes.imagecontainer);
       /*  for (let img in graph.properties[nodeId]['images']) {
@@ -164,7 +165,7 @@ const NetworkComponent: React.FC<NetworkComponentProps> = (props: NetworkCompone
       //content.appendChild(imgs);
       const filter = (
         <Filter
-          target={""}
+          target={props.target}
           viewState={props.viewState}
           position={0}
           partial={[]}
@@ -175,12 +176,12 @@ const NetworkComponent: React.FC<NetworkComponentProps> = (props: NetworkCompone
           filterAmount={props.graph.nodes.length}
           images={props.graph.images[currFilterIndex]}
           placeholder={""}
-          filterIndex={currFilterIndex}
+          conceptId={currFilterIndex}
           parentCallback={(val) => console.log(val)}
           filterActivationCallback={() => (console.log(""))}
           filterHeatmapCallback={() => (console.log(""))}
           key={currNode}
-          layer={(props.graph.properties[currNode].layer)}
+          layer={currLayer}
           filterImgSize={28}
           filterInspectionCallback={() => console.log("hi")}
           filterSamplesCallback={() => console.log("hi")}
@@ -196,8 +197,11 @@ const NetworkComponent: React.FC<NetworkComponentProps> = (props: NetworkCompone
       inner.className = "test";
       //inner.append({ el => { dynamicContentWrapper = el }});
       //embed.appendChild(inner)
+      content.setAttribute("style", "width:300px");
       content.innerHTML = ReactDOMServer.renderToStaticMarkup(filter);
+
       props.graph.nodes[node]["label"] = content;
+      console.log(props.graph.nodes[node])
       //.nodes[node]['label'] = content;
       //graph.nodes[node]['label'].onmouseover = function () {setShown(true); };
       //graph.nodes[node]['label'].onmouseout = function () {setShown(false)};
@@ -206,13 +210,11 @@ const NetworkComponent: React.FC<NetworkComponentProps> = (props: NetworkCompone
 
   React.useEffect(
     () => {
-      console.log(Object.keys(props.graph.images).length)
-      console.log(props.graph.nodes.length)
-      if (props.graph.nodes.length === Object.keys(props.graph.images).length && Object.values(props.graph.images).map(value => value.length === 9)) {
+      if (props.graph.nodes.length) {
         createGraph();
       }
     },
-    [props.graph.images]);
+    [props.graph.nodes]);
 
 
   React.useEffect(() => {
@@ -235,7 +237,7 @@ const NetworkComponent: React.FC<NetworkComponentProps> = (props: NetworkCompone
       <CardContent className={classes.root}>
         <Box display="flex" flexDirection="column" position="relative">
           <Box flexGrow={1}>
-            <Typography gutterBottom>Selected Filter: {props.filterIndex}</Typography>
+            <Typography gutterBottom>Selected Concept ID: {props.conceptId}</Typography>
             <div
               ref={el => (dynamicContentWrapper.current = el)}
               className="dynamic-content-wrapper"
@@ -243,7 +245,7 @@ const NetworkComponent: React.FC<NetworkComponentProps> = (props: NetworkCompone
           </Box>
           <Button
             startIcon={<ArrowBackIosIcon />}
-            onClick={() => changeView("DASHBOARDVIEW")}
+            onClick={() => props.viewCallback("DASHBOARDVIEW")}
             variant="contained"
             className={classes.buttonback}
           >
@@ -260,7 +262,8 @@ const NetworkComponent: React.FC<NetworkComponentProps> = (props: NetworkCompone
             animate={1000}
             fitBoundaries
             config={{
-              nodesep: 200,
+              nodesep: 500,
+              ranksep: 150,
               edgesep: 100
             }}
             zoomable

@@ -7,7 +7,7 @@ const useStyles = makeStyles(() => ({
     height: "inherit",
     padding: "3vh",
     position: "relative",
-    overflow: "scroll",
+    overflow: "hidden",
     marginBottom: "10vh"
   },
   label: {
@@ -19,7 +19,11 @@ const useStyles = makeStyles(() => ({
   selected: {
     color: "black"
   },
+  flex: {
+    display: "flex"
+  },
   centering: {
+    paddingTop: "1em",
     paddingLeft: "3vh",
     paddingBottom: "5vh",
     justifyContent: "center"
@@ -32,22 +36,33 @@ const useStyles = makeStyles(() => ({
     marginTop: "1em"
   },
   marginTop: {
-    marginTop: "2em"
+    marginTop: "5em"
+  },
+  conditional: {
+    marginLeft: "10%",
+    top: "5%"
+  },
+  samples: {
+    left: "5%",
+    marginLeft: "10%",
+    top: "5%"
   }
 }));
 
 export interface TabProps {
   value: number,
   layerFilters: {
-    position: any[],
-    partial: any[],
-    synthetic: any[],
-    heatmaps: any[],
-    cnn_activations: any[],
-    filter_names: any[],
-    images: {},
-    filter_relevances: any[],
-    filter_indices: any[]
+    conceptIds: any[],
+    filterNames: {},
+    conceptRelevances: {},
+    selectedConceptIds: any[],
+    selectedConceptRelevances: Record<string, number>,
+    images: Record<string, Array<string>>,
+    heatmaps: Record<string, Array<string>>,
+    partial: Record<string, string>,
+    synthetic: Record<string, Array<string>>,
+    cnnActivations: Record<string, Array<string>>,
+    position: Record<string, Array<string>>
   },
   name: string,
   viewState: string,
@@ -68,25 +83,10 @@ export interface TabProps {
 
 const TabContent: React.FC<TabProps> = (props: TabProps) => {
   const classes = useStyles();
-  const [filters, setFilters]: any = React.useState({
-    position: [],
-    partial: [],
-    synthetic: [],
-    heatmaps: [],
-    cnn_activations: [],
-    filter_names: [],
-    images: {},
-    filter_relevances: [],
-    filter_indices: []
-  });
+
   const [filterBoxes, setFilterBoxes] = React.useState([]);
 
-  React.useEffect(
-    () => {
-      setFilters(props.layerFilters);
-    },
-    [props.layerFilters]
-  );
+
 
   const isObject = (obj: any) => obj != null && obj.constructor.name === "Object";
 
@@ -94,62 +94,50 @@ const TabContent: React.FC<TabProps> = (props: TabProps) => {
   React.useEffect(
     () => {
       const filterBox = [];
-      if (isObject(filters.images)) {
-        if (filters && Object.keys(filters.images).length !== 0) {
-
-          const filterIndices = filters.filter_indices;
-          for (let i = 0; i < filterIndices.length; i++) {
-            const currIndex: number = filterIndices[i];
-            filterBox.push(
-              <Filter
-                target={props.target}
-                viewState={props.viewState}
-                position={filters.position[currIndex]}
-                partial={filters.partial[currIndex]}
-                synthetic={filters.synthetic[currIndex]}
-                activation={filters.heatmaps[currIndex]}
-                cnnActivation={filters.cnn_activations[currIndex]}
-                filterPosition={filters.position[currIndex]}
-                filterName={filters.filter_names[i]}
-                filterAmount={filterIndices.length}
-                images={filters.images[currIndex]}
-                placeholder={props.placeholder}
-                filterIndex={currIndex}
-                filterActivationCallback={props.filterActivationCallback}
-                filterHeatmapCallback={props.filterHeatmapCallback}
-                key={`filter_index_${i}`}
-                relevance={filters.filter_relevances[currIndex]}
-                filterImgSize={props.filterImgSize}
-                filterInspectionCallback={props.filterInspectionCallback}
-                filterSamplesCallback={props.filterSamplesCallback}
-                nameCallback={props.nameCallback}
-                currentTab={props.currentTab}
-                hasRelevanceStats={props.hasRelevanceStats}
-                hasActivationStats={props.hasActivationStats}
-              />
-            );
-          }
+      if (props.layerFilters.selectedConceptIds) {
+        const filterIndices = props.layerFilters.selectedConceptIds;
+        for (let i = 0; i < filterIndices.length; i++) {
+          const currIndex: string = filterIndices[i];
+          //console.log(props.layerFilters.heatmaps[currIndex])
+          filterBox.push(
+            <Filter
+              target={props.target}
+              viewState={props.viewState}
+              position={props.layerFilters.position[currIndex]}
+              partial={props.layerFilters.partial[currIndex]}
+              synthetic={props.layerFilters.synthetic[currIndex]}
+              activation={props.layerFilters.heatmaps[currIndex]}
+              cnnActivation={props.layerFilters.cnnActivations[currIndex]}
+              filterPosition={props.layerFilters.position[currIndex]}
+              filterAmount={filterIndices.length}
+              images={props.layerFilters.images[currIndex]}
+              placeholder={props.placeholder}
+              conceptId={parseInt(currIndex)}
+              filterActivationCallback={props.filterActivationCallback}
+              filterHeatmapCallback={props.filterHeatmapCallback}
+              key={`filter_index_${i}`}
+              relevance={props.layerFilters.selectedConceptRelevances[currIndex]}
+              filterImgSize={props.filterImgSize}
+              filterInspectionCallback={props.filterInspectionCallback}
+              filterSamplesCallback={props.filterSamplesCallback}
+              nameCallback={props.nameCallback}
+              currentTab={props.currentTab}
+              hasRelevanceStats={props.hasRelevanceStats}
+              hasActivationStats={props.hasActivationStats}
+            />
+          );
         }
       }
-
       setFilterBoxes(filterBox);
     },
-    [filters,
-      props.value,
-      props.target,
-      props.currentTab,
-      props.filterActivationCallback,
-      props.filterHeatmapCallback,
-      props.filterImgSize,
-      props.filterInspectionCallback,
-      props.filterSamplesCallback,
-      props.hasActivationStats,
-      props.hasRelevanceStats,
-      props.nameCallback,
-      props.placeholder]
+    [props.layerFilters]
   );
   return (
     <div className={classes.root} id="scroll">
+      <div className={classes.flex}>
+        <Typography className={classes.conditional} >conditional heatmap</Typography>
+        <Typography className={classes.samples}  >reference samples</Typography>
+      </div>
       <Grid container spacing={5} className={classes.centering}>
         {props.name.length ?
           <Typography className={classes.marginTop} gutterBottom>{props.name}</Typography> : null}

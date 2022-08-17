@@ -7,20 +7,21 @@ import InputWidget from '../widgets/InputWidget';
 //import UploadButton from '../widgets/UploadButton';
 const useStyles = makeStyles({
   images: {
-    maxHeight: '90%',
-    display: 'inherit',
-    flexDirection: 'row'
+    margin: 0,
   },
   tools: {
-    justifyContent: 'center',
-    whiteSpace: 'nowrap'
+    whiteSpace: 'nowrap',
+    justifyContent: "center"
   },
   root: {
     height: '91vh',
     padding: '3vh',
     textAlign: 'center',
-    display: 'grid',
+    position: "relative",
     flexDirection: 'column',
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center"
   },
   imgs: {
     height: '60%',
@@ -214,6 +215,7 @@ export interface SidebarProps {
   indexCallback: (value: any) => void;
   image: string;
   heatmap: string;
+  conceptatlas?: string;
   localAnalysisCallback(x: any, y: any, width: any, height: any, maskId?: number): Promise<void>;
   index: number;
   classIndices: any[];
@@ -268,30 +270,34 @@ export const SidebarComponent: React.FC<SidebarProps> = (props: SidebarProps) =>
 
 
   return <Card className={classes.root} id={'inputsCard'}>
-    <Grid className={classes.imgs}  >
-      <Grid container className={classes.tools} >
-        <Typography gutterBottom>Target class: {props.target}</Typography>
-      </Grid>
-      <Grid container
-        className={
-          classes.images
-        }
-      >
-        <Typography gutterBottom>Analyze image by index: </Typography>
-        <InputWidget id="index" value={props.index} maxIndex={props.maxIndex} params={""} type="number" input="" inputCallback={props.indexCallback} filterNameCallback={() => console.log("test")}></InputWidget>
-        <Image
-          content={props.image}
-          title={'Image'}
-          getLocalAnalysisCallback={props.localAnalysisCallback}
-        />
-        <Image
-          content={props.heatmap}
-          title={'R(x|theta={' + props.target + '})'}
-          getLocalAnalysisCallback={props.localAnalysisCallback}
-        />
-      </Grid>
+    <Grid container className={classes.tools} >
+      <Typography gutterBottom>Target class: {props.target}</Typography>
     </Grid>
-    <Grid className={classes.search}>
+    <Grid container
+      className={
+        classes.images
+      }
+    >
+      {/* <Typography gutterBottom>Analyze image by index: </Typography>
+        <InputWidget id="index" value={props.index} maxIndex={props.maxIndex} params={""} type="number" input="" inputCallback={props.indexCallback} filterNameCallback={() => console.log("test")}></InputWidget>
+        */} <Image
+        content={props.image}
+        title={'Input'}
+        getLocalAnalysisCallback={props.localAnalysisCallback}
+      />
+      <Image
+        content={props.heatmap}
+        title={'Heatmap'}
+        getLocalAnalysisCallback={props.localAnalysisCallback}
+      />
+      <Image
+        content={props.conceptatlas}
+        title={'Concept Atlas'}
+        getLocalAnalysisCallback={props.localAnalysisCallback}
+      />
+    </Grid>
+
+    {/*  <Grid className={classes.search}>
       <Typography gutterBottom>Target: </Typography>
       <Autocomplete
         freeSolo
@@ -305,7 +311,7 @@ export const SidebarComponent: React.FC<SidebarProps> = (props: SidebarProps) =>
       />
       < div className={classes.svg} ref={inputRef} >
       </div>
-    </Grid>
+    </Grid> */}
   </Card>
 };
 

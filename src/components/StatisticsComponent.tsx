@@ -90,7 +90,7 @@ interface statisticsProps {
 }
 type StatisticsComponentProps = {
   statistics?: statisticsProps,
-  filterIndex?: number,
+  conceptId?: number,
   statisticName: string;
   viewState: string;
   viewCallback: (value: any) => void;
@@ -149,7 +149,7 @@ const StatisticsComponent: React.FC<StatisticsComponentProps> = (props: Statisti
           </Typography>
 
           <Typography gutterBottom variant="h6" align="center">
-            Selected Filter: {props.filterIndex}
+            Selected Concept ID: {props.conceptId}
           </Typography>
         </Box>
 
