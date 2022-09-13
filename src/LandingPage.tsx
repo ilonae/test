@@ -34,7 +34,6 @@ const SignUpLoginForm = (socket: any) => {
             .emit('authenticate', { token });
     };
 
-
     return (
         <div className={classes.root}>
             <form onSubmit={onSubmit} className={classes.form}>

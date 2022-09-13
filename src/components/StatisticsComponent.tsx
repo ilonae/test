@@ -93,6 +93,7 @@ type StatisticsComponentProps = {
   conceptId?: number,
   statisticName: string;
   viewState: string;
+  currentLayer: string,
   viewCallback: (value: any) => void;
 };
 const StatisticsComponent: React.FC<StatisticsComponentProps> = (props: StatisticsComponentProps) => {

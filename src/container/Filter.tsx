@@ -1,5 +1,4 @@
 import React from "react";
-//import * as d3 from "d3";
 import {
   Grid,
   Typography,
@@ -8,6 +7,7 @@ import {
   ButtonGroup
 } from "@material-ui/core";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
+
 const useStyles = makeStyles(() => ({
   buttons: {
     display: "flex",
@@ -17,7 +17,6 @@ const useStyles = makeStyles(() => ({
     padding: "2em",
     alignItems: "center"
   },
-  buttonLeft: {},
   buttonRight: {
     marginLeft: "auto"
   },
@@ -25,7 +24,9 @@ const useStyles = makeStyles(() => ({
     height: "100%",
     width: "100%"
   },
-  add: { display: "inline" },
+  add: {
+    display: "inline"
+  },
   caption: { display: "table-caption" },
   row: {
     display: "flex",
@@ -33,7 +34,6 @@ const useStyles = makeStyles(() => ({
     alignItems: "center",
     marginLeft: "1em"
   },
-
   block: {
     background: "red"
   },
@@ -166,101 +166,32 @@ const useStyles = makeStyles(() => ({
   }
 }));
 type FilterBoxProps = {
-  filterAmount?: number,
   reference?: string,
-  parentCallback?: (value: boolean) => void,
   viewState?: string,
   relevance?: number,
   conceptId?: number,
   filterImgSize?: number,
-  cnnActivation?: any,
   layer?: string,
   filterName?: string,
-  images?: any[],
+  images: any[],
   filterInspectionCallback: (index: number, viewType: string) => void;
-  filterActivationCallback: (value: any) => void;
-  filterSamplesCallback: (value: any) => void;
-  filterHeatmapCallback: (value: any) => void;
-  nameCallback: (value: any) => void;
-  hasActivationStats: number,
-  hasRelevanceStats: number,
   currentTab: string,
-  filterPosition: any[],
-  target: string,
-  placeholder: string,
   activation: any[],
-  partial: any,
-  synthetic: any[],
-  position: any
+  conditionalHeatmap: any,
 };
 const FilterBox: React.FC<FilterBoxProps> = (props: FilterBoxProps) => {
-  const classes = useStyles(props.filterImgSize);
-  const [partialState, setPartialState] = React.useState([]);
-  const [syntheticState, setSyntheticState] = React.useState([]);
+  let imageSize;
+  const classes = useStyles();
+  const [conditionalState, setConditionalState] = React.useState([]);
   const [actState, setActivations] = React.useState([]);
   const [imgState, setImages] = React.useState([]);
-  const [, setHovered] = React.useState(false);
   const inputRef = React.useRef();
-  async function triggerTransitionPiping(viewtype: string) {
-    props.filterInspectionCallback(props.conceptId, viewtype);
-  }
-  /* const plot = svg => {
-    var element = svg.node().parentNode.parentNode;
-    var position = element.getBoundingClientRect();
-    var x = position.left;
-    var y = position.top;
-    //let width = element.clientWidth;
-    //let height = element.clientHeight;
-    /* console.log(x, y);
-    let img = document.getElementsByClassName("ReactCrop__image")[1];
-    const defs = svg.append("defs");
-    const marker = defs.append("marker");
-    const g = svg.append("g");
-    const arrow = g.append("path");
-    }; */
 
-  React.useEffect(
-    () => {
-      /*  const createBarPlot = () => {
-         var canvas = d3.select(inputRef.current);
-         var f = canvas.insert("svg", ":first-child");
-         plot(f);
-       }; */
-      if (props.filterPosition) {
-      }
-    },
-    [props.filterPosition]
-  );
-  /* React.useEffect(() => {
-         console.log(inputRef);
-        window.addEventListener('scroll', handleScroll, true);
-        let svg = d3.select(inputRef.current)
-          .append('svg')
-          .attr('width', 500)
-          .attr('height', 500)
-        let rect_width = 95;
-        svg.selectAll('rect')
-          .data([100, 200])
-          .enter()
-          .append('rect')
-          .attr('x', (d, i) => 5 + i * (rect_width + 5))
-          .attr('y', d => 500 - d)
-          .attr('width', rect_width)
-          .attr('height', d => d)
-          .attr('fill', 'teal'); */
-  /*  const fWidth = getComputedStyle(document.getElementsByClassName('filter')[0])
-       .getPropertyValue("width")
-       .trim(); // the result have a leading whitespace.
-     setFilterWidth(
-       fWidth
-     );
-   
-  }, []);*/
-  let imageSize;
+
   if (props.images) {
     imageSize = props.images.length === 9 ? 4 : 12;
   }
-  const makeImages = React.useCallback((images, stateToSet) => {
+  const createFilterImgs = React.useCallback((images, stateToSet, reference, classes) => {
     const filterImages = [];
     if (images instanceof Array) {
       for (let i = 0; i < images.length; i++) {
@@ -269,45 +200,40 @@ const FilterBox: React.FC<FilterBoxProps> = (props: FilterBoxProps) => {
           <img
             src={img}
             className={classes.image}
-            key={`${props.reference}_image_index${i}`}
+            key={`${reference}_image_index${i}`}
             alt=""
           />
         );
       }
-      stateToSet(filterImages);
     } else {
       const img = `data:image/png;base64,${images}`;
       filterImages.push(
         <img
           src={img}
           className={classes.margins}
-          key={`${props.reference}_image`}
+          key={`${reference}_image`}
           alt=""
         />
       );
-      stateToSet(filterImages);
     }
+    return stateToSet(filterImages);
   }, [classes.image, classes.margins, props.reference]);
+
   React.useEffect(
     () => {
       if (props.activation && props.filterImgSize) {
-        makeImages(props.activation, setActivations);
+        createFilterImgs(props.activation, setActivations, props.reference, classes);
       }
-      if (props.partial) {
-        makeImages(props.partial, setPartialState);
+      if (props.conditionalHeatmap) {
+        createFilterImgs(props.conditionalHeatmap, setConditionalState, props.reference, classes);
       }
-      if (props.synthetic) {
-        makeImages(props.synthetic, setSyntheticState);
-      }
-      if (props.images && props.images.length === 9) {
-        makeImages(props.images, setImages);
+      if (props.images) {
+        createFilterImgs(props.images, setImages, props.reference, classes);
       }
     },
     [
       props.activation,
-      makeImages,
-      props.partial,
-      props.synthetic,
+      props.conditionalHeatmap,
       props.images,
       classes.image,
       props.reference,
@@ -316,8 +242,7 @@ const FilterBox: React.FC<FilterBoxProps> = (props: FilterBoxProps) => {
     ]
   );
 
-
-  const def =
+  const defaultFilter =
     <div className={`${classes.row}  filters`} ref={inputRef}>
       <div className={(props.relevance >= 0 || props.layer) ? classes.positive : classes.negative + " filter"} >
         <div className={classes.row} >
@@ -327,18 +252,18 @@ const FilterBox: React.FC<FilterBoxProps> = (props: FilterBoxProps) => {
         </div>
         {props.viewState !== "GRAPHVIEW" ? (
           <div className={classes.row}>
-            {props.partial ? <div className={classes.analysis}>
+            <div className={classes.analysis}>
               <Typography variant="body1" className={classes.rotation}>
                 Concept ID: {props.conceptId}
               </Typography>
-              {partialState}
+              {conditionalState}
               <div className={classes.partialText}>
                 <var>R<sub>{props.conceptId}</sub>(x|y)</var> = {Math.round(props.relevance * 100 + Number.EPSILON) / 100} %
               </div>
               <Typography variant="body1" className={classes.italic}>
               </Typography>
-            </div> : null}
-            {props.synthetic ? <div className={classes.analysis}>{syntheticState}</div> : null}
+            </div>
+
             <div className={classes.row} style={{ flexWrap: 'wrap' }} >
               <div className={classes.rowCol}>
                 <Typography className={classes.smallText}  >R(x|theta={props.conceptId} )</Typography>
@@ -384,47 +309,38 @@ const FilterBox: React.FC<FilterBoxProps> = (props: FilterBoxProps) => {
           : null}
       </div >
     </div>;
-
-
-  const gra = <div className={`${classes.block}  filters`} >
-    <div className={classes.positive + " filter"} >
-      <div className={classes.block} >
-        {imgState}
-        <Typography variant="body1" >
-          Layer
-          :  {props.layer}
-        </Typography>
-        <Typography variant="body1" style={{ marginLeft: 20 }}>
-          Concept ID:  {props.conceptId}
-        </Typography>
-        {props.filterName ? <Typography variant="body1" >
-          Filter name:  {props.filterName}
-        </Typography> : null}
-      </div>
-      <div className={classes.block} style={{ flexWrap: 'wrap' }} >
-        <div >
+  const graphFilter =
+    <div className={`${classes.block}  filters`} >
+      <div className={classes.positive + " filter"} >
+        <div className={classes.block} >
+          <Typography variant="body1" >
+            Layer : {props.layer}
+          </Typography>
+          <Typography variant="body1" style={{ marginLeft: 20 }}>
+            Concept ID : {props.conceptId}
+          </Typography>
+          {props.filterName ?
+            <Typography variant="body1" > Filter name : {props.filterName} </Typography>
+            : null}
+        </div>
+        <div className={classes.block} style={{ flexWrap: 'wrap' }} >
           <Typography className={classes.smallText} >Sample</Typography>
           <div className={classes.imagesGraph}  >
             {imgState}
           </div>
         </div>
-      </div>
-    </div >
-  </div>;
+      </div >
+    </div>;
 
   return (
     <Grid
       item
       xl={12}
       lg={12}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
       onDragStart={e => {
         e.preventDefault();
-      }}
-    >
-      {props.viewState === "DASHBOARDVIEW" ? def : gra}
-
+      }} >
+      {props.viewState === "DASHBOARDVIEW" ? defaultFilter : graphFilter}
     </Grid>
   );
 };

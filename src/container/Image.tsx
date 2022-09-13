@@ -5,7 +5,8 @@ import { makeStyles, Grid, Typography } from "@material-ui/core";
 
 const useStyles = makeStyles(() => ({
   root: {
-    position: "relative"
+    position: "relative",
+    marginTop: "10%"
   },
   crop: {
     textAlign: "center",
@@ -33,13 +34,9 @@ type ImageProps = {
   title?: string,
   getLocalAnalysisCallback?: (...args: any[]) => any
 };
-const Image: React.FC<ImageProps> = ({
-  content,
-  getLocalAnalysisCallback,
-  title
-}) => {
-  const isMounted = React.useRef(true);
+const Image: React.FC<ImageProps> = ({ content, getLocalAnalysisCallback, title }) => {
   const classes = useStyles();
+  const [complete, setComplete]: any = React.useState(false)
   const [crop, setCrop]: any = React.useState({
     aspect: 0,
     x: 0,
@@ -48,81 +45,13 @@ const Image: React.FC<ImageProps> = ({
     height: 0,
     unit: 'px'
   });
-  React.useEffect(() => {
-    if (isMounted.current) {
-      // fetch data
-      // setData (fetch result)
 
-      return () => {
-        isMounted.current = false;
-      };
-    }
-  }, [])
-  /*   React.useEffect(() => {
-      const handleCanvasClick = () => {
-        const canvas = document.querySelector('canvas');
-        const ctx = canvas.getContext('2d');
-        for (var i = 0; i < watershed.length; i++) {
-          for (var j = 0; j < watershed[i].length; j++) {
-            const imageData = ctx.getImageData(i, j, 1, 1);
-            const data = imageData.data;
-            console.log(data.length);
-            let iterator = i * 4 * j;
-            data[iterator] = data[iterator] * watershed[i][j]; // red
-            data[iterator + 1] = data[iterator + 1] * watershed[i][j]; // green
-            data[iterator + 2] = data[iterator + 2] * watershed[i][j]; // blue
-            data[iterator + 3] = 1;
-            ctx.putImageData(imageData, i, j);
-          }
-        }
-  
-        const dataURL = canvas.toDataURL();
-        setCoordinates(dataURL);
-      };
-      if (isToggled === true && title === 'heatmap' && watershed) {
-        console.log(title);
-        handleCanvasClick();
-      }
-    }, [isToggled, title, watershed, setCoordinates]);
-   */
-  const onImageLoaded = (image: HTMLImageElement) => {
-    setCrop({
-      ...crop,
-      x: 0,
-      y: 0,
-      width: image.clientHeight,
-      height: image.clientHeight
-    });
-  };
-  /*   async function pngArray() {
-      await fetch("/api/png_array", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        }
-      }).then(response => {
-        if (response.ok) {
-          response.json().then(json => {
-            const res = json.split("\x89PNG");
-            function isempty(x) {
-              if (x !== "") return true;
-            }
-            const filtered = res.filter(isempty);
-            filtered.forEach(function (e, i, a) {
-              a[i] = "\x89PNG" + a[i];
-            });
-            var binary = "";
-            for (var i = 0; i < filtered[0].length; i++) {
-              binary += String.fromCharCode(filtered[0].charCodeAt(i) & 0xff);
-            }
-            const content = "data:image/png;base64," + btoa(binary);
-          });
-        }
-      });
-    } */
-  const onCropComplete = async (crop: ReactCrop.Crop, percentCrop: ReactCrop.PercentCrop) => {
-    console.log("trigger")
-    if ((crop.width && crop.height) !== 0) {
+  React.useEffect(() => {
+    setComplete(false)
+  }, []);
+
+  React.useEffect(() => {
+    if (complete && crop.width !== 0) {
       getLocalAnalysisCallback(
         Math.floor(crop.x),
         Math.floor(crop.y),
@@ -130,10 +59,27 @@ const Image: React.FC<ImageProps> = ({
         crop.height
       );
     }
+  }, [crop, complete]);
+
+
+  const onImageLoaded = (image: HTMLImageElement) => {
+    setCrop({
+      x: 0,
+      y: 0,
+      width: image.clientHeight,
+      height: image.clientHeight
+    });
   };
-  const onCropChange = (crop: ReactCrop.Crop, percentCrop: ReactCrop.PercentCrop) => {
+  const onCropComplete = (crop: ReactCrop.Crop, percentCrop: ReactCrop.PercentCrop) => {
+    setComplete(true)
     setCrop(crop);
   };
+
+  const onCropChange = (crop: ReactCrop.Crop, percentCrop: ReactCrop.PercentCrop) => {
+    setComplete(false)
+    setCrop(crop);
+  };
+
   return (
     <Grid item lg={12} md={12} xl={12} xs={12} className={classes.root}>
       {" "}

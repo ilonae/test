@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
-import queueries from '../util/queries';
 
 class Auth extends Component {
     constructor(props) {

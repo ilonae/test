@@ -10,7 +10,7 @@ const useStyles = makeStyles((theme) => ({
     height: '91vh',
     padding: '3vh',
     position: 'relative',
-    overflow: 'hidden',
+    overflow: 'scroll',
     width: "100%"
   },
   innergrid: {
@@ -20,8 +20,7 @@ const useStyles = makeStyles((theme) => ({
     marginTop: '1em',
   },
   grid: {
-    width: '100%',
-    overflow: 'scroll'
+    width: '100%'
   },
   centering: {
     paddingLeft: '3vh',
@@ -33,29 +32,24 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "center",
   },
   tabs: {
-    zIndex: 200,
+    zIndex: 80,
     position: "relative",
     flexGrow: 1,
     backgroundColor: theme.palette.background.paper,
     boxShadow: '0 0 0 4px white, 0 6px 4px black'
+  },
+  tab: {
+    maxWidth: "40em"
   }
 }));
 
 export interface FilterProps {
   target: string;
-  filterAmount: number;
-  viewTypeCallback: (value: any) => void;
-  filterActivationCallback: (value: any) => void;
-  filterHeatmapCallback: (value: any) => void;
   orderCallback: (value: any) => void;
   experimentsCallback: (value: any) => void;
   methodsCallback: (value: any) => void;
   filterInspectionCallback: (index: number, view: string, currentTab: string) => void;
-  filterSamplesCallback: (value: any) => void;
   analysisCallback: (value: any) => void;
-  compareCallback: (value: any) => void;
-  indexCallback: (value: any, currentTab: string) => void;
-  nameCallback: (value: any) => void;
   layerCallback: (value: any) => void;
   viewState: string;
   selectedLayer: string;
@@ -66,27 +60,18 @@ export interface FilterProps {
   methods: string[];
   models: string[];
   filters: any;
+  selectedTab: any;
   compareFilters: {
-    filter_indices: { 'max_activation': [], 'max_relevance_target': [] },
-    filter_names: { 'max_activation': {}, 'max_relevance_target': {} },
-    filter_relevances: { 'max_activation': {}, 'max_relevance_target': {} },
-    images: { 'max_activation': {}, 'max_relevance_target': {} },
-    heatmaps: { 'max_activation': {}, 'max_relevance_target': {} },
-    partial: { 'max_activation': {}, 'max_relevance_target': {} },
-    synthetic: { 'max_activation': {}, 'max_relevance_target': {} },
-    position: { 'max_activation': {}, 'max_relevance_target': {} },
-    cnn_activations: { 'max_activation': {}, 'max_relevance_target': {} }
+    selectedConceptIds: { 'activation': [], 'relevance': [] },
+    conceptNames: { 'activation': {}, 'relevance': {} },
+    selectedConceptRelevances: { 'activation': {}, 'relevance': {} },
+    images: { 'activation': {}, 'relevance': {} },
+    heatmaps: { 'activation': {}, 'relevance': {} },
+    conditionalHeatmap: { 'activation': {}, 'relevance': {} },
+    modes: ['activation', 'relevance']
 
   },
-  filterImgSize: number,
-  isSynth: number;
-  isCnn: number;
-  isMaxActivation: number;
-  isMaxRelevanceTarget: number;
-  hasRelevanceStats: number;
-  hasActivationStats: number;
-  actFilters: any;
-  relFilters: any
+  filterImgSize: number
 }
 
 const tabStyles: (theme: Theme) => StyleRules<string> = theme =>
@@ -137,29 +122,14 @@ export default withStyles(tabStyles)(AntTab);
 export const FilterComponent: React.FC<FilterProps> = (props: FilterProps) => {
   const [tabCaption, setTabCaption] = React.useState([]);
   const [value, setValue] = React.useState(0);
-  const [currentTab, setCurrentTab] = React.useState('');
-  const [compare, setToCompare] = React.useState(false);
   const [extraProps, setExtraProps]: any = React.useState({
-    "max_activation": {
+    "activation": {
     },
-    "max_relevance_target": {
+    "relevance": {
     }
   });
 
-  var placeholder = async () => {
-    return await fetch('/img', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-    }).then(async response => {
-      console.log(response)
-    });
-  };
-
-
   const isObject = (obj: any) => obj != null && obj.constructor.name === "Object";
-
   function getKeys(obj: any, key: string, keepObjKeys: boolean, skipArrays: boolean, keys: any = {}, scope: any = []) {
     if (Array.isArray(obj)) {
       obj.forEach((o) => getKeys(o, key, keepObjKeys, skipArrays, keys, scope), keys);
@@ -178,64 +148,37 @@ export const FilterComponent: React.FC<FilterProps> = (props: FilterProps) => {
   }
 
   const handleChange = (_: React.ChangeEvent<{}>, newValue: number) => {
-    setValue(newValue);
-    if (tabCaption[newValue].props.analysis === 'comparison') {
-      setToCompare(!compare)
-      props.compareCallback(true)
-    }
-    else {
-      setToCompare(false)
-      setCurrentTab(tabCaption[newValue].props.name)
-      props.analysisCallback(tabCaption[newValue].props.analysis)
-      //layerCallbackParent(value);
-    }
-
+    props.analysisCallback(tabCaption[newValue].props.analysis)
   };
+
   const classes = useStyles();
   const AntTabs = (Tabs);
 
 
   React.useEffect(() => {
+    if (tabCaption.length) {
+      let tab = tabCaption.find((tab: any) => tab.props.analysis === props.selectedTab)
+      setValue(Number(tab.key))
+    }
+  }, [tabCaption, props.selectedTab]);
+
+  React.useEffect(() => {
     let currData = { ...extraProps };
-    for (const [key, _] of Object.entries(props.compareFilters.images)) {
-      currData[key] = getKeys(props.compareFilters, key, true, false)
-    } setExtraProps(currData)
+    if (Object.keys(props.compareFilters.images["activation"]).length) {
+      for (let key in props.compareFilters.images) {
+        currData[key] = getKeys(props.compareFilters, key, true, false)
+      } setExtraProps(currData)
+    }
   }, [props.compareFilters]);
 
   React.useEffect(() => {
-    if (tabCaption.length) {
-      setCurrentTab(tabCaption[0].props.name)
-    }
-  }, [tabCaption]);
-
-  React.useEffect(() => {
     let tabPanelBox = [];
-    if (props.isMaxActivation === 1) {
-      tabPanelBox.push(<AntTab label={'Show max activations'} key={0} name={'activation'} analysis={'max_activation'} />)
-    }
-    if (props.isMaxRelevanceTarget === 1) {
-      tabPanelBox.push(<AntTab label={'Show max relevances'} key={1} name={'relevance'} analysis={'max_relevance_target'} />)
-    } else {
-      tabPanelBox.push(<AntTab label={'Show max relevances'} disabled={true} key={1} name={'relevance'} analysis={'max_relevance_target'} />)
-    }
-    /*     if (isSynth === 1) {
-          tabPanelBox.push(<AntTab label={'Show synthetic samples'} key={2} name={'synthetic'} analysis={'synthetic'} />)
-        }
-        else {
-          tabPanelBox.push(<AntTab label={'Show synthetic samples'} disabled={true} key={2} name={'synthetic'} analysis={'synthetic'} />)
-        } */
-    /*     if (isCnn === 1) {
-          tabPanelBox.push(<AntTab label={'Show CNN activations'} key={3} name={'cnn'} analysis={'cnn_activation'} />)
-        }
-        else {
-          tabPanelBox.push(<AntTab label={'Show CNN activations'} disabled={true} key={3} name={'cnn'} analysis={'cnn_activation'} />)
-        } */
-    tabPanelBox.push(<AntTab label={'Compare activation and relevance'} key={4} name={'compare'} analysis={'comparison'} />)
+    tabPanelBox.push(<AntTab label={'Show max relevances'} className={classes.tab} key={0} name={'relevance'} analysis={'relevance'} />)
+    tabPanelBox.push(<AntTab label={'Show max activations'} className={classes.tab} key={1} name={'activation'} analysis={'activation'} />)
+    tabPanelBox.push(<AntTab label={'Compare activation and relevance'} className={classes.tab} key={2} name={'compare'} analysis={'comparison'} />)
     setTabCaption(tabPanelBox)
-  }, [props.isSynth,
-  props.isCnn,
-  props.isMaxActivation,
-  props.isMaxRelevanceTarget]);
+  }, [classes.tab]);
+
   return (
     <Card className={classes.root} id={'filterCard'}>
       <Grid className={classes.grid} container spacing={5}>
@@ -273,73 +216,41 @@ export const FilterComponent: React.FC<FilterProps> = (props: FilterProps) => {
             </AntTabs>
           </div>
 
-          {compare ?
+          {props.selectedTab == "comparison" ?
             (<Grid container style={{ height: "inherit" }}>
               <Grid item xs={6} style={{ height: "inherit" }}>
                 < TabContent
                   viewState={props.viewState}
-                  nameCallback={props.nameCallback}
-                  placeholder={placeholder}
-                  target={props.target}
-                  filterInspectionCallback={(index, view) => props.filterInspectionCallback(index, view, currentTab)}
-                  currentTab={currentTab}
-                  hasRelevanceStats={props.hasRelevanceStats}
-                  hasActivationStats={props.hasActivationStats}
-                  indexCallback={value => props.indexCallback(value, currentTab)}
-                  viewTypeCallback={props.viewTypeCallback}
-                  filterSamplesCallback={props.filterSamplesCallback}
-                  filterHeatmapCallback={props.filterHeatmapCallback}
-                  filterActivationCallback={props.filterActivationCallback}
+                  filterInspectionCallback={(index, view) => props.filterInspectionCallback(index, view, props.selectedTab)}
+                  currentTab={props.selectedTab}
                   value={value}
                   filterImgSize={props.filterImgSize}
-                  layerFilters={extraProps["max_activation"]}
+                  layerFilters={extraProps["activation"]}
                   name={"Maximum activation"}
                 />
               </Grid>
               <Grid item xs={6} style={{ height: "inherit" }}>
                 < TabContent
                   viewState={props.viewState}
-                  nameCallback={props.nameCallback}
-                  placeholder={placeholder}
-                  target={props.target}
-                  filterInspectionCallback={(index, view) => props.filterInspectionCallback(index, view, currentTab)}
-                  currentTab={currentTab}
-                  hasRelevanceStats={props.hasRelevanceStats}
-                  hasActivationStats={props.hasActivationStats}
-                  indexCallback={value => props.indexCallback(value, currentTab)}
-                  viewTypeCallback={props.viewTypeCallback}
-                  filterSamplesCallback={props.filterSamplesCallback}
-                  filterHeatmapCallback={props.filterHeatmapCallback}
-                  filterActivationCallback={props.filterActivationCallback}
+                  filterInspectionCallback={(index, view) => props.filterInspectionCallback(index, view, props.selectedTab)}
+                  currentTab={props.selectedTab}
                   value={value}
                   filterImgSize={props.filterImgSize}
-                  layerFilters={extraProps["max_relevance_target"]}
+                  layerFilters={extraProps["relevance"]}
                   name={"Maximum relevance (to target)"} />
               </Grid>
             </Grid>)
-            : (<Grid item xs={12} style={{ height: "inherit" }}>
+            : (<Grid item xs={12}>
               < TabContent
-                nameCallback={props.nameCallback}
-                placeholder={placeholder}
-                target={props.target}
                 viewState={props.viewState}
-                filterInspectionCallback={(index, view) => props.filterInspectionCallback(index, view, currentTab)}
-                currentTab={currentTab}
-                hasRelevanceStats={props.hasRelevanceStats}
-                hasActivationStats={props.hasActivationStats}
-                indexCallback={value => props.indexCallback(value, currentTab)}
-                viewTypeCallback={props.viewTypeCallback}
-                filterSamplesCallback={props.filterSamplesCallback}
-                filterHeatmapCallback={props.filterHeatmapCallback}
-                filterActivationCallback={props.filterActivationCallback}
+                filterInspectionCallback={(index, view) => props.filterInspectionCallback(index, view, props.selectedTab)}
+                currentTab={props.selectedTab}
                 value={value}
                 filterImgSize={props.filterImgSize}
                 layerFilters={props.filters}
                 name={""} />
             </Grid>)
           }
-
-
         </Grid>
       </Grid>
       <Grid className={classes.download}>

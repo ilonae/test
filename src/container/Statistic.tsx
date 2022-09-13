@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  Grid,
-  Typography,
-  makeStyles,
-  Container
-} from "@material-ui/core";
+import { Grid, Typography, makeStyles, Container } from "@material-ui/core";
 const useStyles = makeStyles(() => ({
   image: () => ({
     border: "1px solid #555",
@@ -36,7 +31,7 @@ const useStyles = makeStyles(() => ({
     margin: "0 auto"
   },
   test: {
-    aspectRatio: ' 1 / 1', /* a square ratio */
+    aspectRatio: ' 1 / 1',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -59,6 +54,7 @@ const useStyles = makeStyles(() => ({
     paddingBottom: "0"
   }
 }));
+
 type StatisticBoxProps = {
   statistic: string,
   relevance: string,
@@ -66,32 +62,33 @@ type StatisticBoxProps = {
   images: any[],
   amount?: number
 };
-
 const StatisticBox: React.FC<StatisticBoxProps> = (props: StatisticBoxProps) => {
   const classes = useStyles();
   const [imgState, setImages] = React.useState([]);
+
+  const makeImages = (imageStyle: string, name: string, containerStyle: string) => {
+    let statisticsImages = Array();
+    for (let i = 0; i < props.images.length; i++) {
+      const img = `data:image/png;base64,${props.images[i]}`;
+      statisticsImages.push(
+        <Container
+          className={containerStyle}
+          key={`${name}_image_index${i}`}
+        >
+          <img src={img} className={imageStyle} id={"image"} alt="" />
+        </Container>
+      );
+    }
+    return statisticsImages;
+  };
   React.useEffect(
     () => {
-      const makeImages = async () => {
-        let statisticsImages = Array();
-        for (let i = 0; i < props.images.length; i++) {
-          const img = `data:image/png;base64,${props.images[i]}`;
-          statisticsImages.push(
-            <Container
-              className={classes.test}
-              key={`${props.name}_image_index${i}`}
-            >
-              <img src={img} className={classes.image} id={"image"} alt="" />
-            </Container>
-          );
-        }
-        setImages(statisticsImages);
-      };
       if (props.images) {
-        makeImages();
+        let statsImages = makeImages(classes.image, props.name, classes.test);
+        setImages(statsImages);
       }
     },
-    [props.images, classes.image, props.name, classes.test]
+    [props.images,]
   );
   const statisticWidth = props.amount === 2 ? 6 : props.amount === 4 ? 6 : 4;
   const statistics = (
@@ -101,25 +98,22 @@ const StatisticBox: React.FC<StatisticBoxProps> = (props: StatisticBoxProps) => 
           variant="subtitle1"
           gutterBottom
           className={classes.typography}
-        >
-          Class name:
+        > Class name:
         </Typography>
         <Typography variant="subtitle1" gutterBottom>
           {props.name}
         </Typography>
-
         <Typography
           variant="subtitle1"
           gutterBottom
           className={classes.typography}
-        >
-          Class relevance:
+        > Class relevance:
         </Typography>
         <Typography variant="subtitle1" gutterBottom>
           {props.relevance}
         </Typography>
       </div>
-      <div className={classes.height}>{imgState}</div>{" "}
+      <div className={classes.height}>{imgState}</div>
     </div>
   );
   return (

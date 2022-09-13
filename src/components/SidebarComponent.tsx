@@ -8,6 +8,7 @@ import InputWidget from '../widgets/InputWidget';
 const useStyles = makeStyles({
   images: {
     margin: 0,
+    justifyContent: "center"
   },
   tools: {
     whiteSpace: 'nowrap',
@@ -27,18 +28,13 @@ const useStyles = makeStyles({
     height: '60%',
     justifyContent: 'center',
     display: 'grid',
-    textAlign: 'center'
+    textAlign: 'center',
+    alignItems: "center"
   },
   search: {
     height: '30%',
     justifyContent: 'center',
     display: 'grid',
-    textAlign: 'center'
-  },
-  download: {
-    height: '100%',
-    justifyContent: 'center',
-    display: 'flex',
     textAlign: 'center'
   },
   centering: {
@@ -51,9 +47,10 @@ const useStyles = makeStyles({
       fill: 'red'
     }
   },
-
+  marginText: {
+    marginTop: "2em"
+  }
 });
-
 
 const onInputChange = (event: React.ChangeEvent<{}>, value: any, classIndices: any[], targetCallback: (value: React.SetStateAction<string>) => void) => {
   if (value !== null && classIndices && isNumeric(value)) {
@@ -215,12 +212,13 @@ export interface SidebarProps {
   indexCallback: (value: any) => void;
   image: string;
   heatmap: string;
-  conceptatlas?: string;
   localAnalysisCallback(x: any, y: any, width: any, height: any, maskId?: number): Promise<void>;
   index: number;
   classIndices: any[];
   heatmapClasses: any[];
-  heatmapConfidences: any[];
+  heatmapConfidence: [];
+  heatmapRelevances: {};
+  currLayer: string;
   targetCallback: (value: React.SetStateAction<string>) => void;
 }
 
@@ -239,34 +237,29 @@ export const SidebarComponent: React.FC<SidebarProps> = (props: SidebarProps) =>
     }
   }, [props.classIndices]);
 
-  React.useEffect(() => {
-    const createBarPlot = () => {
-      let object = [];
-      for (let className in props.heatmapConfidences) {
-        object.push({ "classname": props.heatmapClasses[className], "confidence": props.heatmapConfidences[className] })
+
+  /*     const createBarPlot = () => {
+        let object = [];
+        for (let className in props.heatmapConfidences) {
+          object.push({ "classname": props.heatmapClasses[className], "confidence": props.heatmapConfidences[className] })
+        }
+        let iWidth: number = parseInt(getComputedStyle(document.getElementById('inputsCard'))
+          .getPropertyValue("width")
+          .trim());
+        setContentWidth(
+          iWidth
+        );
+        d3.select(inputRef.current).selectAll("*").remove();
+        var canvas = d3.select(inputRef.current)
+          .append("svg")
+          .attr("width", iWidth).attr("height", iWidth - 80);
+        plot(canvas, iWidth, iWidth, object, props.targetCallback, inputRef);
       }
-      let iWidth: number = parseInt(getComputedStyle(document.getElementById('inputsCard'))
-        .getPropertyValue("width")
-        .trim());
-      setContentWidth(
-        iWidth
-      );
-      d3.select(inputRef.current).selectAll("*").remove();
-      var canvas = d3.select(inputRef.current)
-        .append("svg")
-        .attr("width", iWidth).attr("height", iWidth - 80);
-      plot(canvas, iWidth, iWidth, object, props.targetCallback, inputRef);
-    }
+   */
+  /*     const arraysEqual = (currentHeatmapClasses.length === props.heatmapClasses.length) &&
+        (currentHeatmapClasses.every((val: any) => props.heatmapClasses.includes(val)));
+   */
 
-    const arraysEqual = (currentHeatmapClasses.length === props.heatmapClasses.length) &&
-      (currentHeatmapClasses.every((val: any) => props.heatmapClasses.includes(val)));
-
-    if (props.heatmapClasses.length &&
-      props.heatmapConfidences.length && !arraysEqual) {
-      changeCurrentHeatmapClasses(props.heatmapClasses)
-      createBarPlot();
-    }
-  }, [props.heatmapClasses, currentHeatmapClasses, props.heatmapConfidences]);
 
 
   return <Card className={classes.root} id={'inputsCard'}>
@@ -278,9 +271,9 @@ export const SidebarComponent: React.FC<SidebarProps> = (props: SidebarProps) =>
         classes.images
       }
     >
-      {/* <Typography gutterBottom>Analyze image by index: </Typography>
-        <InputWidget id="index" value={props.index} maxIndex={props.maxIndex} params={""} type="number" input="" inputCallback={props.indexCallback} filterNameCallback={() => console.log("test")}></InputWidget>
-        */} <Image
+      <Typography gutterBottom>Analyze image by index: </Typography>
+      <InputWidget id="index" value={props.index} maxIndex={props.maxIndex} params={""} type="number" input="" inputCallback={props.indexCallback} filterNameCallback={() => console.log("test")}></InputWidget>
+      <Image
         content={props.image}
         title={'Input'}
         getLocalAnalysisCallback={props.localAnalysisCallback}
@@ -290,11 +283,11 @@ export const SidebarComponent: React.FC<SidebarProps> = (props: SidebarProps) =>
         title={'Heatmap'}
         getLocalAnalysisCallback={props.localAnalysisCallback}
       />
-      <Image
-        content={props.conceptatlas}
-        title={'Concept Atlas'}
-        getLocalAnalysisCallback={props.localAnalysisCallback}
-      />
+      <Typography className={classes.marginText} gutterBottom>Heatmap confidence: {Math.round(props.heatmapConfidence[0] * 10000 + Number.EPSILON) / 100} %</Typography>
+      <Typography gutterBottom>Current layer: {props.currLayer} </Typography>
+      <Typography gutterBottom> Layer's heatmap contribution:
+        {Math.round(props.heatmapRelevances[props.currLayer] * 100 + Number.EPSILON) / 100} %
+      </Typography>
     </Grid>
 
     {/*  <Grid className={classes.search}>

@@ -20,7 +20,6 @@ const UploadButton: React.FC<UploadButtonProps> = ({ parentCallback }) => {
     })
   }, [])
 
-
   const onKeyPressHandler = (e: any) => {
     if (e.key === 'Enter') {
       e.preventDefault();

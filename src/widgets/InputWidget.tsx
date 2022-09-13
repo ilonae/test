@@ -6,8 +6,8 @@ const useStyles = makeStyles(() => ({
     display: "flex",
     paddingLeft: "20%",
     paddingRight: "20%",
-    height: "100%",
     alignItems: "center",
+    marginTop: "2%",
     justifyContent: "space-between"
   },
   switchToggle: {

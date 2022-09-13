@@ -77,16 +77,17 @@ export interface graphProps {
   images?: {
     [key: string]: any[]
   };
+  heatmaps?: {
+    [key: string]: any[]
+  };
   nodes?: any[];
-  links?: any[];
-  jobId: any
+  links?: any[]
 }
 
 type NetworkComponentProps = {
   graph?: graphProps,
   conceptId?: number,
   viewState: string;
-  target: string,
   viewCallback: (value: any) => void;
 };
 
@@ -122,6 +123,7 @@ const NetworkComponent: React.FC<NetworkComponentProps> = (props: NetworkCompone
   };
 
   async function createGraph() {
+    console.log(props.graph)
     for (const link in props.graph.links) {
       console.log(props.graph.links[link])
       props.graph.links[link]["label"] = Math.round(props.graph.links[link].value * 100 + Number.EPSILON) / 100 + "%"
@@ -165,30 +167,17 @@ const NetworkComponent: React.FC<NetworkComponentProps> = (props: NetworkCompone
       //content.appendChild(imgs);
       const filter = (
         <Filter
-          target={props.target}
           viewState={props.viewState}
-          position={0}
-          partial={[]}
-          synthetic={[]}
-          activation={[]}
-          filterPosition={[]}
           filterName={""}
-          filterAmount={props.graph.nodes.length}
-          images={props.graph.images[currFilterIndex]}
-          placeholder={""}
+          conditionalHeatmap={""}
+          activation={[]}
+          images={[]}
           conceptId={currFilterIndex}
-          parentCallback={(val) => console.log(val)}
-          filterActivationCallback={() => (console.log(""))}
-          filterHeatmapCallback={() => (console.log(""))}
           key={currNode}
           layer={currLayer}
           filterImgSize={28}
           filterInspectionCallback={() => console.log("hi")}
-          filterSamplesCallback={() => console.log("hi")}
-          nameCallback={() => console.log("hi")}
           currentTab={"test"}
-          hasRelevanceStats={0}
-          hasActivationStats={0}
         />
       );
       const embed = document.createElement("div");
