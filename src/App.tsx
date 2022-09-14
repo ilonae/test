@@ -13,7 +13,7 @@ export interface AppProps {
     basename: string;
 }
 
-const socket = socketIOClient('172.17.21.147:5059');
+const socket = socketIOClient('localhost:5059');
 socket.on('data', data => {
     console.log(data);
 });
