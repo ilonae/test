@@ -718,7 +718,7 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
     }
   }, [layerInfo.glocalAnalysisUpdate, layerInfo.singleLayer, layerInfo.tabChange, layerInfo.graphUpdate,
   Object.keys(graphData.heatmaps).length, Object.keys(graphData.images).length, graphData.nodes.length, Object.keys(tempData.heatmaps).length,
-    graphData, props.socket, filterData.selectedConceptIds,
+    graphData, props.socket, filterData.selectedConceptIds, layerInfo.targetId,
   layerInfo.index, layerInfo.method, layerInfo.currentAnalysis, layerInfo.experiment,
   tempData.heatmap, tempData.conditionalHeatmap, tempData.currentImage, jobIdsToLook.size, jobIds.size]);
 
@@ -767,6 +767,10 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
   }, [layerInfo.experiment])
 
   React.useEffect(() => {
+    console.log(layerInfo.targetId)
+  }, [layerInfo.targetId])
+
+  React.useEffect(() => {
     if (props.socket && imgSize && layerInfo.experiment) {
       let currHash = Math.random().toString(36).slice(2)
       setJobIds(prevState => new Set(prevState).add(currHash.trim()))
@@ -793,7 +797,7 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
         "job_id": currHash
       })
     }
-  }, [layerInfo.index, layerInfo.experiment, layerInfo.method, imgSize, props.socket])
+  }, [layerInfo.index, layerInfo.targetId, layerInfo.experiment, layerInfo.method, imgSize, props.socket])
   React.useEffect(() => {
     if (props.socket && layerInfo.experiment && layerInfo.currentAnalysis && filterData.selectedConceptIds.length === 5 && layerInfo.singleLayer && layerInfo.glocalAnalysisUpdate) {
       setLayerInfo((layerInfo: any) => ({
@@ -998,11 +1002,23 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
     changeViewType(value);
   };
   const indexState = (value: any) => {
+
     setLayerInfo((layerInfo: any) => ({
       ...layerInfo,
       index: value
     }))
   };
+
+  const presetChange = (layer: string, index: string, sampleTag: string) => {
+
+    let targetId = (Object.keys(layerInfo.targets).find(key => layerInfo.targets[key] === sampleTag))
+    setLayerInfo((layerInfo: any) => ({
+      ...layerInfo,
+      index: parseInt(index),
+      targetId: parseInt(targetId),
+      singleLayer: layer
+    }))
+  }
   const selectedExperiment = (value: string) => {
     setLayerInfo((layerInfo: any) => ({
       ...layerInfo,
@@ -1114,6 +1130,7 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
             heatmap={layerInfo.heatmap.heatmapImg}
             localAnalysisCallback={localAnalysis}
             index={layerInfo.index}
+            presetCallback={presetChange}
             classIndices={layerInfo.targets}
             heatmapClasses={layerInfo.heatmap.heatmapClasses}
             currLayer={layerInfo.singleLayer}

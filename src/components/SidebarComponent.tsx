@@ -1,17 +1,25 @@
 import React from 'react';
-import { makeStyles, Grid, Card, Typography, TextField } from '@material-ui/core';
+import { Button, makeStyles, Grid, Card, Typography, TextField } from '@material-ui/core';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import Image from '../container/Image';
 import * as d3 from 'd3';
 import InputWidget from '../widgets/InputWidget';
+import ExampleButton from '../widgets/ExampleButton';
 //import UploadButton from '../widgets/UploadButton';
 const useStyles = makeStyles({
   images: {
     margin: 0,
     justifyContent: "center"
   },
+  preselected: {
+    display: "flex",
+    marginBottom: "2vh",
+    rowGap: "1vh",
+    columnGap: "1vh",
+    flexWrap: "wrap",
+    justifyContent: "center"
+  },
   tools: {
-    whiteSpace: 'nowrap',
     justifyContent: "center"
   },
   root: {
@@ -73,6 +81,40 @@ const onInputChange = (event: React.ChangeEvent<{}>, value: any, classIndices: a
 function isNumeric(value: any) {
   return /^\d+$/.test(value);
 }
+
+const presetList = [
+  {
+    layer: "features.40",
+    id: '1234',
+    sampleName: "Great grey owl",
+    sampleTag: "great_grey_owl"
+  },
+  {
+    layer: "features.40",
+    id: '2339',
+    sampleName: "Green lizard",
+    sampleTag: "green_lizard"
+  },
+  {
+    layer: "features.40",
+    id: '4200',
+    sampleName: "Peacock",
+    sampleTag: "peacock"
+  },
+  {
+    layer: "features.40",
+    id: '7000',
+    sampleName: "Red-backed sandpiper",
+    sampleTag: "red-backed_sandpiper"
+  },
+  {
+    layer: "features.40",
+    id: '0',
+    sampleName: "Tench",
+    sampleTag: "tench"
+  },
+
+]
 
 
 const plot = (chart: d3.Selection<SVGSVGElement, unknown, HTMLElement, any>, width: number, height: number, data: any[], targetCallback: (value: React.SetStateAction<string>) => void, inputRef: React.MutableRefObject<undefined>) => {
@@ -219,6 +261,7 @@ export interface SidebarProps {
   heatmapConfidence: [];
   heatmapRelevances: {};
   currLayer: string;
+  presetCallback: (layer: string, id: string, sampleTag: string) => void;
   targetCallback: (value: React.SetStateAction<string>) => void;
 }
 
@@ -260,18 +303,35 @@ export const SidebarComponent: React.FC<SidebarProps> = (props: SidebarProps) =>
         (currentHeatmapClasses.every((val: any) => props.heatmapClasses.includes(val)));
    */
 
+  const presets: any = () => {
+    let presets: any[] = []
+    for (let preset in presetList) {
+      presets.push(<ExampleButton
+        sampleTag={presetList[preset].sampleTag}
+        presetCallback={props.presetCallback}
+        layer={presetList[preset].layer}
+        id={presetList[preset].id}
+        sampleName={presetList[preset].sampleName} />)
+    }
+    return presets
+  }
+
 
 
   return <Card className={classes.root} id={'inputsCard'}>
     <Grid container className={classes.tools} >
-      <Typography gutterBottom>Target class: {props.target}</Typography>
+      <Typography gutterBottom variant="body2" style={{ fontWeight: 'bold' }}>Preselected Examples: </Typography>
+      <div className={classes.preselected}>
+        {presets()}
+      </div>
+      <Typography gutterBottom variant="body2">Target class: {props.target}</Typography>
     </Grid>
     <Grid container
       className={
         classes.images
       }
     >
-      <Typography gutterBottom>Analyze image by index: </Typography>
+      <Typography gutterBottom variant="body2">Analyze image by index: </Typography>
       <InputWidget id="index" value={props.index} maxIndex={props.maxIndex} params={""} type="number" input="" inputCallback={props.indexCallback} filterNameCallback={() => console.log("test")}></InputWidget>
       <Image
         content={props.image}
@@ -283,9 +343,9 @@ export const SidebarComponent: React.FC<SidebarProps> = (props: SidebarProps) =>
         title={'Heatmap'}
         getLocalAnalysisCallback={props.localAnalysisCallback}
       />
-      <Typography className={classes.marginText} gutterBottom>Heatmap confidence: {Math.round(props.heatmapConfidence[0] * 10000 + Number.EPSILON) / 100} %</Typography>
-      <Typography gutterBottom>Current layer: {props.currLayer} </Typography>
-      <Typography gutterBottom> Layer's heatmap contribution:
+      <Typography variant="body2" className={classes.marginText} gutterBottom>Heatmap confidence: {Math.round(props.heatmapConfidence[0] * 10000 + Number.EPSILON) / 100} %</Typography>
+      <Typography variant="body2" gutterBottom>Current layer: {props.currLayer} </Typography>
+      <Typography variant="body2" gutterBottom> Layer's heatmap contribution:
         {Math.round(props.heatmapRelevances[props.currLayer] * 100 + Number.EPSILON) / 100} %
       </Typography>
     </Grid>

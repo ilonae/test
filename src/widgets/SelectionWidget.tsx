@@ -15,7 +15,8 @@ const useStyles = makeStyles(() => ({
     color: "white"
   },
   text: {
-    color: "white"
+    color: "white",
+    height: "100%"
   },
   selected: {
     color: "black"

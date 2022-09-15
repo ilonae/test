@@ -22,6 +22,24 @@ const useStyles = makeStyles((theme) => ({
   grid: {
     width: '100%'
   },
+  demoLogo: {
+    height: '8vh',
+    width: '18vh',
+    overflow: "hidden",
+    justifyContent: 'end',
+    flex: 'wrap',
+    display: 'flex',
+    position: 'absolute',
+    zIndex: 9000,
+    right: 0,
+    marginRight: "12vh"
+  },
+  demoImg: {
+
+    marginTop: "-2vh",
+    height: '10vh',
+    width: '18vh'
+  },
   centering: {
     paddingLeft: '3vh',
     paddingBottom: '3vh',
@@ -36,7 +54,7 @@ const useStyles = makeStyles((theme) => ({
     position: "relative",
     flexGrow: 1,
     backgroundColor: theme.palette.background.paper,
-    boxShadow: '0 0 0 4px white, 0 6px 4px black'
+    boxShadow: '0 0 0 4px white, 0 3px 4px black'
   },
   tab: {
     maxWidth: "40em"
@@ -206,8 +224,12 @@ export const FilterComponent: React.FC<FilterProps> = (props: FilterProps) => {
         </Grid>
         <Grid item xs={12} >
           <Grid container spacing={5} className={classes.centering} >
+            <div className={classes.demoLogo} >
+              <img className={classes.demoImg} src="../Logo_BIFOLD.jpg" />
+            </div>
             <Typography gutterBottom  >Explanation (Target class: {props.target} ) </Typography>
           </Grid>
+
           <div className={classes.tabs}>
 
             <AntTabs value={value} onChange={handleChange} indicatorColor="primary"
@@ -215,6 +237,7 @@ export const FilterComponent: React.FC<FilterProps> = (props: FilterProps) => {
               {tabCaption}
             </AntTabs>
           </div>
+
 
           {props.selectedTab == "comparison" ?
             (<Grid container style={{ height: "inherit" }}>
@@ -253,10 +276,10 @@ export const FilterComponent: React.FC<FilterProps> = (props: FilterProps) => {
           }
         </Grid>
       </Grid>
-      <Grid className={classes.download}>
+      {/*   <Grid className={classes.download}>
         <DownloadButton name={"Download Settings"} id={"settings"} />
         <DownloadButton name={"Download PDF"} id={"pdf"} />
-      </Grid>
+      </Grid> */}
     </Card>
   );
 };

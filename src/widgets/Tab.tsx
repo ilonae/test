@@ -106,8 +106,8 @@ const TabContent: React.FC<TabProps> = (props: TabProps) => {
         {props.name.length ?
           <Typography className={classes.marginTop} variant="h5" gutterBottom>{props.name}</Typography> : null}
         <div className={classes.flex}>
-          <Typography className={classes.conditional} >conditional heatmap</Typography>
-          <Typography className={classes.samples}  >reference samples</Typography>
+          <Typography className={classes.conditional} variant="body2" >conditional heatmap</Typography>
+          <Typography className={classes.samples} variant="body2" >reference samples</Typography>
         </div>
         {filterBoxes}
       </Grid>

@@ -26,13 +26,28 @@ const SortingButton: React.FC<SortingButtonProps> = (props: SortingButtonProps) 
       }}
       onClick={handleChange}
       ref={inputEl}
-      startIcon={props.descending === true ? <ArrowDownwardIcon /> : <ArrowUpwardIcon />}
+      startIcon={props.descending === false ? <ArrowDownwardIcon /> : <ArrowUpwardIcon />}
     >
-      <Typography noWrap>
-        {props.descending === true
-          ? "Sort by lowest contribution"
-          : "Sort by highest contribution"}
-      </Typography>
+      <div>
+        <Typography>
+          Change sorting
+        </Typography>
+        <Typography variant="subtitle2"
+          style={{
+            fontSize: "0.72em"
+          }}
+        >
+          Current sorting :
+          {props.descending === true
+            ? " highest contribution "
+            : " lowest contribution "}
+        </Typography>
+
+
+      </div>
+
+
+
     </Button>
   );
 };

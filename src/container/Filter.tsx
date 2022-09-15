@@ -246,27 +246,28 @@ const FilterBox: React.FC<FilterBoxProps> = (props: FilterBoxProps) => {
     <div className={`${classes.row}  filters`} ref={inputRef}>
       <div className={(props.relevance >= 0 || props.layer) ? classes.positive : classes.negative + " filter"} >
         <div className={classes.row} >
-          {props.filterName ? <Typography variant="body1" >
+          {props.filterName ? <Typography variant="body2" >
             Filter name:  {props.filterName}
           </Typography> : null}
         </div>
         {props.viewState !== "GRAPHVIEW" ? (
           <div className={classes.row}>
             <div className={classes.analysis}>
-              <Typography variant="body1" className={classes.rotation}>
+              <Typography variant="body2" className={classes.rotation}>
                 Concept ID: {props.conceptId}
               </Typography>
               {conditionalState}
               <div className={classes.partialText}>
                 <var>R<sub>{props.conceptId}</sub>(x|y)</var> = {Math.round(props.relevance * 100 + Number.EPSILON) / 100} %
               </div>
-              <Typography variant="body1" className={classes.italic}>
+              <Typography variant="body2" className={classes.italic}>
               </Typography>
             </div>
 
             <div className={classes.row} style={{ flexWrap: 'wrap' }} >
               <div className={classes.rowCol}>
-                <Typography className={classes.smallText}  >R(x|theta={props.conceptId} )</Typography>
+                <Typography className={classes.smallText}  >
+                  {"R(x|\u03B8)=" + props.conceptId}</Typography>
                 <div className={classes.images}  >
                   {actState}
                 </div>
@@ -288,20 +289,25 @@ const FilterBox: React.FC<FilterBoxProps> = (props: FilterBoxProps) => {
             <div className={classes.buttons}>
               {((props.currentTab === 'activation') || (props.currentTab === 'relevance')) ?
                 <ButtonGroup variant="contained" orientation='vertical' className={`${classes.buttonRight}  mb-2`} >
-                  <Button onClick={() => props.filterInspectionCallback(props.conceptId, 'GRAPHVIEW')}
-                  >
-                    Show Graph <ChevronRightIcon></ChevronRightIcon>
-                  </Button>
+
+
+                  {/*  <Button onClick={() => props.filterInspectionCallback(props.conceptId, 'GRAPHVIEW')}
+                  >Show Graph <ChevronRightIcon></ChevronRightIcon>
+                  </Button> */}
+
+
                   <Button onClick={() => props.filterInspectionCallback(props.conceptId, 'STATISTICSVIEW')}
                   >
                     Show Statistics <ChevronRightIcon></ChevronRightIcon>
                   </Button>
                 </ButtonGroup>
                 : <ButtonGroup variant="contained" orientation='vertical' className={`${classes.buttonRight}  mb-2`} >
-                  <Button onClick={() => props.filterInspectionCallback(props.conceptId, 'GRAPHVIEW')}
-                  >
+
+
+                  {/*     <Button onClick={() => props.filterInspectionCallback(props.conceptId, 'GRAPHVIEW')}>
                     Show Graph <ChevronRightIcon></ChevronRightIcon>
-                  </Button>
+                  </Button> */}
+
                 </ButtonGroup>
               }
             </div>
