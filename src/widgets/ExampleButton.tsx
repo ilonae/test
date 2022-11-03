@@ -2,7 +2,7 @@ import React, { FC } from "react";
 import { Button, ButtonProps } from "@material-ui/core";
 
 
-export interface ExampleButtonProps extends ButtonProps {
+export interface PresetButtonProps extends ButtonProps {
     layer: string,
     sampleName: string,
     sampleTag: string,
@@ -10,7 +10,7 @@ export interface ExampleButtonProps extends ButtonProps {
     presetCallback: (layer: string, id: string, sampleTag: string) => void;
 
 }
-export const ExampleButton: FC<ExampleButtonProps> = (props: ExampleButtonProps) => {
+export const ExampleButton: FC<PresetButtonProps> = (props: PresetButtonProps) => {
 
     return (
         <Button {...props}

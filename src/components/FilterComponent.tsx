@@ -224,9 +224,9 @@ export const FilterComponent: React.FC<FilterProps> = (props: FilterProps) => {
         </Grid>
         <Grid item xs={12} >
           <Grid container spacing={5} className={classes.centering} >
-            <div className={classes.demoLogo} >
+            {/* <div className={classes.demoLogo} >
               <img className={classes.demoImg} src="../Logo_BIFOLD.jpg" />
-            </div>
+            </div> */}
             <Typography gutterBottom  >Explanation (Target class: {props.target} ) </Typography>
           </Grid>
 

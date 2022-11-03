@@ -307,6 +307,7 @@ export const SidebarComponent: React.FC<SidebarProps> = (props: SidebarProps) =>
     let presets: any[] = []
     for (let preset in presetList) {
       presets.push(<ExampleButton
+        key={preset}
         sampleTag={presetList[preset].sampleTag}
         presetCallback={props.presetCallback}
         layer={presetList[preset].layer}

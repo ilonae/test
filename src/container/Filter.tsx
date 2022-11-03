@@ -53,6 +53,19 @@ const useStyles = makeStyles(() => ({
     right: 0,
     position: "absolute"
   },
+  filters: {
+    border: '1px solid black',
+    padding: "20px"
+  },
+  filter: {
+    display: "flex"
+  },
+  tablerow: {
+    display: "flex"
+  },
+  leftfloat: {
+    float: "left"
+  },
   imagesGraph: {
     height: "auto",
     gap: "1em",
@@ -250,92 +263,102 @@ const FilterBox: React.FC<FilterBoxProps> = (props: FilterBoxProps) => {
             Filter name:  {props.filterName}
           </Typography> : null}
         </div>
-        {props.viewState !== "GRAPHVIEW" ? (
-          <div className={classes.row}>
-            <div className={classes.analysis}>
-              <Typography variant="body2" className={classes.rotation}>
-                Concept ID: {props.conceptId}
-              </Typography>
-              {conditionalState}
-              <div className={classes.partialText}>
-                <var>R<sub>{props.conceptId}</sub>(x|y)</var> = {Math.round(props.relevance * 100 + Number.EPSILON) / 100} %
-              </div>
-              <Typography variant="body2" className={classes.italic}>
-              </Typography>
+        <div className={classes.row}>
+          <div className={classes.analysis}>
+            <Typography variant="body2" className={classes.rotation}>
+              Concept ID: {props.conceptId}
+            </Typography>
+            {conditionalState}
+            <div className={classes.partialText}>
+              <var>R<sub>{props.conceptId}</sub>(x|y)</var> = {Math.round(props.relevance * 100 + Number.EPSILON)} %
             </div>
-
-            <div className={classes.row} style={{ flexWrap: 'wrap' }} >
-              <div className={classes.rowCol}>
-                <Typography className={classes.smallText}  >
-                  {"R(x|\u03B8)=" + props.conceptId}</Typography>
-                <div className={classes.images}  >
-                  {actState}
-                </div>
+            <Typography variant="body2" className={classes.italic}>
+            </Typography>
+          </div>
+          <div className={classes.row} style={{ flexWrap: 'wrap' }} >
+            <div className={classes.rowCol}>
+              <Typography className={classes.smallText}  >
+                {"R(x|\u03B8)=" + props.conceptId}</Typography>
+              <div className={classes.images}  >
+                {actState}
               </div>
-              <div className={classes.rowCol}>
-                <Typography className={classes.smallText} >Sample</Typography>
-                <div className={classes.images}  >
-                  {imgState}
-                </div>
+            </div>
+            <div className={classes.rowCol}>
+              <Typography className={classes.smallText} >Sample</Typography>
+              <div className={classes.images}  >
+                {imgState}
               </div>
             </div>
           </div>
-        ) : <Typography variant="body1" style={{ marginLeft: 20 }}>
-          oiugzzguiuzgiuz
-        </Typography>}
+        </div>
 
-        {props.viewState !== "GRAPHVIEW" ?
-          <div className={classes.overlay}>
-            <div className={classes.buttons}>
-              {((props.currentTab === 'activation') || (props.currentTab === 'relevance')) ?
-                <ButtonGroup variant="contained" orientation='vertical' className={`${classes.buttonRight}  mb-2`} >
-
-
-                  {/*  <Button onClick={() => props.filterInspectionCallback(props.conceptId, 'GRAPHVIEW')}
-                  >Show Graph <ChevronRightIcon></ChevronRightIcon>
-                  </Button> */}
-
-
-                  <Button onClick={() => props.filterInspectionCallback(props.conceptId, 'STATISTICSVIEW')}
-                  >
-                    Show Statistics <ChevronRightIcon></ChevronRightIcon>
-                  </Button>
-                </ButtonGroup>
-                : <ButtonGroup variant="contained" orientation='vertical' className={`${classes.buttonRight}  mb-2`} >
-
-
-                  {/*     <Button onClick={() => props.filterInspectionCallback(props.conceptId, 'GRAPHVIEW')}>
+        <div className={classes.overlay}>
+          <div className={classes.buttons}>
+            {((props.currentTab === 'activation') || (props.currentTab === 'relevance')) ?
+              <ButtonGroup variant="contained" orientation='vertical' className={`${classes.buttonRight}  mb-2`} >
+                <Button onClick={() => props.filterInspectionCallback(props.conceptId, 'GRAPHVIEW')}
+                >Show Graph <ChevronRightIcon></ChevronRightIcon>
+                </Button>
+                <Button onClick={() => props.filterInspectionCallback(props.conceptId, 'STATISTICSVIEW')}
+                >
+                  Show Statistics <ChevronRightIcon></ChevronRightIcon>
+                </Button>
+              </ButtonGroup>
+              : <ButtonGroup variant="contained" orientation='vertical' className={`${classes.buttonRight}  mb-2`} >
+                {/*     <Button onClick={() => props.filterInspectionCallback(props.conceptId, 'GRAPHVIEW')}>
                     Show Graph <ChevronRightIcon></ChevronRightIcon>
                   </Button> */}
-
-                </ButtonGroup>
-              }
-            </div>
+              </ButtonGroup>
+            }
           </div>
-          : null}
+        </div>
       </div >
     </div>;
   const graphFilter =
-    <div className={`${classes.block}  filters`} >
-      <div className={classes.positive + " filter"} >
-        <div className={classes.block} >
-          <Typography variant="body1" >
-            Layer : {props.layer}
+    <div className={`${classes.positive} ${classes.filters}  filters`} >
+      <div className={classes.tablerow + " filter"} >
+        <Typography className={classes.leftfloat} variant="body1" >
+          Layer : {props.layer}
+        </Typography>
+        <Typography className={classes.leftfloat} variant="body1" style={{ marginLeft: 20 }}>
+          Concept ID : {props.conceptId}
+        </Typography >
+        {props.filterName ?
+          <Typography variant="body1" > Filter name : {props.filterName} </Typography>
+          : null}
+      </div >
+      <div className={classes.row}>
+        <div className={classes.analysis}>
+          {conditionalState}
+          <div className={classes.partialText}>
+            <var>R<sub>{props.conceptId}</sub>(x|y)</var> = {Math.round(props.relevance * 100 + Number.EPSILON)} %
+          </div>
+          <Typography variant="body2" className={classes.italic}>
           </Typography>
-          <Typography variant="body1" style={{ marginLeft: 20 }}>
-            Concept ID : {props.conceptId}
-          </Typography>
-          {props.filterName ?
-            <Typography variant="body1" > Filter name : {props.filterName} </Typography>
-            : null}
         </div>
-        <div className={classes.block} style={{ flexWrap: 'wrap' }} >
-          <Typography className={classes.smallText} >Sample</Typography>
-          <div className={classes.imagesGraph}  >
-            {imgState}
+        <div className={classes.row} style={{ flexWrap: 'wrap' }} >
+          <div className={classes.rowCol}>
+            <Typography className={classes.smallText}  >
+              {"R(x|\u03B8)=" + props.conceptId}</Typography>
+            <div className={classes.images}  >
+              {actState}
+            </div>
+          </div>
+          <div className={classes.rowCol}>
+            <Typography className={classes.smallText} >Sample</Typography>
+            <div className={classes.images}  >
+              {imgState}
+            </div>
           </div>
         </div>
-      </div >
+      </div>
+      <div className={classes.tablerow}>
+        <Typography className={classes.smallText} >Sample</Typography>
+        <div className={classes.imagesGraph}  >
+          {imgState}
+        </div>
+      </div>
+
     </div>;
 
   return (

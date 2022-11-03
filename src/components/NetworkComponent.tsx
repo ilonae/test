@@ -92,9 +92,46 @@ type NetworkComponentProps = {
 };
 
 
+let data: any = {
+  nodes: [
+    {
+      id: "1",
+      label: "<h3>Node 1</h3>",
+      labelType: "html"
+    },
+    {
+      id: "2",
+      label: "<h3>Node 2</h3>",
+      labelType: "html",
+      config: {
+        style: 'fill: #afa'
+      }
+    }
+  ],
+  links: [
+    {
+      source: '1',
+      target: '2',
+      label: 'TO',
+      config: {
+        curve: d3.curveBasis,
+        arrowheadStyle: "fill: #009374;",
+        labelStyle: "font-family: roboto",
+        style:
+          "font-family: roboto;color: #009374;stroke: #009374;fill: none; stroke-width: " +
+          5 +
+          "px;cursor:pointer"
+
+      }
+    },
+  ]
+}
+
+
 const NetworkComponent: React.FC<NetworkComponentProps> = (props: NetworkComponentProps) => {
   const classes = useStyles();
   const dynamicContentWrapper = React.useRef(null);
+  const [graphState, setGraphState] = React.useState({});
   const [showInfo, setInfoView] = React.useState(false);
 
   const Menu = (props: any) => <div>menu</div>;
@@ -125,21 +162,23 @@ const NetworkComponent: React.FC<NetworkComponentProps> = (props: NetworkCompone
   async function createGraph() {
     console.log(props.graph)
     for (const link in props.graph.links) {
-      console.log(props.graph.links[link])
-      props.graph.links[link]["label"] = Math.round(props.graph.links[link].value * 100 + Number.EPSILON) / 100 + "%"
-      const linkThickness = scale(props.graph.links[link]["label"]) * 100;
+      props.graph.links[link]["label"] = Math.round(props.graph.links[link].value * 100 + Number.EPSILON) + "%"
       //props.graph.links[link]["class"] = "contrib_id_" + link;
+      delete props.graph.links[link]["value"];
       props.graph.links[link]["config"] = {
         curve: d3.curveBasis,
         arrowheadStyle: "fill: #009374;",
         labelStyle: "font-family: roboto",
         style:
           "font-family: roboto;color: #009374;stroke: #009374;fill: none; stroke-width: " +
-          linkThickness +
+          5 +
           "px;cursor:pointer"
       };
     }
     for (let node = 0; node < props.graph.nodes.length; node++) {
+
+      props.graph.nodes[node]["id"] = props.graph.nodes[node]["layer_name"] + ":" + props.graph.nodes[node]["concept_id"]
+
       props.graph.nodes[node]["labelType"] = "html";
       props.graph.nodes[node]["config"] = {
         style: "fill: #CCEAE3; cursor:pointer;  height: max-content"
@@ -150,28 +189,16 @@ const NetworkComponent: React.FC<NetworkComponentProps> = (props: NetworkCompone
       imgs.setAttribute("class", classes.imagecontainer);
       const currNode: string = props.graph.nodes[node].id;
       const currLayer: string = props.graph.nodes[node].layer_name;
+
       const currFilterIndex = parseInt(currNode.split(":")[1])
 
-      //const currFilterIndex = props.graph.properties[currNode].filter_index;
-      //console.log(props.graph.images)
-      //console.log(props.graph.images[currFilterIndex])
-
-      //imgs.classList.add(classes.imagecontainer);
-      /*  for (let img in graph.properties[nodeId]['images']) {
-               var image = document.createElement('img');
-               image.src = 'data:image/png;base64,' + graph.properties[nodeId]['images'][img];
-               image.setAttribute('class', classes.images);
-               imgs.appendChild(image)
-       
-             } */
-      //content.appendChild(imgs);
       const filter = (
         <Filter
           viewState={props.viewState}
           filterName={""}
           conditionalHeatmap={""}
           activation={[]}
-          images={[]}
+          images={props.graph.images["concept_id"]}
           conceptId={currFilterIndex}
           key={currNode}
           layer={currLayer}
@@ -180,21 +207,21 @@ const NetworkComponent: React.FC<NetworkComponentProps> = (props: NetworkCompone
           currentTab={"test"}
         />
       );
+      console.log(props.graph.images)
+      delete props.graph.nodes[node]["layer_name"];
+      delete props.graph.nodes[node]["concept_id"];
       const embed = document.createElement("div");
       embed.className = "main-content-wrapper";
       const inner = document.createElement("div");
       inner.className = "test";
       //inner.append({ el => { dynamicContentWrapper = el }});
       //embed.appendChild(inner)
-      content.setAttribute("style", "width:300px");
       content.innerHTML = ReactDOMServer.renderToStaticMarkup(filter);
 
+
       props.graph.nodes[node]["label"] = content;
-      console.log(props.graph.nodes[node])
-      //.nodes[node]['label'] = content;
-      //graph.nodes[node]['label'].onmouseover = function () {setShown(true); };
-      //graph.nodes[node]['label'].onmouseout = function () {setShown(false)};
     }
+    setGraphState(props.graph)
   }
 
   React.useEffect(
@@ -242,10 +269,10 @@ const NetworkComponent: React.FC<NetworkComponentProps> = (props: NetworkCompone
             Return back{" "}
           </Button>
         </Box>
-        {props.graph.nodes ? (
+        {graphState.nodes ? (
           <DagreGraph
-            nodes={props.graph.nodes}
-            links={props.graph.links}
+            nodes={graphState.nodes}
+            links={graphState.links}
             width="100%"
             height="100%"
             animate={1000}
