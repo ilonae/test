@@ -1,11 +1,9 @@
 import React from 'react';
-import { Button, makeStyles, Grid, Card, Typography, TextField } from '@material-ui/core';
-import Autocomplete from '@material-ui/lab/Autocomplete';
+import { makeStyles, Grid, Card, Typography } from '@material-ui/core';
 import Image from '../container/Image';
-import * as d3 from 'd3';
 import InputWidget from '../widgets/InputWidget';
 import ExampleButton from '../widgets/ExampleButton';
-//import UploadButton from '../widgets/UploadButton';
+
 const useStyles = makeStyles({
   images: {
     margin: 0,
@@ -60,193 +58,38 @@ const useStyles = makeStyles({
   }
 });
 
-const onInputChange = (event: React.ChangeEvent<{}>, value: any, classIndices: any[], targetCallback: (value: React.SetStateAction<string>) => void) => {
-  if (value !== null && classIndices && isNumeric(value)) {
-    for (const k in classIndices) {  // const k: string
-      const v = classIndices[k];
-      let num = parseInt(value);
-      if (v.includes(num)) {
-        targetCallback(k);
-      }
-    }
-  }
-  if (value !== null && !isNumeric(value)) {
-    targetCallback(value)
-  }
-  else {
-    console.log(value)
-  }
-}
-
-function isNumeric(value: any) {
-  return /^\d+$/.test(value);
-}
-
 const presetList = [
   {
     layer: "features.40",
     id: '1234',
-    sampleName: "Great grey owl",
-    sampleTag: "great_grey_owl"
+    samplename: "Great grey owl",
+    sampletag: "great_grey_owl"
   },
   {
     layer: "features.40",
     id: '2339',
-    sampleName: "Green lizard",
-    sampleTag: "green_lizard"
+    samplename: "Green lizard",
+    sampletag: "green_lizard"
   },
   {
     layer: "features.40",
     id: '4200',
-    sampleName: "Peacock",
-    sampleTag: "peacock"
+    samplename: "Peacock",
+    sampletag: "peacock"
   },
   {
     layer: "features.40",
     id: '7000',
-    sampleName: "Red-backed sandpiper",
-    sampleTag: "red-backed_sandpiper"
+    samplename: "Red-backed sandpiper",
+    sampletag: "red-backed_sandpiper"
   },
   {
     layer: "features.40",
     id: '0',
-    sampleName: "Tench",
-    sampleTag: "tench"
-  },
-
+    samplename: "Tench",
+    sampletag: "tench"
+  }
 ]
-
-
-const plot = (chart: d3.Selection<SVGSVGElement, unknown, HTMLElement, any>, width: number, height: number, data: any[], targetCallback: (value: React.SetStateAction<string>) => void, inputRef: React.MutableRefObject<undefined>) => {
-  const sortedBars = d3.max(data, (d) => d.confidence);
-  var sortedData = data.sort(function (a, b) {
-    return d3.descending(a.confidence, b.confidence)
-  }).slice(0, 10)
-  //console.log(sortedData)
-  const index = d3.local();
-  const tickIndex = d3.local();
-  const tickTextIndex = d3.local();
-  const x = d3
-    .scaleLinear()
-    .domain([0, sortedBars])
-    .range([50, width - 50])
-    .nice();
-
-  const y = d3
-    .scaleBand()
-    .domain(d3.range(sortedData.length))
-    .range([0, height - 100])
-    .padding(0.1);
-
-  /*   const xAxis = g =>
-      g
-        .attr('class', 'chartxAxisText')
-        .attr('transform', `translate(0,${20})`)
-        .call(d3.axisTop(x))
-        .call(g => g.select('.domain').remove()); */
-  const yAxis = (g: any) =>
-    g.attr('class', 'chartyAxisText')
-      .attr('transform', `translate(${50},0)`)
-      .call(
-        d3
-          .axisLeft(y)
-          .tickFormat(i => String(Math.round((sortedData[Number(i)].confidence + Number.EPSILON) * 100) / 100) + "%")
-          .tickSizeOuter(0)
-      );
-  d3.select(".chartyAxisText").selectAll(".tick").attr("id", function (d, i) { return "axisText_" + i });
-
-  chart
-    .append('g')
-    .selectAll('rect')
-    .data(sortedData)
-    .enter().append('rect')
-    .attr('x', x(0))
-    .attr("y", function (d, i) {
-      return y(`${i}`)
-    })
-    .attr('y', (d, i) => y(`${i}`))
-    .attr('width', d => x(d.confidence) - x(0))
-    .attr('height', y.bandwidth())
-    .attr('fill', 'rgba(102,191,172,1)')
-  chart.selectAll("rect").attr("id", function (d, i) { return "bar_" + i; });
-
-  chart
-    .append('g')
-    .attr('class', 'chartbarTextWrap')
-    .selectAll('text')
-    .data(sortedData)
-    .enter().append('text')
-    .attr('x', d => x(0))
-    .attr('y', (d, i) => y(`${i}`) + y.bandwidth() / 2)
-    .attr('dy', '0.35em')
-    .text(d => (d.classname))
-    .style('pointer-events', 'auto')
-    .each(function (d, i) {
-      index.set(this, i);
-    })
-    .on("click", function (event, d) {
-      event.stopPropagation();
-      let bar_index: any = index.get(this);
-      let current_index = index.get(this);
-      targetCallback(sortedData[bar_index].classname)
-      d3.select(inputRef.current).selectAll("rect")
-        .transition()
-        .duration(500)
-        .attr("y", function (d, i) {
-          if (i < current_index) {
-            i = i + 1;
-            return (y(`${i}`));
-          }
-          else if (i > current_index) {
-            return (y(`${i}`))
-          }
-          else if (i === current_index) {
-            return y(String(0));
-          }
-        })
-      d3.select(inputRef.current).selectAll("text")
-        .transition()
-        .duration(500)
-        .attr("y", function (d, i) {
-          if (i < current_index) {
-            i = i + 1;
-            return (y(`${i}`) + y.bandwidth() / 2);
-          }
-          else if (i > current_index) {
-            return (y(`${i}`) + y.bandwidth() / 2)
-          }
-          else {
-            console.log(i)
-            return (y(String(0)) + y.bandwidth() / 2);
-          }
-        })
-      let translatePos: any = {};
-      d3.select(inputRef.current).selectAll('.chartyAxisText')
-        .selectAll(".tick")
-        .each(function (d, i) {
-          let string = this.getAttribute("transform")
-          let translate = string.substring(string.indexOf("(") + 1, string.indexOf(")")).split(",");
-          translatePos[i] = translate;
-        })
-        .attr("transform", function (d, i) {
-
-          if (i === current_index) {
-            return "translate(" + translatePos[0] + ")"
-          }
-          else if (i < current_index) {
-            i = i + 1;
-            return "translate(" + translatePos[i] + ")"
-          }
-          else if (i > current_index) {
-            return "translate(" + translatePos[i] + ")"
-          }
-        });
-    })
-  //chart.selectAll("text").attr("id", function (d, i) { return "chartText_" + i; });
-  chart.append('g').call(yAxis);
-}
-
-
 
 export interface SidebarProps {
   target: string;
@@ -258,20 +101,18 @@ export interface SidebarProps {
   index: number;
   classIndices: any[];
   heatmapClasses: any[];
-  heatmapConfidence: [];
-  heatmapRelevances: {};
+  heatmapConfidence: any[];
+  heatmapRelevances: {
+    [key: string]: any;
+  };
   currLayer: string;
-  presetCallback: (layer: string, id: string, sampleTag: string) => void;
+  presetcallback: (layer: string, id: string, sampletag: string) => void;
   targetCallback: (value: React.SetStateAction<string>) => void;
 }
 
 export const SidebarComponent: React.FC<SidebarProps> = (props: SidebarProps) => {
-
   const classes = useStyles();
-  const inputRef = React.useRef();
-  const [contentWidth, setContentWidth] = React.useState(null);
   const [, changeCurrentClassIndices] = React.useState([""]);
-  const [currentHeatmapClasses, changeCurrentHeatmapClasses] = React.useState([]);
 
   React.useEffect(() => {
     if (Object.keys(props.classIndices).length > 0) {
@@ -280,44 +121,19 @@ export const SidebarComponent: React.FC<SidebarProps> = (props: SidebarProps) =>
     }
   }, [props.classIndices]);
 
-
-  /*     const createBarPlot = () => {
-        let object = [];
-        for (let className in props.heatmapConfidences) {
-          object.push({ "classname": props.heatmapClasses[className], "confidence": props.heatmapConfidences[className] })
-        }
-        let iWidth: number = parseInt(getComputedStyle(document.getElementById('inputsCard'))
-          .getPropertyValue("width")
-          .trim());
-        setContentWidth(
-          iWidth
-        );
-        d3.select(inputRef.current).selectAll("*").remove();
-        var canvas = d3.select(inputRef.current)
-          .append("svg")
-          .attr("width", iWidth).attr("height", iWidth - 80);
-        plot(canvas, iWidth, iWidth, object, props.targetCallback, inputRef);
-      }
-   */
-  /*     const arraysEqual = (currentHeatmapClasses.length === props.heatmapClasses.length) &&
-        (currentHeatmapClasses.every((val: any) => props.heatmapClasses.includes(val)));
-   */
-
   const presets: any = () => {
     let presets: any[] = []
     for (let preset in presetList) {
       presets.push(<ExampleButton
         key={preset}
-        sampleTag={presetList[preset].sampleTag}
-        presetCallback={props.presetCallback}
+        sampletag={presetList[preset].sampletag}
+        presetcallback={props.presetcallback}
         layer={presetList[preset].layer}
         id={presetList[preset].id}
-        sampleName={presetList[preset].sampleName} />)
+        samplename={presetList[preset].samplename} />)
     }
     return presets
   }
-
-
 
   return <Card className={classes.root} id={'inputsCard'}>
     <Grid container className={classes.tools} >
@@ -327,47 +143,19 @@ export const SidebarComponent: React.FC<SidebarProps> = (props: SidebarProps) =>
       </div>
       <Typography gutterBottom variant="body2">Target class: {props.target}</Typography>
     </Grid>
-    <Grid container
-      className={
-        classes.images
-      }
-    >
+    <Grid container className={classes.images} >
       <Typography gutterBottom variant="body2">Analyze image by index: </Typography>
-      <InputWidget id="index" value={props.index} maxIndex={props.maxIndex} params={""} type="number" input="" inputCallback={props.indexCallback} filterNameCallback={() => console.log("test")}></InputWidget>
-      <Image
-        content={props.image}
-        title={'Input'}
-        getLocalAnalysisCallback={props.localAnalysisCallback}
+      <InputWidget id="index" value={props.index} maxIndex={props.maxIndex} params={""} type="number" input="" inputCallback={props.indexCallback} filterNameCallback={() => console.log("test")} />
+      <Image content={props.image} title={'Input'} getLocalAnalysisCallback={props.localAnalysisCallback} />
+      <Image content={props.heatmap} title={'Heatmap'} getLocalAnalysisCallback={props.localAnalysisCallback}
       />
-      <Image
-        content={props.heatmap}
-        title={'Heatmap'}
-        getLocalAnalysisCallback={props.localAnalysisCallback}
-      />
-      <Typography variant="body2" className={classes.marginText} gutterBottom>Heatmap confidence: {Math.round(props.heatmapConfidence[0] * 10000 + Number.EPSILON) / 100} %</Typography>
+      <Typography variant="body2" className={classes.marginText} gutterBottom>Heatmap confidence: {props.heatmapConfidence.length ? Math.round(props.heatmapConfidence[0] * 10000 + Number.EPSILON) / 100 : null} %</Typography>
       <Typography variant="body2" gutterBottom>Current layer: {props.currLayer} </Typography>
       <Typography variant="body2" gutterBottom> Layer's heatmap contribution:
         {Math.round(props.heatmapRelevances[props.currLayer] * 100 + Number.EPSILON) / 100} %
       </Typography>
     </Grid>
-
-    {/*  <Grid className={classes.search}>
-      <Typography gutterBottom>Target: </Typography>
-      <Autocomplete
-        freeSolo
-        options={props.heatmapClasses}
-        style={{ width: contentWidth, zIndex: 300 }}
-        onChange={(event, value) => onInputChange(event, value, props.classIndices, props.targetCallback)}
-        renderInput={props => {
-          return <TextField {...props} />;
-        }}
-
-      />
-      < div className={classes.svg} ref={inputRef} >
-      </div>
-    </Grid> */}
   </Card>
 };
-
 
 export default SidebarComponent;

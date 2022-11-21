@@ -1,19 +1,13 @@
-## Feature-visualization Web
+## H(uman) XAI: CRP-based Webtool 
 
 ## Quick start
 
 - Requires NodeJS and npm versions up to date for `React 16.8.6`
 
-- Install dependencies: `npm install` or `yarn`
+- Install dependencies: `yarn`
 
-- Start the server: `npm run start` or `yarn start`
+- Start the server: `yarn start`
 
-- Views are on: `localhost:3000`
+- Views are on: `localhost:8080`
 
-
-## License
-
-- based on [Devias Kit - Admin Dashboard](https://react-material-dashboard.devias.io/)
-
-- Licensed under MIT (https://github.com/devias-io/react-material-dashboard/blob/master/LICENSE.md)
 

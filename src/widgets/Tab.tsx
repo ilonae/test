@@ -27,13 +27,6 @@ const useStyles = makeStyles(() => ({
     paddingLeft: "3vh",
     paddingBottom: "5vh"
   },
-  innergrid: {
-    width: "100%",
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "center",
-    marginTop: "1em"
-  },
   marginTop: {
     marginTop: "0.8em",
     width: "100%",
@@ -101,7 +94,6 @@ const TabContent: React.FC<TabProps> = (props: TabProps) => {
   );
   return (
     <div className={classes.root} id="scroll">
-
       <Grid container spacing={5} className={classes.centering}>
         {props.name.length ?
           <Typography className={classes.marginTop} variant="h5" gutterBottom>{props.name}</Typography> : null}

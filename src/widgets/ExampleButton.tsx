@@ -1,21 +1,19 @@
 import React, { FC } from "react";
-import { Button, ButtonProps } from "@material-ui/core";
+import { Button } from "@material-ui/core";
 
-
-export interface PresetButtonProps extends ButtonProps {
+type PresetButtonProps = {
     layer: string,
-    sampleName: string,
-    sampleTag: string,
+    samplename: string,
+    sampletag: string,
     id: string,
-    presetCallback: (layer: string, id: string, sampleTag: string) => void;
+    presetcallback?: (layer: string, id: string, sampletag: string) => void
 
 }
-export const ExampleButton: FC<PresetButtonProps> = (props: PresetButtonProps) => {
-
+export const ExampleButton: FC<PresetButtonProps> = ({ presetcallback, id, layer, samplename, sampletag }: PresetButtonProps) => {
     return (
-        <Button {...props}
+        <Button
             variant="contained"
-            onClick={() => props.presetCallback(props.layer, props.id, props.sampleTag)}
+            onClick={() => presetcallback(layer, id, sampletag)}
             size="small"
             style={{
                 color: "white",
@@ -23,9 +21,8 @@ export const ExampleButton: FC<PresetButtonProps> = (props: PresetButtonProps) =
                 whiteSpace: "normal",
                 backgroundColor: "#66BFAC"
             }}>
-            {props.sampleName}
+            {samplename}
         </Button>
-
     );
 };
 export default ExampleButton;

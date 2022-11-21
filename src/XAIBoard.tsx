@@ -5,13 +5,13 @@ import queryString from 'query-string'
 import { useHistory } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core';
 import { Grid } from '@material-ui/core';
-import { DotLoader } from 'react-spinners'
-
 import { FilterComponent } from './components/FilterComponent';
 import SidebarComponent from './components/SidebarComponent';
-import NetworkComponent, { graphProps } from './components/NetworkComponent';
-import StatisticsComponent from './components/StatisticsComponent';
+import { NetworkComponent, networkProps } from './components/NetworkComponent';
+import { StatisticsComponent, statisticsProps } from './components/StatisticsComponent';
 import helper from './util/helper';
+import { DefaultView } from './views/DefaultView';
+import { LoadingView } from './views/LoadingView';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -19,12 +19,6 @@ const useStyles = makeStyles(() => ({
   },
   errorText: {
     fontStyle: 'bold',
-  },
-  loading: {
-    display: 'table-cell',
-    textAlign: 'center',
-    verticalAlign: 'middle',
-    marginTop: '-10vh'
   },
   expansionContainer: {
     display: 'flex', width: '196vw'
@@ -47,15 +41,6 @@ const useStyles = makeStyles(() => ({
   },
   zIndex: {
     zIndex: 100
-  },
-  overlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    background: 'rgba(255, 255, 255, 0.7)',
-    zIndex: 100
   }
 }));
 
@@ -66,7 +51,7 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
   const classes = useStyles();
   const xaiFlag = React.useRef(true);
   const history = useHistory();
-  const methods = ["epsilon_plus_flat", "epsilon_plus"];
+  const methods = ["epsilon_plus_flat", "epsilon_plus", "all_epsilon", "alpha_beta_plus_flat"]
 
   //UI state settings
   const [viewType, changeViewType] = React.useState('DASHBOARDVIEW');
@@ -118,6 +103,7 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
     graphUpdate: false,
     tabChange: false,
     changeView: false,
+    statsUpdate: false,
     updateAfterAnalysis: false,
     glocalAnalysisUpdate: false,
     filterDataUpdate: false,
@@ -144,17 +130,19 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
     },
   });
 
-  const [graphData, setGraphData] = React.useState<graphProps>({
+  const [graphData, setGraphData] = React.useState<networkProps>({
     nodes: [],
     links: [],
     images: {},
     heatmaps: {}
   });
-  const [statisticsData, setStatisticsData] = React.useState({
+  const [statisticsData, setStatisticsData] = React.useState<statisticsProps>({
     images: {},
+    heatmaps: {},
     classNames: {},
-    classRelevances: {}
+    classRelevances: {},
   });
+
   const [comparingData, setComparingData]: any = React.useState({
     selectedConceptIds: { 'activation': [], 'relevance': [] },
     conceptNames: { 'activation': {}, 'relevance': {} },
@@ -211,8 +199,8 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
         }
         else {
           sorted = Object.entries(globaldata.relevance).sort((a: any, b: any) => a[1] - b[1])
-
         }
+
         let highestRelObject: any = Object.fromEntries(
           Object.entries(sorted).slice(0, 5)
         );
@@ -275,7 +263,6 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
 
       props.socket.once('receive_heatmap', (img: any, data: any) => {
         setJobIdsToLook(prevState => new Set(prevState).add(String(data.job_id).trim()));
-
         var arrayBufferView = new Uint8Array(img);
         var blob = new Blob([arrayBufferView], { type: "image/jpeg" });
         var img_url = URL.createObjectURL(blob);
@@ -297,7 +284,6 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
       });
 
       props.socket.once('receive_available', (data: any) => {
-        console.log(data[Object.keys(data)[0]].target_map[0])
         setLayerInfo((layerInfo: any) => ({
           ...layerInfo,
           index: 0,
@@ -313,7 +299,6 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
       props.socket.on('receive_attribution_graph', (graph: any) => {
         if (graph !== "empty") {
           setJobIdsToLook(prevState => new Set(prevState).add(String(graph.job_id).trim()));
-
           setLayerInfo((layerInfo: any) => ({
             ...layerInfo,
             graphUpdate: true,
@@ -324,8 +309,6 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
             nodes: graph.nodes,
             links: graph.links
           }));
-          //queueFilters(graph)
-          //changeViewType("GRAPHVIEW")
         }
       });
       props.socket.once('receive_conditional_heatmaps', (dict: any, data: any) => {
@@ -463,21 +446,56 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
       });
 
       props.socket.on('receive_statistics', (data: any) => {
-
         let relevances: any = {}
+        let newJobIds = new Set()
+        let statsRealisticHash, statsHeatmapHash
+
         for (let i = 0; i < data.targets.length; i++) {
+
+          statsRealisticHash = Math.random().toString(36).slice(2)
+          statsHeatmapHash = Math.random().toString(36).slice(2)
+
+          props.socket.emit("vis_stats_realistic", {
+            "experiment": layerInfo.experiment,
+            "layer": layerInfo.singleLayer,
+            "concept_id": Number(data.concept_id),
+            "mode": layerInfo.currentAnalysis,
+            "size": filterImgSize + 100,
+            "range": "0:6",
+            "target": data.targets[i],
+            "job_id": statsRealisticHash
+          }),
+            props.socket.emit("vis_stats_heatmaps", {
+              "experiment": layerInfo.experiment,
+              "layer": layerInfo.singleLayer,
+              "concept_id": Number(data.concept_id),
+              "mode": layerInfo.currentAnalysis,
+              "size": filterImgSize + 100,
+              "range": "0:6",
+              "target": data.targets[i],
+              "method": layerInfo.method,
+              "job_id": statsHeatmapHash
+            })
+
           relevances[data.targets[i]] = data.values[i]
+          newJobIds.add(statsRealisticHash)
+          newJobIds.add(statsHeatmapHash)
         }
-        setStatisticsData({
+        setJobIds(newJobIds)
+
+        setStatisticsData((statisticsData: any) => ({
           ...statisticsData,
           classRelevances: relevances
-        });
-        setJobIdsToLook(() => new Set().add(String(data.job_id).trim()));
+        }));
+        setLayerInfo((layerInfo: any) => ({
+          ...layerInfo,
+          statsUpdate: true
+        }))
 
       });
 
-      props.socket.on('receive_stats_heatmaps', (dict: any, data: any) => {
-        const index = data.concept_id;
+      props.socket.on('receive_stats_realistic', (dict: any, data: any) => {
+        setJobIdsToLook(prevState => new Set(prevState).add(String(data.job_id).trim()));
         let imgArr: any[] = []
         for (let item in dict) {
           var binary = '';
@@ -488,6 +506,45 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
           }
           imgArr.push(window.btoa(binary));
         }
+
+        setStatisticsData((statisticsData: any) => ({
+          ...statisticsData,
+          images: {
+            ...statisticsData.images,
+            [data.concept_id]: imgArr
+          }
+        }));
+        setLayerInfo((layerInfo: any) => ({
+          ...layerInfo,
+          statsUpdate: true
+        }))
+      });
+
+      props.socket.on('receive_stats_heatmaps', (dict: any, data: any) => {
+        setJobIdsToLook(prevState => new Set(prevState).add(String(data.job_id).trim()));
+        let heatmapArr: any[] = []
+        for (let item in dict) {
+          var binary = '';
+          var bytes = new Uint8Array(dict[item]);
+          var len = bytes.byteLength;
+          for (var i = 0; i < len; i++) {
+            binary += String.fromCharCode(bytes[i]);
+          }
+          heatmapArr.push(window.btoa(binary));
+        }
+
+        setStatisticsData((statisticsData: any) => ({
+          ...statisticsData,
+          heatmaps: {
+            ...statisticsData.heatmaps,
+            [data.concept_id]: heatmapArr
+          }
+        }));
+
+        setLayerInfo((layerInfo: any) => ({
+          ...layerInfo,
+          statsUpdate: true
+        }))
       });
 
       props.socket.on('disconnect', () => {
@@ -550,11 +607,6 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
   }, [jobIdsToLook.size])
 
   React.useEffect(() => {
-    console.log(layerInfo.graphUpdate)
-  }, [layerInfo.graphUpdate])
-
-
-  React.useEffect(() => {
     if (viewType == 'DASHBOARDVIEW') {
       setJobIdsToLook(new Set())
     }
@@ -590,19 +642,27 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
       }));
       changeViewType('DASHBOARDVIEW')
     }
-
     setJobIds(new Set())
-
-
   }
 
+  const updateStats = () => {
+    changeViewType('STATISTICSVIEW')
+    setLayerInfo((layerInfo: any) => ({
+      ...layerInfo,
+      changeView: true,
+      comparing: false,
+      graphUpdate: false,
+      statsUpdate: false,
+      glocalAnalysisUpdate: false
+    }));
+    setJobIds(new Set())
+  }
 
   const queueFilters = (graph: any = null) => {
     let samplesHash, heatmapsHash, condHash
     let newJobIds = new Set()
     let listOfIds = filterData.selectedConceptIds.map(Number);
     console.log(graph)
-
     if (!graph) {
       condHash = Math.random().toString(36).slice(2)
       props.socket.emit("vis_conditional_heatmaps", {
@@ -652,7 +712,6 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
     }
     setJobIds(newJobIds)
     changeViewType('DASHBOARDVIEW')
-
   }
 
   React.useEffect(() => {
@@ -681,7 +740,12 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
         let updateGraph = true
         updateFilters(updateGraph)
       }
-
+      else if (percentage == '100.00' && !layerInfo.graphUpdate && !layerInfo.experimentUpdate &&
+        layerInfo.statsUpdate && filterData.selectedConceptIds.length && layerInfo.experiment && layerInfo.singleLayer &&
+        layerInfo.currentAnalysis && layerInfo.method) {
+        console.log("stats")
+        updateStats()
+      }
       else if (percentage == '100.00' && !layerInfo.graphUpdate && layerInfo.experimentUpdate &&
         tempData.heatmap.heatmapClasses.length && tempData.currentImage &&
         filterData.selectedConceptIds.length && layerInfo.experiment && layerInfo.singleLayer &&
@@ -693,7 +757,6 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
           heatmap: tempData.heatmap
         }));
         queueFilters()
-
       }
       else if (percentage == '100.00' &&
         !layerInfo.graphUpdate &&
@@ -704,7 +767,6 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
         layerInfo.currentAnalysis && layerInfo.method) {
         updateFilters()
       }
-
       else if (percentage != '100.00') {
         changeViewType('LOADINGVIEW')
       }
@@ -716,9 +778,9 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
         tabChange: false
       }));
     }
-  }, [layerInfo.glocalAnalysisUpdate, layerInfo.singleLayer, layerInfo.tabChange, layerInfo.graphUpdate,
+  }, [layerInfo.glocalAnalysisUpdate, layerInfo.singleLayer, layerInfo.tabChange, layerInfo.graphUpdate, layerInfo.statsUpdate,
   Object.keys(graphData.heatmaps).length, Object.keys(graphData.images).length, graphData.nodes.length, Object.keys(tempData.heatmaps).length,
-    graphData, props.socket, filterData.selectedConceptIds, layerInfo.targetId,
+  Object.keys(graphData), props.socket, filterData.selectedConceptIds, layerInfo.targetId,
   layerInfo.index, layerInfo.method, layerInfo.currentAnalysis, layerInfo.experiment,
   tempData.heatmap, tempData.conditionalHeatmap, tempData.currentImage, jobIdsToLook.size, jobIds.size]);
 
@@ -726,7 +788,6 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
     if (graphData.nodes.length && viewType == "GRAPHVIEW") {
       const flavoursContainer = document.getElementById('root');
       const flavoursScrollWidth = flavoursContainer.scrollWidth;
-
       if (flavoursContainer.scrollLeft !== flavoursScrollWidth) {
         document.getElementById('root').scrollTo({
           left: flavoursScrollWidth,
@@ -735,6 +796,7 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
       }
     }
   }, [graphData, viewType]);
+
   React.useEffect(() => {
     if (layerInfo.experiment) {
       let currHash = Math.random().toString(36).slice(2)
@@ -767,10 +829,6 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
   }, [layerInfo.experiment])
 
   React.useEffect(() => {
-    console.log(layerInfo.targetId)
-  }, [layerInfo.targetId])
-
-  React.useEffect(() => {
     if (props.socket && imgSize && layerInfo.experiment) {
       let currHash = Math.random().toString(36).slice(2)
       setJobIds(prevState => new Set(prevState).add(currHash.trim()))
@@ -782,6 +840,7 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
       });
     }
   }, [layerInfo.index, layerInfo.experiment, imgSize, props.socket])
+
   React.useEffect(() => {
     if (props.socket && imgSize && layerInfo.experiment) {
       let currHash = Math.random().toString(36).slice(2)
@@ -798,6 +857,7 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
       })
     }
   }, [layerInfo.index, layerInfo.targetId, layerInfo.experiment, layerInfo.method, imgSize, props.socket])
+
   React.useEffect(() => {
     if (props.socket && layerInfo.experiment && layerInfo.currentAnalysis && filterData.selectedConceptIds.length === 5 && layerInfo.singleLayer && layerInfo.glocalAnalysisUpdate) {
       setLayerInfo((layerInfo: any) => ({
@@ -812,7 +872,6 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
       let currHash, heatmapsHash, conditionalHash
       let newJobIds = new Set()
       let listOfIds = filterData.selectedConceptIds.map(Number);
-
       for (const [key, value] of Object.entries(comparingData.selectedConceptIds)) {
         conditionalHash = Math.random().toString(36).slice(2)
         props.socket.emit("vis_conditional_heatmaps", {
@@ -893,8 +952,7 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
       "width": normedValues.newWidth,
       "height": normedValues.newHeight,
       "job_id": currHash
-    }
-    )
+    })
 
     setLayerInfo((layerInfo: any) => ({
       ...layerInfo,
@@ -911,27 +969,6 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
       }
     }))
   };
-  //visualizing heatmap according to selected filter
-  const getFilterHeatmap = (value: any) => {
-    setLayerInfo((layerInfo: any) => ({
-      ...layerInfo,
-      filters: {
-        ...layerInfo,
-        current_id: Number(value)
-      }
-    })
-    )
-  }
-  const getFilterActivation = (value: any) => {
-    setLayerInfo((layerInfo: any) => ({
-      ...layerInfo,
-      filters: {
-        ...layerInfo,
-        current_id: Number(value)
-      }
-    })
-    )
-  }
   //calback functions, called from child components
   const inspectFilter = async (value: any, view: string, currentTab: string) => {
     setLayerInfo((layerInfo: any) => ({
@@ -943,7 +980,6 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
       }
     })
     )
-
     changeViewType(view)
 
     let statisticsMode
@@ -954,16 +990,15 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
     else { statisticsMode = "relevance_stats" }
 
     if (view === 'STATISTICSVIEW') {
-      console.log(layerInfo.curentAnalysis)
-      let currHash = Math.random().toString(36).slice(2)
-      setJobIds(() => new Set().add(currHash))
+      let statsHash = Math.random().toString(36).slice(2)
+
       props.socket.emit("get_statistics", {
         "experiment": layerInfo.experiment,
         "layer": layerInfo.singleLayer,
         "concept_id": Number(value),
         "top_N": 5,
-        "mode": 'relevance',
-        "job_id": currHash
+        "mode": layerInfo.currentAnalysis,
+        "job_id": statsHash
       })
     }
     else if (view === 'GRAPHVIEW') {
@@ -982,10 +1017,8 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
           "parent_c_id": 10,
           "parent_layer": "features.40",
           "job_id": currHash,
-        }
-      )
+        })
     }
-
   }
   const selectedOrder = (value: any) => {
     setLayerInfo((layerInfo: any) => ({
@@ -996,6 +1029,7 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
   const viewState = (value: any) => {
     setStatisticsData(() => ({
       images: {},
+      heatmaps: {},
       classNames: {},
       classRelevances: {}
     }))
@@ -1009,9 +1043,8 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
     }))
   };
 
-  const presetChange = (layer: string, index: string, sampleTag: string) => {
-
-    let targetId = (Object.keys(layerInfo.targets).find(key => layerInfo.targets[key] === sampleTag))
+  const presetChange = (layer: string, index: string, sampletag: string) => {
+    let targetId = (Object.keys(layerInfo.targets).find(key => layerInfo.targets[key] === sampletag))
     setLayerInfo((layerInfo: any) => ({
       ...layerInfo,
       index: parseInt(index),
@@ -1019,6 +1052,7 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
       singleLayer: layer
     }))
   }
+
   const selectedExperiment = (value: string) => {
     setLayerInfo((layerInfo: any) => ({
       ...layerInfo,
@@ -1027,18 +1061,13 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
       singleLayer: layerInfo.layer[value as keyof typeof layerInfo.layer][0]
     }))
   };
+
   const checkAnalysisCallback = (value: any) => {
     setLayerInfo((layerInfo: any) => ({
       ...layerInfo,
       tabChange: true,
       currentAnalysis: value
     }))
-  }
-  const compareCallback = (value: any) => {
-    setLayerInfo((layerInfo: any) => ({
-      ...layerInfo,
-      comparing: true
-    }));
   }
 
   const selectedMethod = (value: any) => {
@@ -1130,7 +1159,7 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
             heatmap={layerInfo.heatmap.heatmapImg}
             localAnalysisCallback={localAnalysis}
             index={layerInfo.index}
-            presetCallback={presetChange}
+            presetcallback={presetChange}
             classIndices={layerInfo.targets}
             heatmapClasses={layerInfo.heatmap.heatmapClasses}
             currLayer={layerInfo.singleLayer}
@@ -1165,43 +1194,20 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
       </div>
       <div className={(viewType === 'STATISTICSVIEW' || viewType === 'GRAPHVIEW') ? classes.expandedStatistics : classes.hiddenStatistics}>
         {viewType === 'STATISTICSVIEW' ?
-          < StatisticsComponent
-            viewState={viewType}
+          < StatisticsComponent viewState={viewType}
             viewCallback={viewState}
             statistics={statisticsData}
             statisticName={layerInfo.currentAnalysis}
             currentLayer={layerInfo.singleLayer}
-            conceptId={layerInfo.filters.current_id} /> : viewType === 'GRAPHVIEW' ?
-            <NetworkComponent
-              viewState={viewType}
-              viewCallback={viewState}
-              graph={graphData}
-              conceptId={layerInfo.filters.current_id} /> : null}
+            conceptId={layerInfo.filters.current_id} />
+          : viewType === 'GRAPHVIEW' ?
+            <NetworkComponent viewState={viewType} viewCallback={viewState} graph={graphData} conceptId={layerInfo.filters.current_id} />
+            : null}
       </div>
     </div >
   );
 
-  const loadingGrid = (
-    <div id='expansioncontainer' className={classes.loading}>
-      <Grid
-        container
-        direction="column"
-        justifyContent="center"
-        alignItems="center"
-        spacing={3}
-        wrap="nowrap"
-        className={classes.overlay}
-      >
-        <DotLoader
-          size={100}
-          color={"#333333"}
-          loading={true}
-        />
-        <h3> Loading... {loadedPercentage} %</h3>
-      </Grid>
-      {defaultGrid}
-    </div >
-  );
+  const loadingGrid = <LoadingView defaultView={defaultGrid} loadPercentage={loadedPercentage} />;
 
   return (
     <div >

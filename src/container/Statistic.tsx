@@ -1,6 +1,7 @@
 import React from "react";
 import { Grid, Typography, makeStyles, Container } from "@material-ui/core";
 const useStyles = makeStyles(() => ({
+
   image: () => ({
     border: "1px solid #555",
     verticalAlign: "middle",
@@ -84,6 +85,7 @@ const StatisticBox: React.FC<StatisticBoxProps> = (props: StatisticBoxProps) => 
   React.useEffect(
     () => {
       if (props.images) {
+        console.log("stat!")
         let statsImages = makeImages(classes.image, props.name, classes.test);
         setImages(statsImages);
       }

@@ -80,6 +80,9 @@ interface statisticsProps {
   images: {
     [key: string]: any[]
   },
+  heatmaps: {
+    [key: string]: any[]
+  },
   classNames: {
     [key: string]: string
   },
@@ -88,10 +91,11 @@ interface statisticsProps {
   },
   properties?: object
 }
+
 type StatisticsComponentProps = {
   statistics?: statisticsProps,
   conceptId?: number,
-  statisticName: string;
+  statisticName?: string;
   viewState: string;
   currentLayer: string,
   viewCallback: (value: any) => void;
@@ -102,7 +106,9 @@ const StatisticsComponent: React.FC<StatisticsComponentProps> = (props: Statisti
   const [statisticsBox, setStatisticsBox] = React.useState([]);
   React.useEffect(
     () => {
-      if (props.statistics) {
+      console.log(props.statistics)
+      if (Object.keys(props.statistics.images).length) {
+        console.log("stats available")
         const statisticsArr: any[] = [];
 
         Object.keys(props.statistics.classNames).forEach(key => {
@@ -123,7 +129,7 @@ const StatisticsComponent: React.FC<StatisticsComponentProps> = (props: Statisti
         setStatisticsBox(statisticsArr);
       }
     },
-    [props.statistics, props.statisticName]
+    [Object.keys(props.statistics.classRelevances).length, props.statisticName]
   );
 
 
@@ -161,4 +167,4 @@ const StatisticsComponent: React.FC<StatisticsComponentProps> = (props: Statisti
     </Card>
   );
 };
-export default StatisticsComponent;
+export { StatisticsComponent, type statisticsProps }

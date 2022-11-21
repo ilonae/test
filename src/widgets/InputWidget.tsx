@@ -60,12 +60,7 @@ export const InputWidget: React.FC<InputWidgetProps> = (props: InputWidgetProps)
   const [filterName, setFilterName] = React.useState("");
   const classes = useStyles();
   return props.input === "sample" ? (
-    <TextField
-      type={props.type}
-      variant="outlined"
-      className={classes.root}
-      inputProps={{ min, max }}
-      value={valueState}
+    <TextField type={props.type} variant="outlined" className={classes.root} inputProps={{ min, max }} value={valueState}
       onChange={e => {
         var value = parseInt(e.target.value);
         if (value > props.maxIndex) value = props.maxIndex;
@@ -80,12 +75,7 @@ export const InputWidget: React.FC<InputWidgetProps> = (props: InputWidgetProps)
       }}
     />
   ) : props.id == "index" ? (
-    <TextField
-      type={props.type}
-      variant="outlined"
-      className={classes.root}
-      inputProps={{ min, max }}
-      value={valueState}
+    <TextField type={props.type} variant="outlined" className={classes.root} inputProps={{ min, max }} value={valueState}
       onChange={e => {
         var value = parseInt(e.target.value);
         if (value > props.maxIndex) value = props.maxIndex;
@@ -99,29 +89,17 @@ export const InputWidget: React.FC<InputWidgetProps> = (props: InputWidgetProps)
         }
       }}
     />
-  ) : props.id == "name" ? (
-    <TextField
-      type={props.type}
-      label={"Search by class name or index"}
-      {...props.params}
-      variant="outlined"
-    />
-  ) : (
-    <TextField
-      type={props.type}
-      className={classes.filter}
-      label={"Edit filter name"}
-      variant="outlined"
-      onChange={e => {
-        setFilterName(e.target.value);
-      }}
-      onKeyPress={ev => {
-        if (ev.key === "Enter") {
-          props.filterNameCallback(filterName);
-          ev.preventDefault();
-        }
-      }}
-    />
-  );
+  ) : props.id == "name" ? (<TextField type={props.type} label={"Search by class name or index"} {...props.params} variant="outlined" />)
+    : (
+      <TextField type={props.type} className={classes.filter} label={"Edit filter name"} variant="outlined"
+        onChange={e => { setFilterName(e.target.value) }}
+        onKeyPress={ev => {
+          if (ev.key === "Enter") {
+            props.filterNameCallback(filterName);
+            ev.preventDefault();
+          }
+        }}
+      />
+    );
 };
 export default InputWidget;

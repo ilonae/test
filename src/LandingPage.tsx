@@ -40,13 +40,14 @@ const SignUpLoginForm = (socket: any) => {
                 <FormControl>
                     <TextField type='password' helperText={error} label="Token" error={error.length === 0 ? false : true} onChange={e => {
                         setToken(e.target.value);
-                        setError("gzz");
+                        setError("Wrong passcode!");
                     }} InputProps={{
                         endAdornment: (
                             <InputAdornment position="end">
+                                <div></div>
                             </InputAdornment>
                         ),
-                    }} />
+                    }}></TextField>
                 </FormControl>
                 <Button
                     className={classes.button}
@@ -62,8 +63,6 @@ const SignUpLoginForm = (socket: any) => {
 export interface LandingPageProps {
     socket: any;
 }
-
-
 
 export const LandingPage = (props: LandingPageProps) => (
     <div >

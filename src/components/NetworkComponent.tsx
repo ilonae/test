@@ -16,7 +16,6 @@ import * as d3 from "d3";
 
 const useStyles = makeStyles(() => ({
   root: {
-    height: "72vh",
     position: "relative",
     display: "flex",
     flexDirection: "row",
@@ -73,19 +72,19 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-export interface graphProps {
+interface networkProps {
   images?: {
     [key: string]: any[]
   };
   heatmaps?: {
     [key: string]: any[]
   };
-  nodes?: any[];
-  links?: any[]
+  nodes: any[];
+  links: any[]
 }
 
 type NetworkComponentProps = {
-  graph?: graphProps,
+  graph?: networkProps,
   conceptId?: number,
   viewState: string;
   viewCallback: (value: any) => void;
@@ -131,10 +130,13 @@ let data: any = {
 const NetworkComponent: React.FC<NetworkComponentProps> = (props: NetworkComponentProps) => {
   const classes = useStyles();
   const dynamicContentWrapper = React.useRef(null);
-  const [graphState, setGraphState] = React.useState({});
+  const [graphState, setGraphState] = React.useState({
+    nodes: [],
+    links: []
+  });
   const [showInfo, setInfoView] = React.useState(false);
 
-  const Menu = (props: any) => <div>menu</div>;
+  const Menu = () => <div>menu</div>;
   let content;
 
   function changeLayout(element: any) {
@@ -155,9 +157,6 @@ const NetworkComponent: React.FC<NetworkComponentProps> = (props: NetworkCompone
     console.log(element.source.label.children[1].innerHTML);
     console.log(element.target.label.children[1].innerHTML);
   }
-  var scale = function (db: number) {
-    return db / 100 * 7;
-  };
 
   async function createGraph() {
     console.log(props.graph)
@@ -170,26 +169,19 @@ const NetworkComponent: React.FC<NetworkComponentProps> = (props: NetworkCompone
         arrowheadStyle: "fill: #009374;",
         labelStyle: "font-family: roboto",
         style:
-          "font-family: roboto;color: #009374;stroke: #009374;fill: none; stroke-width: " +
-          5 +
-          "px;cursor:pointer"
+          "font-family: roboto;color: #009374;stroke: #009374;fill: none; stroke-width: " + 5 + "px;cursor:pointer"
       };
     }
     for (let node = 0; node < props.graph.nodes.length; node++) {
-
       props.graph.nodes[node]["id"] = props.graph.nodes[node]["layer_name"] + ":" + props.graph.nodes[node]["concept_id"]
-
       props.graph.nodes[node]["labelType"] = "html";
-      props.graph.nodes[node]["config"] = {
-        style: "fill: #CCEAE3; cursor:pointer;  height: max-content"
-      };
+      props.graph.nodes[node]["config"] = { style: "fill: #CCEAE3; cursor:pointer;  height: max-content" };
       props.graph.nodes[node].class = "";
       content = document.createElement("div");
       var imgs = document.createElement("div");
       imgs.setAttribute("class", classes.imagecontainer);
       const currNode: string = props.graph.nodes[node].id;
       const currLayer: string = props.graph.nodes[node].layer_name;
-
       const currFilterIndex = parseInt(currNode.split(":")[1])
 
       const filter = (
@@ -217,8 +209,6 @@ const NetworkComponent: React.FC<NetworkComponentProps> = (props: NetworkCompone
       //inner.append({ el => { dynamicContentWrapper = el }});
       //embed.appendChild(inner)
       content.innerHTML = ReactDOMServer.renderToStaticMarkup(filter);
-
-
       props.graph.nodes[node]["label"] = content;
     }
     setGraphState(props.graph)
@@ -232,10 +222,8 @@ const NetworkComponent: React.FC<NetworkComponentProps> = (props: NetworkCompone
     },
     [props.graph.nodes]);
 
-
   React.useEffect(() => {
     if (document.querySelector(".test")) {
-      console.log("dfd");
       const htmlFromAjax = `
       <div class='dynamic-content'>
         <h4 class='content-header'>Dynamic content header</h4>
@@ -247,26 +235,16 @@ const NetworkComponent: React.FC<NetworkComponentProps> = (props: NetworkCompone
     }
   });
 
-
   return (
-    <Card>
-      <CardContent className={classes.root}>
+    <Card className={classes.root}>
+      <CardContent className={classes.root} >
         <Box display="flex" flexDirection="column" position="relative">
           <Box flexGrow={1}>
             <Typography gutterBottom>Selected Concept ID: {props.conceptId}</Typography>
-            <div
-              ref={el => (dynamicContentWrapper.current = el)}
-              className="dynamic-content-wrapper"
-            />
+            <div ref={el => (dynamicContentWrapper.current = el)} className="dynamic-content-wrapper" />
           </Box>
-          <Button
-            startIcon={<ArrowBackIosIcon />}
-            onClick={() => props.viewCallback("DASHBOARDVIEW")}
-            variant="contained"
-            className={classes.buttonback}
-          >
-            {" "}
-            Return back{" "}
+          <Button startIcon={<ArrowBackIosIcon />} onClick={() => props.viewCallback("DASHBOARDVIEW")} variant="contained" className={classes.buttonback} >
+            {" "} Return back{" "}
           </Button>
         </Box>
         {graphState.nodes ? (
@@ -291,4 +269,4 @@ const NetworkComponent: React.FC<NetworkComponentProps> = (props: NetworkCompone
     </Card>
   );
 };
-export default NetworkComponent;
+export { NetworkComponent, type networkProps }

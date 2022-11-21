@@ -2,6 +2,7 @@ import React from "react";
 import jsPDF from "jspdf";
 import * as htmlToImage from "html-to-image";
 import { Button } from "@material-ui/core";
+
 type DownloadButtonProps = {
   order?: string,
   name: string,

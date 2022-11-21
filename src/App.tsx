@@ -1,10 +1,5 @@
 import * as React from "react";
-import {
-    BrowserRouter as Router,
-    Switch,
-    Route
-} from "react-router-dom";
-
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import socketIOClient from "socket.io-client";
 import { LandingPage } from './LandingPage';
 import Dashboard from './XAIBoard';
@@ -12,11 +7,7 @@ import Dashboard from './XAIBoard';
 export interface AppProps {
     basename: string;
 }
-
 const socket = socketIOClient('172.17.21.147:5059');
-socket.on('data', data => {
-    console.log(data);
-});
 
 export const App = (props: AppProps) => (
     <Router basename={props.basename}>

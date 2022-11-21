@@ -2,8 +2,8 @@ import React from 'react';
 import { Card, makeStyles, createStyles, Grid, Typography, TabProps, Tab, Tabs, withStyles, StyleRules, Theme } from '@material-ui/core';
 import SortingButton from '../widgets/SortingWidget';
 import TabContent from '../widgets/Tab';
-import Selection from '../widgets/SelectionWidget';
 import DownloadButton from '../widgets/DownloadButton';
+import SettingsBar from '../widgets/SettingsBar';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -12,12 +12,6 @@ const useStyles = makeStyles((theme) => ({
     position: 'relative',
     overflow: 'scroll',
     width: "100%"
-  },
-  innergrid: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: '1em',
   },
   grid: {
     width: '100%'
@@ -61,37 +55,6 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export interface FilterProps {
-  target: string;
-  orderCallback: (value: any) => void;
-  experimentsCallback: (value: any) => void;
-  methodsCallback: (value: any) => void;
-  filterInspectionCallback: (index: number, view: string, currentTab: string) => void;
-  analysisCallback: (value: any) => void;
-  layerCallback: (value: any) => void;
-  viewState: string;
-  selectedLayer: string;
-  selectedExperiment: string;
-  selectedMethod: string;
-  layers: string[];
-  descending: boolean;
-  methods: string[];
-  models: string[];
-  filters: any;
-  selectedTab: any;
-  compareFilters: {
-    selectedConceptIds: { 'activation': [], 'relevance': [] },
-    conceptNames: { 'activation': {}, 'relevance': {} },
-    selectedConceptRelevances: { 'activation': {}, 'relevance': {} },
-    images: { 'activation': {}, 'relevance': {} },
-    heatmaps: { 'activation': {}, 'relevance': {} },
-    conditionalHeatmap: { 'activation': {}, 'relevance': {} },
-    modes: ['activation', 'relevance']
-
-  },
-  filterImgSize: number
-}
-
 const tabStyles: (theme: Theme) => StyleRules<string> = theme =>
   createStyles({
     root: {
@@ -125,6 +88,37 @@ const tabStyles: (theme: Theme) => StyleRules<string> = theme =>
     },
     selected: {},
   })
+
+export interface FilterProps {
+  target: string;
+  orderCallback: (value: any) => void;
+  experimentsCallback: (value: any) => void;
+  methodsCallback: (value: any) => void;
+  filterInspectionCallback: (index: number, view: string, currentTab: string) => void;
+  analysisCallback: (value: any) => void;
+  layerCallback: (value: any) => void;
+  viewState: string;
+  selectedLayer: string;
+  selectedExperiment: string;
+  selectedMethod: string;
+  layers: string[];
+  descending: boolean;
+  methods: string[];
+  models: string[];
+  filters: any;
+  selectedTab: any;
+  compareFilters: {
+    selectedConceptIds: { 'activation': [], 'relevance': [] },
+    conceptNames: { 'activation': {}, 'relevance': {} },
+    selectedConceptRelevances: { 'activation': {}, 'relevance': {} },
+    images: { 'activation': {}, 'relevance': {} },
+    heatmaps: { 'activation': {}, 'relevance': {} },
+    conditionalHeatmap: { 'activation': {}, 'relevance': {} },
+    modes: ['activation', 'relevance']
+
+  },
+  filterImgSize: number
+}
 
 interface AlteredTabProps extends TabProps {
   name: string;
@@ -200,45 +194,27 @@ export const FilterComponent: React.FC<FilterProps> = (props: FilterProps) => {
   return (
     <Card className={classes.root} id={'filterCard'}>
       <Grid className={classes.grid} container spacing={5}>
-        <Grid item className={classes.innergrid} xs={12}>
-          <Selection
-            select={'Experiment'}
-            selectedParam={props.selectedExperiment}
-            parentCallback={props.experimentsCallback}
-            params={props.models}
-          />
-          <Selection
-            select={'Layer'}
-            selectedParam={props.selectedLayer}
-            parentCallback={props.layerCallback}
-            params={props.layers}
-          />
-          <Selection
-            select={'Method'}
-            selectedParam={props.selectedMethod}
-            parentCallback={props.methodsCallback}
-            params={props.methods}
-          />
-          <SortingButton descending={props.descending} parentCallback={props.orderCallback} />
-
-        </Grid>
+        <SettingsBar
+          models={props.models}
+          selectedExperiment={props.selectedExperiment}
+          experimentsCallback={props.experimentsCallback}
+          selectedLayer={props.selectedLayer}
+          layerCallback={props.layerCallback}
+          layers={props.layers}
+          selectedMethod={props.selectedMethod}
+          methodsCallback={props.methodsCallback}
+          methods={props.methods}
+          descending={props.descending}
+          orderCallback={props.orderCallback}
+        />
         <Grid item xs={12} >
           <Grid container spacing={5} className={classes.centering} >
-            {/* <div className={classes.demoLogo} >
-              <img className={classes.demoImg} src="../Logo_BIFOLD.jpg" />
-            </div> */}
             <Typography gutterBottom  >Explanation (Target class: {props.target} ) </Typography>
           </Grid>
-
-          <div className={classes.tabs}>
-
-            <AntTabs value={value} onChange={handleChange} indicatorColor="primary"
-              textColor="primary" variant='scrollable' >
-              {tabCaption}
-            </AntTabs>
-          </div>
-
-
+          <AntTabs className={classes.tabs} value={value} onChange={handleChange} indicatorColor="primary"
+            textColor="primary" variant='scrollable' >
+            {tabCaption}
+          </AntTabs>
           {props.selectedTab == "comparison" ?
             (<Grid container style={{ height: "inherit" }}>
               <Grid item xs={6} style={{ height: "inherit" }}>
