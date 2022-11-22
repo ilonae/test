@@ -1,6 +1,7 @@
 import React from "react";
 import { Container } from "@material-ui/core";
 
+declare module 'socketio-file-upload';
 const defineFilterImageSize = (filterAmount: number) => {
   let box = document.getElementById("filterCard");
   let smallerSide;
@@ -67,6 +68,7 @@ const createStatsImgs = (images: any[], imageStyle: string, name: string, contai
   }
   return statisticsImages;
 };
+
 const normLocalSelection = (x: number, y: number, width: number, height: number, imgSize: number) => {
   const newX = x / imgSize;
   const newY = y / imgSize;
@@ -75,6 +77,7 @@ const normLocalSelection = (x: number, y: number, width: number, height: number,
   console.log(newX, newY, newWidth, newHeight);
   return { newX, newY, newWidth, newHeight };
 };
+
 const defineImgs = () => {
   let imgBox = document.getElementById("inputsCard");
   if (imgBox !== undefined) {

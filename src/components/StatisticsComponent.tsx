@@ -1,13 +1,7 @@
 import React from "react";
 import Button from "@material-ui/core/Button";
 import ArrowBackIosIcon from "@material-ui/icons/ArrowBackIos";
-import {
-  makeStyles,
-  Box,
-  Card,
-  Grid,
-  Typography
-} from "@material-ui/core";
+import { makeStyles, Box, Card, Grid, Typography } from "@material-ui/core";
 import Statistic from "../container/Statistic";
 const useStyles = makeStyles(() => ({
   root: {
@@ -102,7 +96,6 @@ type StatisticsComponentProps = {
 };
 const StatisticsComponent: React.FC<StatisticsComponentProps> = (props: StatisticsComponentProps) => {
   const classes = useStyles();
-  const [view, changeView] = React.useState(props.viewState);
   const [statisticsBox, setStatisticsBox] = React.useState([]);
   React.useEffect(
     () => {
@@ -110,18 +103,14 @@ const StatisticsComponent: React.FC<StatisticsComponentProps> = (props: Statisti
       if (Object.keys(props.statistics.images).length) {
         console.log("stats available")
         const statisticsArr: any[] = [];
-
         Object.keys(props.statistics.classNames).forEach(key => {
-          const ind = Number(key)
           statisticsArr.push(
             <Statistic
               statistic={props.statisticName}
               name={props.statistics.classNames[key]}
-              relevance={props.statistics.classRelevances[key]
-              }
+              relevance={props.statistics.classRelevances[key]}
               images={props.statistics.images[key]}
-              key={`statistic_${key}`
-              }
+              key={`statistic_${key}`}
               amount={Object.keys(props.statistics.classRelevances).length}
             />
           );
@@ -129,37 +118,22 @@ const StatisticsComponent: React.FC<StatisticsComponentProps> = (props: Statisti
         setStatisticsBox(statisticsArr);
       }
     },
-    [Object.keys(props.statistics.classRelevances).length, props.statisticName]
-  );
-
+    [Object.keys(props.statistics.classRelevances).length, props.statisticName]);
 
   return (
     <Card className={classes.root} id="statistics">
-      <Button
-        startIcon={<ArrowBackIosIcon />}
-        onClick={() => props.viewCallback("DASHBOARDVIEW")}
-        variant="contained"
-        className={classes.buttonback}
-      >
-        {" "}
-        Return back{" "}
+      <Button startIcon={<ArrowBackIosIcon />} onClick={() => props.viewCallback("DASHBOARDVIEW")} variant="contained" className={classes.buttonback}>
+        {" "}Return back{" "}
       </Button>
-      <Box
-        display="flex"
-        flexDirection="column"
-        width="100%"
-        position="relative"
-      >
+      <Box display="flex" flexDirection="column" width="100%" position="relative">
         <Box flexGrow={1}>
           <Typography gutterBottom variant="h4" align="center">
             Similarities with respect of {props.statisticName} in other classes
           </Typography>
-
           <Typography gutterBottom variant="h6" align="center">
             Selected Concept ID: {props.conceptId}
           </Typography>
         </Box>
-
         <Grid container className={classes.statistics}>
           {statisticsBox}
         </Grid>

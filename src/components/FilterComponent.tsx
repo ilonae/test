@@ -1,8 +1,6 @@
 import React from 'react';
-import { Card, makeStyles, createStyles, Grid, Typography, TabProps, Tab, Tabs, withStyles, StyleRules, Theme } from '@material-ui/core';
-import SortingButton from '../widgets/SortingWidget';
-import TabContent from '../widgets/Tab';
-import DownloadButton from '../widgets/DownloadButton';
+import { Card, makeStyles, Grid, Typography, Tabs } from '@material-ui/core';
+import { Tab, ViewTab } from '../container/Tab';
 import SettingsBar from '../widgets/SettingsBar';
 
 const useStyles = makeStyles((theme) => ({
@@ -16,32 +14,10 @@ const useStyles = makeStyles((theme) => ({
   grid: {
     width: '100%'
   },
-  demoLogo: {
-    height: '8vh',
-    width: '18vh',
-    overflow: "hidden",
-    justifyContent: 'end',
-    flex: 'wrap',
-    display: 'flex',
-    position: 'absolute',
-    zIndex: 9000,
-    right: 0,
-    marginRight: "12vh"
-  },
-  demoImg: {
-
-    marginTop: "-2vh",
-    height: '10vh',
-    width: '18vh'
-  },
   centering: {
     paddingLeft: '3vh',
     paddingBottom: '3vh',
     justifyContent: 'center'
-  },
-  download: {
-    display: "flex",
-    justifyContent: "center",
   },
   tabs: {
     zIndex: 80,
@@ -55,39 +31,6 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const tabStyles: (theme: Theme) => StyleRules<string> = theme =>
-  createStyles({
-    root: {
-      zIndex: 300,
-      textTransform: 'none',
-      minWidth: 72,
-      marginRight: theme.spacing(4),
-      fontFamily: [
-        '-apple-system',
-        'BlinkMacSystemFont',
-        '"Segoe UI"',
-        'Roboto',
-        '"Helvetica Neue"',
-        'Arial',
-        'sans-serif',
-        '"Apple Color Emoji"',
-        '"Segoe UI Emoji"',
-        '"Segoe UI Symbol"',
-      ].join(','),
-      '&:hover': {
-        color: '#40a9ff',
-        opacity: 1,
-      },
-      '&$selected': {
-        color: '#1890ff',
-        fontWeight: theme.typography.fontWeightMedium,
-      },
-      '&:focus': {
-        color: '#40a9ff',
-      },
-    },
-    selected: {},
-  })
 
 export interface FilterProps {
   target: string;
@@ -120,25 +63,14 @@ export interface FilterProps {
   filterImgSize: number
 }
 
-interface AlteredTabProps extends TabProps {
-  name: string;
-  analysis: string;
-}
 
-export const AntTab: React.FC<AlteredTabProps> = (props: AlteredTabProps) => {
-  return <Tab disableRipple {...props} />
-}
-
-export default withStyles(tabStyles)(AntTab);
 
 export const FilterComponent: React.FC<FilterProps> = (props: FilterProps) => {
   const [tabCaption, setTabCaption] = React.useState([]);
   const [value, setValue] = React.useState(0);
   const [extraProps, setExtraProps]: any = React.useState({
-    "activation": {
-    },
-    "relevance": {
-    }
+    "activation": {},
+    "relevance": {}
   });
 
   const isObject = (obj: any) => obj != null && obj.constructor.name === "Object";
@@ -185,9 +117,9 @@ export const FilterComponent: React.FC<FilterProps> = (props: FilterProps) => {
 
   React.useEffect(() => {
     let tabPanelBox = [];
-    tabPanelBox.push(<AntTab label={'Show max relevances'} className={classes.tab} key={0} name={'relevance'} analysis={'relevance'} />)
-    tabPanelBox.push(<AntTab label={'Show max activations'} className={classes.tab} key={1} name={'activation'} analysis={'activation'} />)
-    tabPanelBox.push(<AntTab label={'Compare activation and relevance'} className={classes.tab} key={2} name={'compare'} analysis={'comparison'} />)
+    tabPanelBox.push(<ViewTab label={'Show max relevances'} className={classes.tab} key={0} name={'relevance'} analysis={'relevance'} />)
+    tabPanelBox.push(<ViewTab label={'Show max activations'} className={classes.tab} key={1} name={'activation'} analysis={'activation'} />)
+    tabPanelBox.push(<ViewTab label={'Compare activation and relevance'} className={classes.tab} key={2} name={'compare'} analysis={'comparison'} />)
     setTabCaption(tabPanelBox)
   }, [classes.tab]);
 
@@ -218,7 +150,7 @@ export const FilterComponent: React.FC<FilterProps> = (props: FilterProps) => {
           {props.selectedTab == "comparison" ?
             (<Grid container style={{ height: "inherit" }}>
               <Grid item xs={6} style={{ height: "inherit" }}>
-                < TabContent
+                < Tab
                   viewState={props.viewState}
                   filterInspectionCallback={(index, view) => props.filterInspectionCallback(index, view, props.selectedTab)}
                   currentTab={props.selectedTab}
@@ -229,7 +161,7 @@ export const FilterComponent: React.FC<FilterProps> = (props: FilterProps) => {
                 />
               </Grid>
               <Grid item xs={6} style={{ height: "inherit" }}>
-                < TabContent
+                < Tab
                   viewState={props.viewState}
                   filterInspectionCallback={(index, view) => props.filterInspectionCallback(index, view, props.selectedTab)}
                   currentTab={props.selectedTab}
@@ -240,7 +172,7 @@ export const FilterComponent: React.FC<FilterProps> = (props: FilterProps) => {
               </Grid>
             </Grid>)
             : (<Grid item xs={12}>
-              < TabContent
+              < Tab
                 viewState={props.viewState}
                 filterInspectionCallback={(index, view) => props.filterInspectionCallback(index, view, props.selectedTab)}
                 currentTab={props.selectedTab}
@@ -252,10 +184,6 @@ export const FilterComponent: React.FC<FilterProps> = (props: FilterProps) => {
           }
         </Grid>
       </Grid>
-      {/*   <Grid className={classes.download}>
-        <DownloadButton name={"Download Settings"} id={"settings"} />
-        <DownloadButton name={"Download PDF"} id={"pdf"} />
-      </Grid> */}
     </Card>
   );
 };

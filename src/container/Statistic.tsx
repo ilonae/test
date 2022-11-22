@@ -56,14 +56,14 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-type StatisticBoxProps = {
+type StatisticProps = {
   statistic: string,
   relevance: string,
   name: string,
   images: any[],
   amount?: number
 };
-const StatisticBox: React.FC<StatisticBoxProps> = (props: StatisticBoxProps) => {
+const Statistic: React.FC<StatisticProps> = (props: StatisticProps) => {
   const classes = useStyles();
   const [imgState, setImages] = React.useState([]);
 
@@ -90,26 +90,17 @@ const StatisticBox: React.FC<StatisticBoxProps> = (props: StatisticBoxProps) => 
         setImages(statsImages);
       }
     },
-    [props.images,]
-  );
+    [props.images]);
   const statisticWidth = props.amount === 2 ? 6 : props.amount === 4 ? 6 : 4;
   const statistics = (
     <div id={"statistic"} className={classes.box}>
       <div className={classes.flex}>
-        <Typography
-          variant="subtitle1"
-          gutterBottom
-          className={classes.typography}
-        > Class name:
+        <Typography variant="subtitle1" gutterBottom className={classes.typography} > Class name:
         </Typography>
         <Typography variant="subtitle1" gutterBottom>
           {props.name}
         </Typography>
-        <Typography
-          variant="subtitle1"
-          gutterBottom
-          className={classes.typography}
-        > Class relevance:
+        <Typography variant="subtitle1" gutterBottom className={classes.typography} > Class relevance:
         </Typography>
         <Typography variant="subtitle1" gutterBottom>
           {props.relevance}
@@ -124,4 +115,4 @@ const StatisticBox: React.FC<StatisticBoxProps> = (props: StatisticBoxProps) => 
     </Grid>
   );
 };
-export default StatisticBox;
+export default Statistic;

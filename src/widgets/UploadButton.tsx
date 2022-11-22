@@ -1,6 +1,6 @@
 import React from "react";
 import { CTX } from '../Reducer'
-import SocketIOFileUpload from "socketio-file-upload";
+import SocketIOFileUpload from "socketio-file-upload"
 
 type UploadButtonProps = {
   order?: string,
@@ -45,16 +45,8 @@ const UploadButton: React.FC<UploadButtonProps> = ({ parentCallback }) => {
 
   return (
     <div>
-      <input
-        ref={fileRef}
-        type="file"
-        style={{ display: 'none' }}
-      />
-      <input
-        onChange={onChangeHandler}
-        value={textValue}
-        onKeyPress={onKeyPressHandler}
-      />
+      <input ref={fileRef} type="file" style={{ display: 'none' }} />
+      <input onChange={onChangeHandler} value={textValue} onKeyPress={onKeyPressHandler} />
     </div>
   );
 };

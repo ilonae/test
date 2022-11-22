@@ -299,16 +299,11 @@ const FilterBox: React.FC<FilterBoxProps> = (props: FilterBoxProps) => {
                 <Button onClick={() => props.filterInspectionCallback(props.conceptId, 'GRAPHVIEW')}
                 >Show Graph <ChevronRightIcon></ChevronRightIcon>
                 </Button>
-                <Button onClick={() => props.filterInspectionCallback(props.conceptId, 'STATISTICSVIEW')}
-                >
+                <Button onClick={() => props.filterInspectionCallback(props.conceptId, 'STATISTICSVIEW')}>
                   Show Statistics <ChevronRightIcon></ChevronRightIcon>
                 </Button>
               </ButtonGroup>
-              : <ButtonGroup variant="contained" orientation='vertical' className={`${classes.buttonRight}  mb-2`} >
-                {/*     <Button onClick={() => props.filterInspectionCallback(props.conceptId, 'GRAPHVIEW')}>
-                    Show Graph <ChevronRightIcon></ChevronRightIcon>
-                  </Button> */}
-              </ButtonGroup>
+              : <ButtonGroup variant="contained" orientation='vertical' className={`${classes.buttonRight}  mb-2`} />
             }
           </div>
         </div>
@@ -333,8 +328,6 @@ const FilterBox: React.FC<FilterBoxProps> = (props: FilterBoxProps) => {
           <div className={classes.partialText}>
             <var>R<sub>{props.conceptId}</sub>(x|y)</var> = {Math.round(props.relevance * 100 + Number.EPSILON)} %
           </div>
-          <Typography variant="body2" className={classes.italic}>
-          </Typography>
         </div>
         <div className={classes.row} style={{ flexWrap: 'wrap' }} >
           <div className={classes.rowCol}>
@@ -358,17 +351,10 @@ const FilterBox: React.FC<FilterBoxProps> = (props: FilterBoxProps) => {
           {imgState}
         </div>
       </div>
-
     </div>;
 
   return (
-    <Grid
-      item
-      xl={12}
-      lg={12}
-      onDragStart={e => {
-        e.preventDefault();
-      }} >
+    <Grid item xl={12} lg={12} onDragStart={e => { e.preventDefault(); }}>
       {props.viewState === "DASHBOARDVIEW" ? defaultFilter : graphFilter}
     </Grid>
   );

@@ -1,7 +1,6 @@
 import * as React from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import socketIOClient from "socket.io-client";
-import { LandingPage } from './LandingPage';
 import Dashboard from './XAIBoard';
 
 export interface AppProps {
@@ -12,11 +11,7 @@ const socket = socketIOClient('172.17.21.147:5059');
 export const App = (props: AppProps) => (
     <Router basename={props.basename}>
         <Switch>
-            <Route exact path='/'
-                component={(props: { socket: any; }) => <LandingPage socket={socket} {...props} />}
-            ></Route>
-            <Route path='/dashboard'
-                component={(props: { socket: any; }) => <Dashboard socket={socket}  {...props} />} />
+            <Route exact path='/' component={(props: { socket: any; }) => <Dashboard socket={socket} {...props} />} />
         </Switch>
     </Router>
 );

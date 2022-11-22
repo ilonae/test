@@ -61,7 +61,6 @@ const Image: React.FC<ImageProps> = ({ content, getLocalAnalysisCallback, title 
     }
   }, [crop, complete]);
 
-
   const onImageLoaded = (image: HTMLImageElement) => {
     setCrop({
       x: 0,
@@ -82,7 +81,6 @@ const Image: React.FC<ImageProps> = ({ content, getLocalAnalysisCallback, title 
 
   return (
     <Grid item lg={12} md={12} xl={12} xs={12} className={classes.root}>
-      {" "}
       <Typography gutterBottom variant="body2">{title}</Typography>
       <img alt=" " className={classes.crop + " img"} src={content} />
       <ReactCrop

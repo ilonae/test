@@ -4,13 +4,7 @@ import ReactDOMServer from "react-dom/server";
 import Button from "@material-ui/core/Button";
 import DagreGraph from "dagre-d3-react";
 import ArrowBackIosIcon from "@material-ui/icons/ArrowBackIos";
-import {
-  makeStyles,
-  Box,
-  Card,
-  CardContent,
-  Typography
-} from "@material-ui/core";
+import { makeStyles, Box, Card, CardContent, Typography } from "@material-ui/core";
 import Filter from "../container/Filter";
 import * as d3 from "d3";
 
@@ -89,43 +83,6 @@ type NetworkComponentProps = {
   viewState: string;
   viewCallback: (value: any) => void;
 };
-
-
-let data: any = {
-  nodes: [
-    {
-      id: "1",
-      label: "<h3>Node 1</h3>",
-      labelType: "html"
-    },
-    {
-      id: "2",
-      label: "<h3>Node 2</h3>",
-      labelType: "html",
-      config: {
-        style: 'fill: #afa'
-      }
-    }
-  ],
-  links: [
-    {
-      source: '1',
-      target: '2',
-      label: 'TO',
-      config: {
-        curve: d3.curveBasis,
-        arrowheadStyle: "fill: #009374;",
-        labelStyle: "font-family: roboto",
-        style:
-          "font-family: roboto;color: #009374;stroke: #009374;fill: none; stroke-width: " +
-          5 +
-          "px;cursor:pointer"
-
-      }
-    },
-  ]
-}
-
 
 const NetworkComponent: React.FC<NetworkComponentProps> = (props: NetworkComponentProps) => {
   const classes = useStyles();
@@ -206,8 +163,6 @@ const NetworkComponent: React.FC<NetworkComponentProps> = (props: NetworkCompone
       embed.className = "main-content-wrapper";
       const inner = document.createElement("div");
       inner.className = "test";
-      //inner.append({ el => { dynamicContentWrapper = el }});
-      //embed.appendChild(inner)
       content.innerHTML = ReactDOMServer.renderToStaticMarkup(filter);
       props.graph.nodes[node]["label"] = content;
     }
