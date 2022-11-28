@@ -130,6 +130,7 @@ const NetworkComponent: React.FC<NetworkComponentProps> = (props: NetworkCompone
       };
     }
     for (let node = 0; node < props.graph.nodes.length; node++) {
+      //console.log(props.graph.nodes[node]["concept_id"])
       props.graph.nodes[node]["id"] = props.graph.nodes[node]["layer_name"] + ":" + props.graph.nodes[node]["concept_id"]
       props.graph.nodes[node]["labelType"] = "html";
       props.graph.nodes[node]["config"] = { style: "fill: #CCEAE3; cursor:pointer;  height: max-content" };
@@ -140,25 +141,27 @@ const NetworkComponent: React.FC<NetworkComponentProps> = (props: NetworkCompone
       const currNode: string = props.graph.nodes[node].id;
       const currLayer: string = props.graph.nodes[node].layer_name;
       const currFilterIndex = parseInt(currNode.split(":")[1])
+      const currImgs = props.graph.images[currNode]
+      console.log(props.graph.images)
+      console.log(currNode)
+      //console.log(props.graph.nodes[node]["concept_id"])
 
       const filter = (
         <Filter
           viewState={props.viewState}
           filterName={""}
           conditionalHeatmap={""}
-          activation={[]}
-          images={props.graph.images["concept_id"]}
+          activation={currImgs}
+          images={currImgs}
           conceptId={currFilterIndex}
           key={currNode}
           layer={currLayer}
-          filterImgSize={28}
+          filterImgSize={156}
           filterInspectionCallback={() => console.log("hi")}
           currentTab={"test"}
         />
       );
-      console.log(props.graph.images)
-      delete props.graph.nodes[node]["layer_name"];
-      delete props.graph.nodes[node]["concept_id"];
+      console.log(currImgs)
       const embed = document.createElement("div");
       embed.className = "main-content-wrapper";
       const inner = document.createElement("div");
@@ -171,11 +174,15 @@ const NetworkComponent: React.FC<NetworkComponentProps> = (props: NetworkCompone
 
   React.useEffect(
     () => {
-      if (props.graph.nodes.length) {
+      if (props.graph.nodes.length && (Object.keys(props.graph.images).length == Object.keys(props.graph.heatmaps).length)) {
+        console.log(Object.keys(props.graph.images))
+        console.log(Object.keys(props.graph.heatmaps))
+        console.log(props.graph.nodes)
         createGraph();
       }
     },
-    [props.graph.nodes]);
+    [props.graph.nodes, Object.keys(props.graph.images), Object.keys(props.graph.heatmaps)]);
+
 
   React.useEffect(() => {
     if (document.querySelector(".test")) {

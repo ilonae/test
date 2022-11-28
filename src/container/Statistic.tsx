@@ -2,7 +2,7 @@ import React from "react";
 import { Grid, Typography, makeStyles, Container } from "@material-ui/core";
 const useStyles = makeStyles(() => ({
 
-  image: () => ({
+  image: {
     border: "1px solid #555",
     verticalAlign: "middle",
     width: "100%",
@@ -10,11 +10,17 @@ const useStyles = makeStyles(() => ({
     display: "block",
     filter: "blur(0)",
     imageRendering: "crisp-edges",
-    transform: "translateZ(0)"
-  }),
+    transform: "translateZ(0)",
+    backgroundImage: "linear-gradient(45deg, #ffffff 40%, #000000 40%, #000000 50%, #ffffff 50%, #ffffff 90%, #000000 90%, #000000 100%)"
+  },
+  row: {
+    display: "inherit",
+    minWidth: "50%",
+    justifyContent: "center",
+    gap: "10%"
+  },
   typography: {
     wordWrap: "break-word",
-    height: "10%",
     fontWeight: "bold",
     display: "flex",
     flexDirection: "column"
@@ -27,8 +33,9 @@ const useStyles = makeStyles(() => ({
     height: "80%",
     width: "80%",
     display: "grid",
-    gridGap: '10px',
-    gridTemplate: "repeat(3, 1fr) / repeat(3, 1fr)",
+    gridGap: '5px',
+    gridTemplateColumns: "repeat(6,1fr)",  /* 3 columns */
+    //gridTemplate: "repeat(6, 1fr) / repeat(6, 1fr)",
     margin: "0 auto"
   },
   test: {
@@ -42,15 +49,15 @@ const useStyles = makeStyles(() => ({
     minWidth: "0"
   },
   box: {
-    marginTop: "2em",
-    textAlign: "center"
+    margin: "2em",
+    padding: "2em",
+    textAlign: "center",
+    marginBottom: "2em",
+    backgroundColor: "#CCEAE3"
   },
   flex: {
-    display: "grid",
-    width: "80%",
-    margin: "0 auto",
-    gridTemplateColumns: "40fr 60fr",
-    gap: "10px",
+    display: "flex",
+    flexFlow: "row",
     padding: "2em",
     paddingBottom: "0"
   }
@@ -61,52 +68,66 @@ type StatisticProps = {
   relevance: string,
   name: string,
   images: any[],
-  amount?: number
+  heatmaps: any[]
 };
 const Statistic: React.FC<StatisticProps> = (props: StatisticProps) => {
   const classes = useStyles();
   const [imgState, setImages] = React.useState([]);
+  const [heatmapState, setHeatmaps] = React.useState([]);
 
-  const makeImages = (imageStyle: string, name: string, containerStyle: string) => {
-    let statisticsImages = Array();
-    for (let i = 0; i < props.images.length; i++) {
-      const img = `data:image/png;base64,${props.images[i]}`;
-      statisticsImages.push(
+  const makeImages = (name: string, imgs: any) => {
+    let imgArray = Array();
+    for (let i = 0; i < imgs.length; i++) {
+      const img = `data:image/png;base64,${imgs[i]}`;
+      imgArray.push(
         <Container
-          className={containerStyle}
+          className={classes.test}
           key={`${name}_image_index${i}`}
         >
-          <img src={img} className={imageStyle} id={"image"} alt="" />
+          <img src={img} className={classes.image} id={"image"} alt="" />
         </Container>
       );
     }
-    return statisticsImages;
+    return imgArray;
   };
   React.useEffect(
     () => {
       if (props.images) {
         console.log("stat!")
-        let statsImages = makeImages(classes.image, props.name, classes.test);
+        let statsImages = makeImages(props.name, props.images);
         setImages(statsImages);
       }
     },
     [props.images]);
-  const statisticWidth = props.amount === 2 ? 6 : props.amount === 4 ? 6 : 4;
+  React.useEffect(
+    () => {
+      if (props.heatmaps) {
+        let statsHeatmaps = makeImages(props.name, props.heatmaps);
+        setHeatmaps(statsHeatmaps);
+      }
+    },
+    [props.heatmaps]);
+  const statisticWidth = 6;
   const statistics = (
     <div id={"statistic"} className={classes.box}>
       <div className={classes.flex}>
-        <Typography variant="subtitle1" gutterBottom className={classes.typography} > Class name:
-        </Typography>
-        <Typography variant="subtitle1" gutterBottom>
-          {props.name}
-        </Typography>
-        <Typography variant="subtitle1" gutterBottom className={classes.typography} > Class relevance:
-        </Typography>
-        <Typography variant="subtitle1" gutterBottom>
-          {props.relevance}
-        </Typography>
+        <div className={classes.row}>
+          <Typography variant="subtitle1" gutterBottom className={classes.typography} > Class name:
+          </Typography>
+          <Typography variant="subtitle1" gutterBottom>
+            {props.name}
+          </Typography>
+        </div>
+        <div className={classes.row}>
+          <Typography variant="subtitle1" gutterBottom className={classes.typography} > Class relevance:
+          </Typography>
+          <Typography variant="subtitle1" gutterBottom>
+            {Math.round(parseFloat(props.relevance) * 100 + Number.EPSILON)} %
+          </Typography>
+        </div>
       </div>
       <div className={classes.height}>{imgState}</div>
+      <div className={classes.height}>{heatmapState}</div>
     </div>
   );
   return (

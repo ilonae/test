@@ -179,7 +179,6 @@ const useStyles = makeStyles(() => ({
   }
 }));
 type FilterBoxProps = {
-  reference?: string,
   viewState?: string,
   relevance?: number,
   conceptId?: number,
@@ -198,13 +197,12 @@ const FilterBox: React.FC<FilterBoxProps> = (props: FilterBoxProps) => {
   const [conditionalState, setConditionalState] = React.useState([]);
   const [actState, setActivations] = React.useState([]);
   const [imgState, setImages] = React.useState([]);
-  const inputRef = React.useRef();
 
 
   if (props.images) {
-    imageSize = props.images.length === 9 ? 4 : 12;
+    imageSize = 9
   }
-  const createFilterImgs = React.useCallback((images, stateToSet, reference, classes) => {
+  const createFilterImgs = React.useCallback((images, stateToSet, classes) => {
     const filterImages = [];
     if (images instanceof Array) {
       for (let i = 0; i < images.length; i++) {
@@ -213,7 +211,7 @@ const FilterBox: React.FC<FilterBoxProps> = (props: FilterBoxProps) => {
           <img
             src={img}
             className={classes.image}
-            key={`${reference}_image_index${i}`}
+            key={`image_index${i}`}
             alt=""
           />
         );
@@ -224,24 +222,26 @@ const FilterBox: React.FC<FilterBoxProps> = (props: FilterBoxProps) => {
         <img
           src={img}
           className={classes.margins}
-          key={`${reference}_image`}
+          key={`image`}
           alt=""
         />
       );
     }
     return stateToSet(filterImages);
-  }, [classes.image, classes.margins, props.reference]);
+  }, [classes.image, classes.margins]);
 
   React.useEffect(
     () => {
       if (props.activation && props.filterImgSize) {
-        createFilterImgs(props.activation, setActivations, props.reference, classes);
+        createFilterImgs(props.activation, setActivations, classes);
       }
       if (props.conditionalHeatmap) {
-        createFilterImgs(props.conditionalHeatmap, setConditionalState, props.reference, classes);
+        console.log("cond received")
+        createFilterImgs(props.conditionalHeatmap, setConditionalState, classes);
       }
       if (props.images) {
-        createFilterImgs(props.images, setImages, props.reference, classes);
+        console.log("imgs receive")
+        createFilterImgs(props.images, setImages, classes);
       }
     },
     [
@@ -249,14 +249,14 @@ const FilterBox: React.FC<FilterBoxProps> = (props: FilterBoxProps) => {
       props.conditionalHeatmap,
       props.images,
       classes.image,
-      props.reference,
       props.filterImgSize,
       imageSize
     ]
   );
 
+
   const defaultFilter =
-    <div className={`${classes.row}  filters`} ref={inputRef}>
+    <div className={`${classes.row}  filters`} >
       <div className={(props.relevance >= 0 || props.layer) ? classes.positive : classes.negative + " filter"} >
         <div className={classes.row} >
           {props.filterName ? <Typography variant="body2" >
@@ -310,48 +310,35 @@ const FilterBox: React.FC<FilterBoxProps> = (props: FilterBoxProps) => {
       </div >
     </div>;
   const graphFilter =
-    <div className={`${classes.positive} ${classes.filters}  filters`} >
-      <div className={classes.tablerow + " filter"} >
-        <Typography className={classes.leftfloat} variant="body1" >
-          Layer : {props.layer}
-        </Typography>
-        <Typography className={classes.leftfloat} variant="body1" style={{ marginLeft: 20 }}>
-          Concept ID : {props.conceptId}
-        </Typography >
-        {props.filterName ?
-          <Typography variant="body1" > Filter name : {props.filterName} </Typography>
-          : null}
+
+    <div className={`${classes.row}  filters`} >
+      <div className={classes.positive + " filter"} >
+        <div className={classes.row}>
+          <div className={classes.analysis}>
+            <Typography variant="body2">
+              Concept ID: {props.conceptId}
+            </Typography>
+            {conditionalState}
+          </div>
+          <div className={classes.row} style={{ flexWrap: 'wrap' }} >
+            <div className={classes.rowCol}>
+              <Typography className={classes.smallText}  >
+                {"R(x|\u03B8)=" + props.conceptId}</Typography>
+              <div className={classes.images}  >
+                {actState}
+              </div>
+            </div>
+            <div className={classes.rowCol}>
+              <Typography className={classes.smallText} >Sample</Typography>
+              <div className={classes.images}  >
+                {imgState}
+              </div>
+            </div>
+          </div>
+        </div>
       </div >
-      <div className={classes.row}>
-        <div className={classes.analysis}>
-          {conditionalState}
-          <div className={classes.partialText}>
-            <var>R<sub>{props.conceptId}</sub>(x|y)</var> = {Math.round(props.relevance * 100 + Number.EPSILON)} %
-          </div>
-        </div>
-        <div className={classes.row} style={{ flexWrap: 'wrap' }} >
-          <div className={classes.rowCol}>
-            <Typography className={classes.smallText}  >
-              {"R(x|\u03B8)=" + props.conceptId}</Typography>
-            <div className={classes.images}  >
-              {actState}
-            </div>
-          </div>
-          <div className={classes.rowCol}>
-            <Typography className={classes.smallText} >Sample</Typography>
-            <div className={classes.images}  >
-              {imgState}
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className={classes.tablerow}>
-        <Typography className={classes.smallText} >Sample</Typography>
-        <div className={classes.imagesGraph}  >
-          {imgState}
-        </div>
-      </div>
     </div>;
+
 
   return (
     <Grid item xl={12} lg={12} onDragStart={e => { e.preventDefault(); }}>

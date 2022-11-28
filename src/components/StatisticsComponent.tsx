@@ -110,8 +110,8 @@ const StatisticsComponent: React.FC<StatisticsComponentProps> = (props: Statisti
               name={props.statistics.classNames[key]}
               relevance={props.statistics.classRelevances[key]}
               images={props.statistics.images[key]}
+              heatmaps={props.statistics.heatmaps[key]}
               key={`statistic_${key}`}
-              amount={Object.keys(props.statistics.classRelevances).length}
             />
           );
         })
