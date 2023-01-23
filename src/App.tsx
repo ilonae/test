@@ -6,7 +6,7 @@ import Dashboard from './XAIBoard';
 export interface AppProps {
     basename: string;
 }
-const socket = socketIOClient('172.17.21.147:5059');
+const socket = socketIOClient('172.16.21.147:5059');
 
 export const App = (props: AppProps) => (
     <Router basename={props.basename}>
