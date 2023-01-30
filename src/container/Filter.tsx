@@ -236,11 +236,9 @@ const FilterBox: React.FC<FilterBoxProps> = (props: FilterBoxProps) => {
         createFilterImgs(props.activation, setActivations, classes);
       }
       if (props.conditionalHeatmap) {
-        console.log("cond received")
         createFilterImgs(props.conditionalHeatmap, setConditionalState, classes);
       }
       if (props.images) {
-        console.log("imgs receive")
         createFilterImgs(props.images, setImages, classes);
       }
     },
