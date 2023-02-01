@@ -15,6 +15,10 @@ const useStyles = makeStyles(() => ({
     flexDirection: "row",
     width: "100%"
   },
+  content: {
+    display: "flex",
+    maxWidth: "max-content"
+  },
   nodes: {
     fill: "darkgray"
   },
@@ -116,11 +120,11 @@ const NetworkComponent: React.FC<NetworkComponentProps> = (props: NetworkCompone
   }
 
   async function createGraph() {
-    console.log(props.graph)
+    //console.log(props.graph)
     for (const link in props.graph.links) {
       props.graph.links[link]["label"] = Math.round(props.graph.links[link].value * 100 + Number.EPSILON) + "%"
       //props.graph.links[link]["class"] = "contrib_id_" + link;
-      delete props.graph.links[link]["value"];
+      //delete props.graph.links[link]["value"];
       props.graph.links[link]["config"] = {
         curve: d3.curveBasis,
         arrowheadStyle: "fill: #009374;",
@@ -131,13 +135,11 @@ const NetworkComponent: React.FC<NetworkComponentProps> = (props: NetworkCompone
     }
     for (let node = 0; node < props.graph.nodes.length; node++) {
       //console.log(props.graph.nodes[node]["concept_id"])
-      props.graph.nodes[node]["id"] = props.graph.nodes[node]["layer_name"] + ":" + props.graph.nodes[node]["concept_id"]
+      //props.graph.nodes[node]["id"] = props.graph.nodes[node]["layer_name"] + ":" + props.graph.nodes[node]["concept_id"]
       props.graph.nodes[node]["labelType"] = "html";
-      props.graph.nodes[node]["config"] = { style: "fill: #CCEAE3; cursor:pointer;  height: max-content" };
-      props.graph.nodes[node].class = "";
+      //props.graph.nodes[node]["config"] = { style: "fill: #CCEAE3; cursor:pointer;  height: 300px; width:300px" };
+      //props.graph.nodes[node].class = "";
       content = document.createElement("div");
-      var imgs = document.createElement("div");
-      imgs.setAttribute("class", classes.imagecontainer);
       const currNode: string = props.graph.nodes[node].id;
       const currLayer: string = props.graph.nodes[node].layer_name;
       const currFilterIndex = parseInt(currNode.split(":")[1])
@@ -162,11 +164,8 @@ const NetworkComponent: React.FC<NetworkComponentProps> = (props: NetworkCompone
         />
       );
       console.log(currImgs)
-      const embed = document.createElement("div");
-      embed.className = "main-content-wrapper";
-      const inner = document.createElement("div");
-      inner.className = "test";
       content.innerHTML = ReactDOMServer.renderToStaticMarkup(filter);
+      content.className = classes.content;
       props.graph.nodes[node]["label"] = content;
     }
     setGraphState(props.graph)
@@ -177,7 +176,7 @@ const NetworkComponent: React.FC<NetworkComponentProps> = (props: NetworkCompone
       if (props.graph.nodes.length && (Object.keys(props.graph.images).length == Object.keys(props.graph.heatmaps).length)) {
         console.log(Object.keys(props.graph.images))
         console.log(Object.keys(props.graph.heatmaps))
-        console.log(props.graph.nodes)
+        console.log(props.graph.links)
         createGraph();
       }
     },

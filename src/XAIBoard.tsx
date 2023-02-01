@@ -141,6 +141,7 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
   });
   const [statisticsData, setStatisticsData] = React.useState<statisticsProps>({
     images: {},
+    targets: [],
     heatmaps: {},
     classNames: {},
     classRelevances: {},
@@ -435,6 +436,7 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
       });
 
       props.socket.once('receive_statistics', (data: any) => {
+        console.log("receive_statistics")
 
         setJobIdsReceived(prevState => new Set(prevState).add(String(data.job_id)));
         let relevances: any = {}
@@ -447,6 +449,7 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
         setStatisticsData((statisticsData: any) => ({
           ...statisticsData,
           classRelevances: relevances,
+          targets: data.targets,
           classNames: classNames
         }));
         setLayerInfo((layerInfo: any) => ({
@@ -455,46 +458,39 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
         }))
       });
 
-      props.socket.once('receive_stats_realistic', (dict: any, data: any) => {
+      props.socket.once('receive_stats_reference', (realisticDict: any, heatmapDict: any, data: any) => {
         setJobIdsReceived(prevState => new Set(prevState).add(String(data.job_id)));
-        let imgArr: any[] = []
-        for (let item in dict) {
+        let realisticImgArr: any[] = []
+        let heatmapImgArr: any[] = []
+        for (let item in realisticDict) {
           var binary = '';
-          var bytes = new Uint8Array(dict[item]);
+          var bytes = new Uint8Array(realisticDict[item]);
           var len = bytes.byteLength;
           for (var i = 0; i < len; i++) {
             binary += String.fromCharCode(bytes[i]);
           }
-          imgArr.push(window.btoa(binary));
+          realisticImgArr.push(window.btoa(binary));
+        }
+
+        for (let item in heatmapDict) {
+          var binary = '';
+          var bytes = new Uint8Array(heatmapDict[item]);
+          var len = bytes.byteLength;
+          for (var i = 0; i < len; i++) {
+            binary += String.fromCharCode(bytes[i]);
+          }
+          heatmapImgArr.push(window.btoa(binary));
         }
 
         setStatisticsData((statisticsData: any) => ({
           ...statisticsData,
           images: {
             ...statisticsData.images,
-            [data.target]: imgArr
-          }
-        }));
-      });
-
-      props.socket.once('receive_stats_heatmaps', (dict: any, data: any) => {
-        setJobIdsReceived(prevState => new Set(prevState).add(String(data.job_id)));
-        let heatmapArr: any[] = []
-        for (let item in dict) {
-          var binary = '';
-          var bytes = new Uint8Array(dict[item]);
-          var len = bytes.byteLength;
-          for (var i = 0; i < len; i++) {
-            binary += String.fromCharCode(bytes[i]);
-          }
-          heatmapArr.push(window.btoa(binary));
-        }
-
-        setStatisticsData((statisticsData: any) => ({
-          ...statisticsData,
+            [data.target]: realisticImgArr
+          },
           heatmaps: {
             ...statisticsData.heatmaps,
-            [data.target]: heatmapArr
+            [data.target]: heatmapImgArr
           }
         }));
       });
@@ -612,43 +608,30 @@ export const XAIBoard: React.FC<XAIBoardProps> = (props: XAIBoardProps) => {
   }, [jobIdsSent])
 
   React.useEffect(() => {
-    if (layerInfo.statsUpdate == true && Object.keys(statisticsData.classRelevances).length) {
+    if (layerInfo.statsUpdate === true && Object.keys(statisticsData.classRelevances).length) {
       let newJobIds = new Set()
-      let statsRealisticHash: string, statsHeatmapHash: string
-      for (let i = 0; i < Object.keys(statisticsData.classRelevances).length; i++) {
-        statsRealisticHash = Math.random().toString(36).slice(2)
-        statsHeatmapHash = Math.random().toString(36).slice(2)
-        props.socket.emit("vis_stats_realistic", {
+      let statsImgHash: string
+      for (let i = 0; i < statisticsData.targets.length; i++) {
+        statsImgHash = Math.random().toString(36).slice(2)
+        props.socket.emit("vis_stats_reference", {
           "experiment": layerInfo.experiment,
           "layer": layerInfo.singleLayer,
           "concept_id": Number(layerInfo.conceptId),
           "mode": layerInfo.currentAnalysis,
+          "method": layerInfo.method,
           "size": filterImgSize + 100,
           "range": "0:6",
-          "target": Object.keys(statisticsData.classRelevances)[i],
-          "job_id": statsRealisticHash
-        }),
-          props.socket.emit("vis_stats_heatmaps", {
-            "experiment": layerInfo.experiment,
-            "layer": layerInfo.singleLayer,
-            "concept_id": Number(layerInfo.conceptId),
-            "mode": layerInfo.currentAnalysis,
-            "size": filterImgSize + 100,
-            "range": "0:6",
-            "target": Object.keys(statisticsData.classRelevances)[i],
-            "method": layerInfo.method,
-            "job_id": statsHeatmapHash
-          })
-        newJobIds.add(statsHeatmapHash)
-        newJobIds.add(statsRealisticHash)
+          "target": statisticsData.targets[i],
+          "job_id": statsImgHash,
+          "plot_mode": "image and heatmap",
+          "rf": true
+        })
+        newJobIds.add(statsImgHash)
       }
       setJobIdsSent(newJobIds)
-      setLayerInfo((layerInfo: any) => ({
-        ...layerInfo,
-        statsUpdate: false
-      }));
+
     }
-  }, [layerInfo.statsUpdate, Object.keys(statisticsData.classRelevances).length])
+  }, [layerInfo.statsUpdate])
 
   const updateFilters = (setGraph: boolean = false) => {
     if (setGraph) {

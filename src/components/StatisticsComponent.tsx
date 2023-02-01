@@ -74,6 +74,7 @@ interface statisticsProps {
   images: {
     [key: string]: any[]
   },
+  targets: any[],
   heatmaps: {
     [key: string]: any[]
   },
